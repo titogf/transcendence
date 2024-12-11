@@ -1,0 +1,50 @@
+/* Estilos generales */
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background-color: #1e1e1e;
+    color: #ffffff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+/* Contenedor principal */
+.container {
+    text-align: center;
+}
+
+h1 {
+    font-size: 2.5em;
+    color: #00d9ff;
+}
+
+.logo {
+    width: 150px;
+    margin: 20px 0;
+}
+
+/* Botón de inicio */
+button {
+    background-color: #00d9ff;
+    color: #1e1e1e;
+    padding: 10px 20px;
+    font-size: 1em;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+button:hover {
+    background-color: #00a6c4;
+}
+
+/* Canvas del juego */
+canvas {
+    display: none; /* Oculto hasta que el juego inicie */
+    background-color: #000;
+    border: 2px solid #00d9ff;
+    margin-top: 20px;
+}

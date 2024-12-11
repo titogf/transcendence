@@ -1,0 +1,20 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Juego Pong</title>
+    <link rel="stylesheet" href="{% static 'myapp/css/styles.css' %}">
+</head>
+<body>
+    <div class="container">
+        <h1>Bienvenido al Juego Pong</h1>
+        <img src="{% static 'myapp/images/pong_logo.png' %}" alt="Pong Logo" class="logo">
+        <p>Haz clic en "Iniciar Juego" para jugar al Pong.</p>
+        <button id="startButton">Iniciar Juego</button>
+        <canvas id="pongCanvas" width="600" height="400"></canvas>
+    </div>
+    <script src="{% static 'myapp/js/pong.js' %}"></script>
+</body>
+</html>
