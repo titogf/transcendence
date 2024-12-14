@@ -1,19 +1,21 @@
 {% load static %}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Juego Pong</title>
+    <title>Pong Game</title>
     <link rel="stylesheet" href="{% static 'myapp/css/styles.css' %}">
 </head>
 <body>
     <div class="container">
-        <h1>Bienvenido al Juego Pong</h1>
-        <img src="{% static 'myapp/images/pong_logo.png' %}" alt="Pong Logo" class="logo">
-        <p>Haz clic en "Iniciar Juego" para jugar al Pong.</p>
-        <button id="startButton">Iniciar Juego</button>
-        <canvas id="pongCanvas" width="600" height="400"></canvas>
+        <h1>Juego Pong</h1>
+        <div id="scoreboard" style="display: none;">
+            <span id="player1-score">0</span> - <span id="player2-score">0</span>
+        </div>
+        <canvas id="pongCanvas" width="800" height="400" style="display: none;"></canvas>
+        <!-- Botón de inicio -->
+        <button id="start-button" onclick="startGame()">Iniciar Juego</button>
     </div>
     <script src="{% static 'myapp/js/pong.js' %}"></script>
 </body>

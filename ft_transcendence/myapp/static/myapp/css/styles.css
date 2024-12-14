@@ -5,27 +5,32 @@ body {
     background-color: #1e1e1e;
     color: #ffffff;
     display: flex;
-    justify-content: center;
+    flex-direction: column;
     align-items: center;
+    justify-content: center;
     height: 100vh;
-}
-
-/* Contenedor principal */
-.container {
     text-align: center;
 }
 
 h1 {
     font-size: 2.5em;
     color: #00d9ff;
+    margin-bottom: 10px;
 }
 
-.logo {
-    width: 150px;
-    margin: 20px 0;
+#scoreboard {
+    font-size: 1.5em;
+    margin-bottom: 10px;
+    font-weight: bold;
+    color: #ffffff;
 }
 
-/* Botón de inicio */
+canvas {
+    background-color: #000;
+    border: 2px solid #00d9ff;
+    margin-top: 10px;
+}
+
 button {
     background-color: #00d9ff;
     color: #1e1e1e;
@@ -35,16 +40,21 @@ button {
     border-radius: 5px;
     cursor: pointer;
     transition: background-color 0.3s ease;
+    margin-top: 10px;
 }
 
 button:hover {
     background-color: #00a6c4;
 }
 
-/* Canvas del juego */
-canvas {
-    display: none; /* Oculto hasta que el juego inicie */
-    background-color: #000;
-    border: 2px solid #00d9ff;
+/* Mensaje de victoria */
+#game-over {
     margin-top: 20px;
 }
+
+#game-over h2 {
+    font-size: 2em;
+    color: #00ff99;
+    margin-bottom: 20px;
+}
+
