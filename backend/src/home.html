@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pong Game</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Juego Pong</h1>
+        <div id="scoreboard" style="display: none;">
+            <span id="player1-score">0</span> - <span id="player2-score">0</span>
+        </div>
+        <canvas id="pongCanvas" width="800" height="400" style="display: none;"></canvas>
+        <!-- Botón de inicio (sin inline onclick) -->
+        <button id="start-button">Iniciar Juego</button>
+    </div>
+
+    <!-- Asegúrate de que pong.ts ha sido compilado a pong.js -->
+    <script src="pong.js" defer></script>
+</body>
+</html>
