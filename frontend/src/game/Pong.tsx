@@ -1,156 +1,145 @@
-import React, { useRef, useState, useEffect } from "react";
+import React, { useRef, useEffect, useState } from "react";
 import "./pong.css";
 
 const Pong: React.FC = () => {
-  const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const [gameStarted, setGameStarted] = useState(false);
-  const [player1Y, setPlayer1Y] = useState(150);
-  const [player2Y, setPlayer2Y] = useState(150);
-  const [ballX, setBallX] = useState(400);
-  const [ballY, setBallY] = useState(200);
-  const [ballSpeedX, setBallSpeedX] = useState(10);
-  const [ballSpeedY, setBallSpeedY] = useState(6);
-  const [player1Score, setPlayer1Score] = useState(0);
-  const [player2Score, setPlayer2Score] = useState(0);
+    const canvasRef = useRef<HTMLCanvasElement | null>(null);
+    const [gameStarted, setGameStarted] = useState(false);
+    const [player1Score, setPlayer1Score] = useState(0);
+    const [player2Score, setPlayer2Score] = useState(0);
+    const [winner, setWinner] = useState<string | null>(null);
 
-  const [wKeyPressed, setWKeyPressed] = useState(false);
-  const [sKeyPressed, setSKeyPressed] = useState(false);
-  const [upKeyPressed, setUpKeyPressed] = useState(false);
-  const [downKeyPressed, setDownKeyPressed] = useState(false);
-
-  const paddleWidth = 10;
-  const paddleHeight = 100;
-  const ballRadius = 10;
-
-  useEffect(() => {
-    if (!gameStarted) return;
-
-    const canvas = canvasRef.current;
-    const ctx = canvas?.getContext("2d");
-
-    if (!canvas || !ctx) return;
-
-    const drawEverything = () => {
-      ctx.fillStyle = "black";
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-      ctx.fillStyle = "#00d9ff";
-      ctx.fillRect(0, player1Y, paddleWidth, paddleHeight);
-      ctx.fillRect(canvas.width - paddleWidth, player2Y, paddleWidth, paddleHeight);
-
-      ctx.beginPath();
-      ctx.arc(ballX, ballY, ballRadius, 0, Math.PI * 2, false);
-      ctx.fill();
-    };
-
-    const moveBall = () => {
-      setBallX((prevX) => prevX + ballSpeedX);
-      setBallY((prevY) => prevY + ballSpeedY);
-
-      if (ballY < 0 || ballY > canvas.height) setBallSpeedY(-ballSpeedY);
-      if (ballX < 0 || ballX > canvas.width) setBallSpeedX(-ballSpeedX);
-    };
-
-    const movePaddles = () => {
-      if (wKeyPressed && player1Y > 0) setPlayer1Y((prev) => prev - 10);
-      if (sKeyPressed && player1Y < canvas.height - paddleHeight) setPlayer1Y((prev) => prev + 10);
-      if (upKeyPressed && player2Y > 0) setPlayer2Y((prev) => prev - 10);
-      if (downKeyPressed && player2Y < canvas.height - paddleHeight) setPlayer2Y((prev) => prev + 10);
-    };
-
-    const checkCollision = () => {
-      if (ballX - ballRadius < paddleWidth && ballY > player1Y && ballY < player1Y + paddleHeight) {
-        setBallSpeedX(-ballSpeedX);
-      }
-      if (ballX + ballRadius > canvas.width - paddleWidth && ballY > player2Y && ballY < player2Y + paddleHeight) {
-        setBallSpeedX(-ballSpeedX);
-      }
-    };
-
-    const updateScore = () => {
-      if (ballX < 0) {
-        setPlayer2Score((prev) => prev + 1);
-        resetBall();
-      }
-      if (ballX > canvas.width) {
-        setPlayer1Score((prev) => prev + 1);
-        resetBall();
-      }
-    };
-
-    const resetBall = () => {
-      setBallX(400); // Centra la bola en el medio del canvas
-      setBallY(200); // Centra la bola en el medio del canvas
+    const paddleWidth = 10, paddleHeight = 100, ballRadius = 10;
+    let player1Y = 150, player2Y = 150;
+    let ballX = 400, ballY = 200, ballSpeedX = 8, ballSpeedY = 5;
+    let wKeyPressed = false, sKeyPressed = false, upKeyPressed = false, downKeyPressed = false;
     
-      // Deberíamos usar una actualización en función del estado anterior para ballSpeedX y ballSpeedY
-      setBallSpeedX(prevSpeedX => (Math.random() < 0.5 ? 1 : -1) * 4);
-      setBallSpeedY(prevSpeedY => (Math.random() < 0.5 ? 1 : -1) * 2);
-    };
-    
-    
+    useEffect(() => {
+        if (!gameStarted || winner) return;
 
-    const showWinner = () => {
-      setGameStarted(false);
-      alert(`¡${player1Score === 5 ? "Jugador 1" : "Jugador 2"} ha ganado!`);
-    };
+        const canvas = canvasRef.current;
+        if (!canvas) return;
+        const ctx = canvas.getContext("2d");
+        if (!ctx) return;
 
-    const gameLoop = () => {
-      if (!gameStarted) return;
-      drawEverything();
-      moveBall();
-      movePaddles();
-      checkCollision();
-      updateScore();
+        const handleKeyDown = (event: KeyboardEvent) => {
+            if (event.key === "w") wKeyPressed = true;
+            if (event.key === "s") sKeyPressed = true;
+            if (event.key === "ArrowUp") {upKeyPressed = true; event.preventDefault();}
+            if (event.key === "ArrowDown") {downKeyPressed = true; event.preventDefault();}
+        };
 
-      if (player1Score === 5 || player2Score === 5) {
-        showWinner();
-      } else {
-        requestAnimationFrame(gameLoop);
+        const handleKeyUp = (event: KeyboardEvent) => {
+            if (event.key === "w") wKeyPressed = false;
+            if (event.key === "s") sKeyPressed = false;
+            if (event.key === "ArrowUp") {upKeyPressed = false; event.preventDefault();}
+            if (event.key === "ArrowDown") {downKeyPressed = false; event.preventDefault();}
+        };
+
+        window.addEventListener("keydown", handleKeyDown);
+        window.addEventListener("keyup", handleKeyUp);
+
+        const gameLoop = () => {
+            if (!gameStarted || winner) return;
+
+            ctx.fillStyle = "black";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            ctx.fillStyle = "#00d9ff";
+            ctx.fillRect(0, player1Y, paddleWidth, paddleHeight);
+            ctx.fillRect(canvas.width - paddleWidth, player2Y, paddleWidth, paddleHeight);
+
+            ctx.beginPath();
+            ctx.arc(ballX, ballY, ballRadius, 0, Math.PI * 2);
+            ctx.fill();
+
+            if (wKeyPressed && player1Y > 0) player1Y -= 10;
+            if (sKeyPressed && player1Y < canvas.height - paddleHeight) player1Y += 10;
+            if (upKeyPressed && player2Y > 0) player2Y -= 10;
+            if (downKeyPressed && player2Y < canvas.height - paddleHeight) player2Y += 10;
+
+            ballX += ballSpeedX;
+            ballY += ballSpeedY;
+
+            if (ballY < 0 || ballY > canvas.height) ballSpeedY = -ballSpeedY;
+
+            if (ballX - ballRadius < paddleWidth && ballY > player1Y && ballY < player1Y + paddleHeight) {
+                ballSpeedX = -ballSpeedX;
+            }
+            if (ballX + ballRadius > canvas.width - paddleWidth && ballY > player2Y && ballY < player2Y + paddleHeight) {
+                ballSpeedX = -ballSpeedX;
+            }
+
+            if (ballX < 0) {
+                setPlayer2Score(prev => prev + 1);
+                resetBall();
+            }
+            if (ballX > canvas.width) {
+                setPlayer1Score(prev => prev + 1);
+                resetBall();
+            }
+
+            if (player1Score === 5 || player2Score === 5) {
+              setWinner(player1Score === 5 ? "Jugador 1" : "Jugador 2");
+              setGameStarted(false); // Detener el juego
+              return;
+            }
+
+            requestAnimationFrame(gameLoop);
+        };
+
+        const resetBall = () => {
+            ballX = canvas.width / 2;
+            ballY = canvas.height / 2;
+            ballSpeedX = -ballSpeedX;
+            ballSpeedY = 5;
+        };
+
+        if (gameStarted && !winner)
+          gameLoop();
+
+        return () => {
+            window.removeEventListener("keydown", handleKeyDown);
+            window.removeEventListener("keyup", handleKeyUp);
+        };
+    }, [gameStarted, winner]);
+
+    useEffect(() => {
+      if (player1Score === 5) {
+          setWinner("Jugador 1");
+          setGameStarted(false);
+      } else if (player2Score === 5) {
+          setWinner("Jugador 2");
+          setGameStarted(false);
       }
-    };
-
-    requestAnimationFrame(gameLoop);
-  }, [gameStarted, ballX, ballY, ballSpeedX, ballSpeedY, player1Y, player2Y, player1Score, player2Score]);
-
-  useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "w") setWKeyPressed(true);
-      if (event.key === "s") setSKeyPressed(true);
-      if (event.key === "ArrowUp") setUpKeyPressed(true);
-      if (event.key === "ArrowDown") setDownKeyPressed(true);
-    };
-
-    const handleKeyUp = (event: KeyboardEvent) => {
-      if (event.key === "w") setWKeyPressed(false);
-      if (event.key === "s") setSKeyPressed(false);
-      if (event.key === "ArrowUp") setUpKeyPressed(false);
-      if (event.key === "ArrowDown") setDownKeyPressed(false);
-    };
-
-    window.addEventListener("keydown", handleKeyDown);
-    window.addEventListener("keyup", handleKeyUp);
-    return () => {
-      window.removeEventListener("keydown", handleKeyDown);
-      window.removeEventListener("keyup", handleKeyUp);
-    };
-  }, []);
-
-  const startGame = () => {
-    setGameStarted(true);
-    setPlayer1Score(0);
-    setPlayer2Score(0);
-    resetBall();
-  };
-
-  return (
-    <div className="pong-container">
-      <canvas ref={canvasRef} width="800" height="400" className="pong-canvas"></canvas>
-      {!gameStarted && <button onClick={startGame}>Iniciar Juego</button>}
-      <div className="scoreboard">
-        <span>Jugador 1: {player1Score}</span> - <span>Jugador 2: {player2Score}</span>
-      </div>
-    </div>
-  );
+  }, [player1Score, player2Score]);
+    return (
+        <div style={{ textAlign: "center", color: "#ffffff" }}>
+            <h1 style={{ color: "#00d9ff" }}>Pong</h1>
+            {!gameStarted && !winner && (
+                <button onClick={() => setGameStarted(true)}>Iniciar Juego</button>
+            )}
+            {winner && (
+              <div>
+                  <h2>{winner} ha ganado!</h2>
+                  <button onClick={() => {
+                      // Reiniciar juego
+                      setPlayer1Score(0);
+                      setPlayer2Score(0);
+                      setWinner(null);
+                      setGameStarted(true);  // Esto hace que el juego se reinicie
+                      player1Y = 150;  // Resetear posiciones de las palas
+                      player2Y = 150;
+                      ballX = 400;  // Resetear pelota
+                      ballY = 200;
+                  }}>Reiniciar Juego</button>
+              </div>
+            )}
+            <div id="scoreboard" style={{ fontSize: "1.5em", marginBottom: "10px", fontWeight: "bold" }}>
+                {player1Score} - {player2Score}
+            </div>
+            <canvas ref={canvasRef} width={800} height={400} style={{ backgroundColor: "#000", border: "2px solid #00d9ff" }} />
+        </div>
+    );
 };
 
 export default Pong;
