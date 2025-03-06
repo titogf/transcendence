@@ -3,6 +3,7 @@ import "./pong.css";
 
 const Pong: React.FC = () => {
     const canvasRef = useRef<HTMLCanvasElement | null>(null);
+    const animationFrameRef = useRef<number | null>(null); // Nuevo useRef para controlar requestAnimationFrame
     const [gameStarted, setGameStarted] = useState(false);
     const [player1Score, setPlayer1Score] = useState(0);
     const [player2Score, setPlayer2Score] = useState(0);
@@ -12,7 +13,7 @@ const Pong: React.FC = () => {
     let player1Y = 150, player2Y = 150;
     let ballX = 400, ballY = 200, ballSpeedX = 8, ballSpeedY = 5;
     let wKeyPressed = false, sKeyPressed = false, upKeyPressed = false, downKeyPressed = false;
-    
+
     useEffect(() => {
         if (!gameStarted || winner) return;
 
@@ -24,15 +25,15 @@ const Pong: React.FC = () => {
         const handleKeyDown = (event: KeyboardEvent) => {
             if (event.key === "w") wKeyPressed = true;
             if (event.key === "s") sKeyPressed = true;
-            if (event.key === "ArrowUp") {upKeyPressed = true; event.preventDefault();}
-            if (event.key === "ArrowDown") {downKeyPressed = true; event.preventDefault();}
+            if (event.key === "ArrowUp") { upKeyPressed = true; event.preventDefault(); };
+            if (event.key === "ArrowDown") { downKeyPressed = true; event.preventDefault(); }
         };
 
         const handleKeyUp = (event: KeyboardEvent) => {
             if (event.key === "w") wKeyPressed = false;
             if (event.key === "s") sKeyPressed = false;
-            if (event.key === "ArrowUp") {upKeyPressed = false; event.preventDefault();}
-            if (event.key === "ArrowDown") {downKeyPressed = false; event.preventDefault();}
+            if (event.key === "ArrowUp") { upKeyPressed = false; event.preventDefault(); }
+            if (event.key === "ArrowDown") { downKeyPressed = false; event.preventDefault(); }
         };
 
         window.addEventListener("keydown", handleKeyDown);
@@ -48,9 +49,12 @@ const Pong: React.FC = () => {
             ctx.fillRect(0, player1Y, paddleWidth, paddleHeight);
             ctx.fillRect(canvas.width - paddleWidth, player2Y, paddleWidth, paddleHeight);
 
-            ctx.beginPath();
-            ctx.arc(ballX, ballY, ballRadius, 0, Math.PI * 2);
-            ctx.fill();
+            // Ocultar la bola si hay un ganador
+            if (!winner) {
+                ctx.beginPath();
+                ctx.arc(ballX, ballY, ballRadius, 0, Math.PI * 2);
+                ctx.fill();
+            }
 
             if (wKeyPressed && player1Y > 0) player1Y -= 10;
             if (sKeyPressed && player1Y < canvas.height - paddleHeight) player1Y += 10;
@@ -70,74 +74,94 @@ const Pong: React.FC = () => {
             }
 
             if (ballX < 0) {
-                setPlayer2Score(prev => prev + 1);
-                resetBall();
+                setPlayer2Score(prev => {
+                    const newScore = prev + 1;
+                    if (newScore === 5) {
+                        setWinner("Jugador 2");
+                        stopGame();
+                    } else {
+                        resetBall();
+                    }
+                    return newScore;
+                });
             }
+
             if (ballX > canvas.width) {
-                setPlayer1Score(prev => prev + 1);
-                resetBall();
+                setPlayer1Score(prev => {
+                    const newScore = prev + 1;
+                    if (newScore === 5) {
+                        setWinner("Jugador 1");
+                        stopGame();
+                    } else {
+                        resetBall();
+                    }
+                    return newScore;
+                });
             }
 
-            if (player1Score === 5 || player2Score === 5) {
-              setWinner(player1Score === 5 ? "Jugador 1" : "Jugador 2");
-              setGameStarted(false); // Detener el juego
-              return;
-            }
-
-            requestAnimationFrame(gameLoop);
+            animationFrameRef.current = requestAnimationFrame(gameLoop);
         };
 
         const resetBall = () => {
             ballX = canvas.width / 2;
             ballY = canvas.height / 2;
-            ballSpeedX = -ballSpeedX;
-            ballSpeedY = 5;
+            ballSpeedX = (Math.random() > 0.5 ? 1 : -1) * 8;
+            ballSpeedY = (Math.random() > 0.5 ? 1 : -1) * 5;
         };
 
-        if (gameStarted && !winner)
-          gameLoop();
+        const stopGame = () => {
+            setGameStarted(false);
+            if (animationFrameRef.current) {
+                cancelAnimationFrame(animationFrameRef.current);
+                animationFrameRef.current = null;
+            }
+        };
+
+        gameLoop();
 
         return () => {
             window.removeEventListener("keydown", handleKeyDown);
             window.removeEventListener("keyup", handleKeyUp);
+            if (animationFrameRef.current) {
+                cancelAnimationFrame(animationFrameRef.current);
+                animationFrameRef.current = null;
+            }
         };
     }, [gameStarted, winner]);
 
-    useEffect(() => {
-      if (player1Score === 5) {
-          setWinner("Jugador 1");
-          setGameStarted(false);
-      } else if (player2Score === 5) {
-          setWinner("Jugador 2");
-          setGameStarted(false);
-      }
-  }, [player1Score, player2Score]);
+    const resetGame = () => {
+        setPlayer1Score(0);
+        setPlayer2Score(0);
+        setWinner(null);
+        setGameStarted(true);
+        player1Y = 150;
+        player2Y = 150;
+        ballX = 400;
+        ballY = 200;
+        ballSpeedX = (Math.random() > 0.5 ? 1 : -1) * 8;
+        ballSpeedY = (Math.random() > 0.5 ? 1 : -1) * 5;
+    };
+
     return (
         <div style={{ textAlign: "center", color: "#ffffff" }}>
             <h1 style={{ color: "#00d9ff" }}>Pong</h1>
-            {!gameStarted && !winner && (
-                <button onClick={() => setGameStarted(true)}>Iniciar Juego</button>
+
+            {winner ? (
+                <div>
+                    <h2>{winner} ha ganado!</h2>
+                    <button onClick={resetGame}>Restart game</button>
+                </div>
+            ) : (
+                <>
+                    {!gameStarted && (
+                        <button onClick={resetGame}>Start game</button>
+                    )}
+                    <div id="scoreboard" style={{ fontSize: "1.5em", marginBottom: "10px", fontWeight: "bold" }}>
+                        {player1Score} - {player2Score}
+                    </div>
+                    <canvas ref={canvasRef} width={800} height={400} style={{ backgroundColor: "#000", border: "2px solid #00d9ff" }} />
+                </>
             )}
-            {winner && (
-              <div>
-                  <h2>{winner} ha ganado!</h2>
-                  <button onClick={() => {
-                      // Reiniciar juego
-                      setPlayer1Score(0);
-                      setPlayer2Score(0);
-                      setWinner(null);
-                      setGameStarted(true);  // Esto hace que el juego se reinicie
-                      player1Y = 150;  // Resetear posiciones de las palas
-                      player2Y = 150;
-                      ballX = 400;  // Resetear pelota
-                      ballY = 200;
-                  }}>Reiniciar Juego</button>
-              </div>
-            )}
-            <div id="scoreboard" style={{ fontSize: "1.5em", marginBottom: "10px", fontWeight: "bold" }}>
-                {player1Score} - {player2Score}
-            </div>
-            <canvas ref={canvasRef} width={800} height={400} style={{ backgroundColor: "#000", border: "2px solid #00d9ff" }} />
         </div>
     );
 };

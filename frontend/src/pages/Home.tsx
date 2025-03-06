@@ -7,12 +7,12 @@ const Home: React.FC = () => {
 
   return (
     <div className="container">
-      <h1>Juego Pong</h1>
+      <h1>PONG GAME</h1>
       <div id="scoreboard" style={{ display: "none" }}>
         <span id="player1-score">0</span> - <span id="player2-score">0</span>
       </div>
       <canvas id="pongCanvas" width="800" height="400" style={{ display: "none" }}></canvas>
-      <button onClick={() => navigate("/game")}>Iniciar Juego</button>
+      <button onClick={() => navigate("/game")}>Play game</button>
     </div>
   );
 };
