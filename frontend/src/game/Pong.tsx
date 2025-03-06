@@ -66,35 +66,33 @@ const Pong: React.FC = () => {
 
             if (ballY < 0 || ballY > canvas.height) ballSpeedY = -ballSpeedY;
 
-            if (ballX - ballRadius < paddleWidth && ballY > player1Y && ballY < player1Y + paddleHeight) {
+            if (ballX - ballRadius <= paddleWidth && ballY >= player1Y && ballY <= player1Y + paddleHeight) {
                 ballSpeedX = -ballSpeedX;
             }
-            if (ballX + ballRadius > canvas.width - paddleWidth && ballY > player2Y && ballY < player2Y + paddleHeight) {
+            if (ballX + ballRadius >= canvas.width - paddleWidth && ballY >= player2Y && ballY <= player2Y + paddleHeight) {
                 ballSpeedX = -ballSpeedX;
             }
 
-            if (ballX < 0) {
+            if (ballX <= 0) {
                 setPlayer2Score(prev => {
                     const newScore = prev + 1;
                     if (newScore === 5) {
                         setWinner("Jugador 2");
                         stopGame();
-                    } else {
-                        resetBall();
-                    }
+                    } else
+                        resetBalltoPlayer1();
                     return newScore;
                 });
             }
 
-            if (ballX > canvas.width) {
+            if (ballX >= canvas.width) {
                 setPlayer1Score(prev => {
                     const newScore = prev + 1;
                     if (newScore === 5) {
                         setWinner("Jugador 1");
                         stopGame();
-                    } else {
-                        resetBall();
-                    }
+                    } else
+                        resetBalltoPlayer2();
                     return newScore;
                 });
             }
@@ -102,10 +100,16 @@ const Pong: React.FC = () => {
             animationFrameRef.current = requestAnimationFrame(gameLoop);
         };
 
-        const resetBall = () => {
+        const resetBalltoPlayer1 = () => {
             ballX = canvas.width / 2;
             ballY = canvas.height / 2;
-            ballSpeedX = (Math.random() > 0.5 ? 1 : -1) * 8;
+            ballSpeedX = -8;
+            ballSpeedY = (Math.random() > 0.5 ? 1 : -1) * 5;
+        };
+        const resetBalltoPlayer2 = () => {
+            ballX = canvas.width / 2;
+            ballY = canvas.height / 2;
+            ballSpeedX = 8;
             ballSpeedY = (Math.random() > 0.5 ? 1 : -1) * 5;
         };
 
