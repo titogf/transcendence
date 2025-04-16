@@ -51,8 +51,13 @@ router.post("/login", (req: express.Request<{}, {}, UserRequestBody>, res: expre
       res.status(401).json({ error: "Contraseña incorrecta" });
       return;
     }
-
-    res.json({ message: "Inicio de sesión exitoso" });
+    
+    res.json({
+      message: "Inicio de sesión exitoso",
+      username: user.username,
+      token: "dummy-token"
+    });    
+    
   });
 });
 

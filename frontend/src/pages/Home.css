@@ -51,6 +51,26 @@ button:hover {
     background-color: #00a6c4;
 }
 
+.top-bar {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+}
+  
+.top-bar button {
+    background-color: #00d9ff;
+    border: none;
+    padding: 10px 15px;
+    font-weight: bold;
+    cursor: pointer;
+    border-radius: 5px;
+}
+  
+.top-bar span {
+    color: white;
+    font-weight: bold;
+}  
+
 /* Mensaje de victoria */
 #game-over {
     margin-top: 40px; /* Más espacio arriba */

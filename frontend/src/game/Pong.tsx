@@ -1,9 +1,10 @@
 import React, { useRef, useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import "./pong.css";
 
 const Pong: React.FC = () => {
     const canvasRef = useRef<HTMLCanvasElement | null>(null);
-    const animationFrameRef = useRef<number | null>(null); // Nuevo useRef para controlar requestAnimationFrame
+    const animationFrameRef = useRef<number | null>(null);
     const [gameStarted, setGameStarted] = useState(false);
     const [player1Score, setPlayer1Score] = useState(0);
     const [player2Score, setPlayer2Score] = useState(0);
@@ -13,6 +14,17 @@ const Pong: React.FC = () => {
     let player1Y = 150, player2Y = 150;
     let ballX = 400, ballY = 200, ballSpeedX = 8, ballSpeedY = 5;
     let wKeyPressed = false, sKeyPressed = false, upKeyPressed = false, downKeyPressed = false;
+
+    const navigate = useNavigate();
+
+    const username = localStorage.getItem("username");
+
+    // 🔒 Proteger la página si no hay usuario logueado
+    useEffect(() => {
+        if (!username) {
+            navigate("/login");
+        }
+    }, [navigate, username]);
 
     useEffect(() => {
         if (!gameStarted || winner) return;
@@ -49,7 +61,6 @@ const Pong: React.FC = () => {
             ctx.fillRect(0, player1Y, paddleWidth, paddleHeight);
             ctx.fillRect(canvas.width - paddleWidth, player2Y, paddleWidth, paddleHeight);
 
-            // Ocultar la bola si hay un ganador
             if (!winner) {
                 ctx.beginPath();
                 ctx.arc(ballX, ballY, ballRadius, 0, Math.PI * 2);
@@ -79,8 +90,7 @@ const Pong: React.FC = () => {
                     if (newScore === 5) {
                         setWinner("Jugador 2");
                         stopGame();
-                    } else
-                        resetBalltoPlayer1();
+                    } else resetBalltoPlayer1();
                     return newScore;
                 });
             }
@@ -91,8 +101,7 @@ const Pong: React.FC = () => {
                     if (newScore === 5) {
                         setWinner("Jugador 1");
                         stopGame();
-                    } else
-                        resetBalltoPlayer2();
+                    } else resetBalltoPlayer2();
                     return newScore;
                 });
             }
@@ -146,8 +155,18 @@ const Pong: React.FC = () => {
         ballSpeedY = (Math.random() > 0.5 ? 1 : -1) * 5;
     };
 
+    const handleLogout = () => {
+        localStorage.removeItem("username");
+        navigate("/login");
+    };
+
     return (
         <div style={{ textAlign: "center", color: "#ffffff" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", padding: "10px 20px" }}>
+                <span style={{ color: "#00d9ff" }}>👤 {username}</span>
+                <button onClick={handleLogout}>Logout</button>
+            </div>
+
             <h1 style={{ color: "#00d9ff" }}>Pong</h1>
 
             {winner ? (
@@ -171,3 +190,4 @@ const Pong: React.FC = () => {
 };
 
 export default Pong;
+
