@@ -19,12 +19,6 @@ const Pong: React.FC = () => {
 
     const username = localStorage.getItem("username");
 
-    // 🔒 Proteger la página si no hay usuario logueado
-    useEffect(() => {
-        if (!username) {
-            navigate("/login");
-        }
-    }, [navigate, username]);
 
     useEffect(() => {
         if (!gameStarted || winner) return;

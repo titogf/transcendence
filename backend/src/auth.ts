@@ -53,9 +53,8 @@ router.post("/login", (req: express.Request<{}, {}, UserRequestBody>, res: expre
     }
     
     res.json({
-      message: "Inicio de sesión exitoso",
       username: user.username,
-      token: "dummy-token"
+      password: user.password
     });    
     
   });

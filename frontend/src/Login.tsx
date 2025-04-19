@@ -19,7 +19,7 @@ const Login: React.FC = () => {
   };
 
   return (
-    <div className="login-container">
+    <div className="flex flex-col">
       <h2>Iniciar sesión</h2>
       <form onSubmit={handleSubmit}>
         <input
@@ -36,7 +36,7 @@ const Login: React.FC = () => {
           onChange={(e) => setPassword(e.target.value)}
           required
         />
-        <button type="submit">Entrar</button>
+        <button type="submit">Iniciar Sesion</button>
       </form>
     </div>
   );

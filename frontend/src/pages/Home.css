@@ -10,13 +10,12 @@ body {
     justify-content: center;
     height: 100vh;
     text-align: center;
-    padding: 20px; /* Añadido un poco de espacio alrededor */
 }
 
 h1 {
     font-size: 4em; /* Hacemos el título mucho más grande */
     color: #00d9ff;
-    margin-bottom: 20px; /* Espacio inferior más grande */
+    margin-bottom: 10px; /* Espacio inferior más grande */
 }
 
 #scoreboard {
