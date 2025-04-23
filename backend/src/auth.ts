@@ -3,7 +3,7 @@ import { Express, Request, Response, Router} from 'express';
 import bcrypt from "bcryptjs";
 import db from "./db";
 
-const router: Router = Router(); // ✅ Asegurar que esto está presente
+const router: Router = Router();
 
 interface UserRequestBody {
   username: string;
@@ -55,8 +55,8 @@ router.post("/login", (req: express.Request<{}, {}, UserRequestBody>, res: expre
     res.json({
       username: user.username,
       password: user.password
-    });    
-    
+    });
+    return ;
   });
 });
 

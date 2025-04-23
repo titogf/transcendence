@@ -1,8 +1,7 @@
-import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Home from "./pages/Home";
 import Pong from "./game/Pong";
-import Login from "./Login";
+import Login from "./login/Login";
 
 function App() {
   return (

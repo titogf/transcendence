@@ -1,6 +1,5 @@
 import React, { useRef, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import "./pong.css";
 
 const Pong: React.FC = () => {
     const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -155,30 +154,52 @@ const Pong: React.FC = () => {
     };
 
     return (
-        <div style={{ textAlign: "center", color: "#ffffff" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", padding: "10px 20px" }}>
-                <span style={{ color: "#00d9ff" }}>👤 {username}</span>
-                <button onClick={handleLogout}>Logout</button>
+        <div className="min-h-screen bg-[#1e1e1e] text-white flex flex-col items-center justify-center text-center">
+          <div className="w-full flex justify-between items-center px-6 py-4 absolute top-0">
+            <span className="text-[#00d9ff] font-bold">👤 {username}</span>
+            <button
+              onClick={handleLogout}
+              className="bg-[#00d9ff] text-[#1e1e1e] px-4 py-2 rounded-md font-bold hover:bg-[#00a6c4] transition"
+            >
+              Logout
+            </button>
+          </div>
+      
+          <h1 className="text-5xl text-[#00d9ff] mb-6">Pong</h1>
+      
+          {winner ? (
+            <div className="space-y-6">
+              <h2 className="text-3xl text-[#00ff99] font-bold">{winner} ha ganado!</h2>
+              <button
+                onClick={resetGame}
+                className="bg-[#00d9ff] text-[#1e1e1e] px-6 py-3 rounded-lg text-lg font-bold hover:bg-[#00a6c4] transition"
+              >
+                Restart game
+              </button>
             </div>
-
-            <h1 style={{ color: "#00d9ff" }}>Pong</h1>
-
-            {winner ? (
-                <div>
-                    <h2>{winner} ha ganado!</h2>
-                    <button onClick={resetGame}>Restart game</button>
-                </div>
-            ) : (
-                <>
-                    {!gameStarted && (
-                        <button onClick={resetGame}>Start game</button>
-                    )}
-                    <div id="scoreboard" style={{ fontSize: "1.5em", marginBottom: "10px", fontWeight: "bold" }}>
-                        {player1Score} - {player2Score}
-                    </div>
-                    <canvas ref={canvasRef} width={800} height={400} style={{ backgroundColor: "#000", border: "2px solid #00d9ff" }} />
-                </>
-            )}
+          ) : (
+            <>
+              {!gameStarted && (
+                <button
+                  onClick={resetGame}
+                  className="bg-[#00d9ff] text-[#1e1e1e] px-6 py-3 rounded-lg text-lg font-bold hover:bg-[#00a6c4] transition mb-6"
+                >
+                  Start game
+                </button>
+              )}
+      
+              <div id="scoreboard" className="text-2xl font-bold mb-4">
+                {player1Score} - {player2Score}
+              </div>
+      
+              <canvas
+                ref={canvasRef}
+                width={800}
+                height={400}
+                className="bg-black border-4 border-[#00d9ff] w-full max-w-[1000px] h-auto"
+              />
+            </>
+          )}
         </div>
     );
 };
