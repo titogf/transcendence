@@ -1,5 +1,6 @@
 import React, { useRef, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../login/AuthContext";
 
 const Pong: React.FC = () => {
     const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -14,9 +15,9 @@ const Pong: React.FC = () => {
     let ballX = 400, ballY = 200, ballSpeedX = 8, ballSpeedY = 5;
     let wKeyPressed = false, sKeyPressed = false, upKeyPressed = false, downKeyPressed = false;
 
+    const { user, logout } = useAuth();
+    const username = user?.username;
     const navigate = useNavigate();
-
-    const username = localStorage.getItem("username");
 
 
     useEffect(() => {
@@ -154,53 +155,71 @@ const Pong: React.FC = () => {
     };
 
     return (
-        <div className="min-h-screen bg-[#1e1e1e] text-white flex flex-col items-center justify-center text-center">
-          <div className="w-full flex justify-between items-center px-6 py-4 absolute top-0">
-            <span className="text-[#00d9ff] font-bold">👤 {username}</span>
+      <div className="min-h-screen bg-[#1e1e1e] text-white flex flex-col items-center justify-center text-center">
+        {/* Barra superior */}
+        <div className="w-full flex justify-between items-center px-6 py-4 absolute top-0">
+          {/* Botón volver */}
+          <button
+            onClick={() => navigate(-1)}
+            className="bg-[#00d9ff] text-[#1e1e1e] px-4 py-2 rounded-md font-bold hover:bg-[#00a6c4] transition"
+          >
+            ⬅ Return
+          </button>
+  
+          {/* Usuario o login */}
+          {user ? (
             <button
-              onClick={handleLogout}
+              onClick={() => navigate("/profile")}
               className="bg-[#00d9ff] text-[#1e1e1e] px-4 py-2 rounded-md font-bold hover:bg-[#00a6c4] transition"
             >
-              Logout
+              👤 {username}
             </button>
-          </div>
-      
-          <h1 className="text-5xl text-[#00d9ff] mb-6">Pong</h1>
-      
-          {winner ? (
-            <div className="space-y-6">
-              <h2 className="text-3xl text-[#00ff99] font-bold">{winner} ha ganado!</h2>
-              <button
-                onClick={resetGame}
-                className="bg-[#00d9ff] text-[#1e1e1e] px-6 py-3 rounded-lg text-lg font-bold hover:bg-[#00a6c4] transition"
-              >
-                Restart game
-              </button>
-            </div>
           ) : (
-            <>
-              {!gameStarted && (
-                <button
-                  onClick={resetGame}
-                  className="bg-[#00d9ff] text-[#1e1e1e] px-6 py-3 rounded-lg text-lg font-bold hover:bg-[#00a6c4] transition mb-6"
-                >
-                  Start game
-                </button>
-              )}
-      
-              <div id="scoreboard" className="text-2xl font-bold mb-4">
-                {player1Score} - {player2Score}
-              </div>
-      
-              <canvas
-                ref={canvasRef}
-                width={800}
-                height={400}
-                className="bg-black border-4 border-[#00d9ff] w-full max-w-[1000px] h-auto"
-              />
-            </>
+            <button
+              onClick={() => navigate("/login")}
+              className="bg-[#00d9ff] text-[#1e1e1e] px-4 py-2 rounded-md font-bold hover:bg-[#00a6c4] transition"
+            >
+              Sign in/Register
+            </button>
           )}
         </div>
+  
+        <h1 className="text-5xl text-[#00d9ff] mb-6 mt-20">Pong</h1>
+  
+        {winner ? (
+          <div className="space-y-6">
+            <h2 className="text-3xl text-[#00ff99] font-bold">{winner} ha ganado!</h2>
+            <button
+              onClick={resetGame}
+              className="bg-[#00d9ff] text-[#1e1e1e] px-6 py-3 rounded-lg text-lg font-bold hover:bg-[#00a6c4] transition"
+            >
+              Restart game
+            </button>
+          </div>
+        ) : (
+          <>
+            {!gameStarted && (
+              <button
+                onClick={resetGame}
+                className="bg-[#00d9ff] text-[#1e1e1e] px-6 py-3 rounded-lg text-lg font-bold hover:bg-[#00a6c4] transition mb-6"
+              >
+                Start game
+              </button>
+            )}
+  
+            <div id="scoreboard" className="text-2xl font-bold mb-4">
+              {player1Score} - {player2Score}
+            </div>
+  
+            <canvas
+              ref={canvasRef}
+              width={800}
+              height={400}
+              className="bg-black border-4 border-[#00d9ff] w-full max-w-[1000px] h-auto"
+            />
+          </>
+        )}
+      </div>
     );
 };
 

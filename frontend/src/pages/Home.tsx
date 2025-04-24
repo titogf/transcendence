@@ -10,16 +10,21 @@ const Home: React.FC = () => {
   return (
     <div className="min-h-screen bg-[#1e1e1e] text-white flex flex-col items-center justify-center text-center relative font-sans">
       <div className="absolute top-5 right-5">
-        {user ? (
-          <span className="font-bold">Bienvenido, {user.username}</span>
-        ) : (
-          <button
-            onClick={() => navigate("/login")}
-            className="bg-[#00d9ff] text-[#1e1e1e] font-bold px-4 py-2 rounded hover:bg-[#00a6c4] transition-colors"
-          >
-            Iniciar sesión
-          </button>
-        )}
+      {user ? (
+        <button
+          onClick={() => navigate("/profile")}
+          className="bg-[#00d9ff] text-[#1e1e1e] font-bold px-4 py-2 rounded hover:bg-[#00a6c4] transition-colors"
+        >
+          👤 {user.username}
+        </button>
+      ) : (
+        <button
+          onClick={() => navigate("/login")}
+          className="bg-[#00d9ff] text-[#1e1e1e] font-bold px-4 py-2 rounded hover:bg-[#00a6c4] transition-colors"
+        >
+          Sign in/Register
+        </button>
+      )}
       </div>
 
       <h1 className="text-6xl text-[#00d9ff] mb-2">PONG GAME</h1>
