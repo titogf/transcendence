@@ -24,6 +24,13 @@ const Profile = () => {
         ⬅ Return
       </button>
 
+      <button
+        onClick={() => navigate("/")}
+        className="absolute top-5 left-[130px] bg-[#00d9ff] text-[#1e1e1e] px-4 py-2 rounded-md font-bold hover:bg-[#00a6c4] transition"
+      >
+        🏠
+      </button>
+
       <h1 className="text-4xl text-[#00d9ff] mb-6">Perfil</h1>
       <p className="text-xl mb-8">
         Usuario: <span className="font-bold">{user?.username}</span>

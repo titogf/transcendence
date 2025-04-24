@@ -15,7 +15,7 @@ const Pong: React.FC = () => {
     let ballX = 400, ballY = 200, ballSpeedX = 8, ballSpeedY = 5;
     let wKeyPressed = false, sKeyPressed = false, upKeyPressed = false, downKeyPressed = false;
 
-    const { user, logout } = useAuth();
+    const { user } = useAuth();
     const username = user?.username;
     const navigate = useNavigate();
 
@@ -82,7 +82,7 @@ const Pong: React.FC = () => {
                 setPlayer2Score(prev => {
                     const newScore = prev + 1;
                     if (newScore === 5) {
-                        setWinner("Jugador 2");
+                        setWinner("Guest");
                         stopGame();
                     } else resetBalltoPlayer1();
                     return newScore;
@@ -93,7 +93,7 @@ const Pong: React.FC = () => {
                 setPlayer1Score(prev => {
                     const newScore = prev + 1;
                     if (newScore === 5) {
-                        setWinner("Jugador 1");
+                        user ? setWinner(user.username) : setWinner("Jugador 1");
                         stopGame();
                     } else resetBalltoPlayer2();
                     return newScore;
@@ -149,11 +149,6 @@ const Pong: React.FC = () => {
         ballSpeedY = (Math.random() > 0.5 ? 1 : -1) * 5;
     };
 
-    const handleLogout = () => {
-        localStorage.removeItem("username");
-        navigate("/login");
-    };
-
     return (
       <div className="min-h-screen bg-[#1e1e1e] text-white flex flex-col items-center justify-center text-center">
         {/* Barra superior */}
@@ -164,6 +159,13 @@ const Pong: React.FC = () => {
             className="bg-[#00d9ff] text-[#1e1e1e] px-4 py-2 rounded-md font-bold hover:bg-[#00a6c4] transition"
           >
             ⬅ Return
+          </button>
+
+          <button
+            onClick={() => navigate("/")}
+            className="absolute top-4 left-[135px] bg-[#00d9ff] text-[#1e1e1e] px-4 py-2 rounded-md font-bold hover:bg-[#00a6c4] transition"
+          >
+            🏠
           </button>
   
           {/* Usuario o login */}
@@ -188,7 +190,7 @@ const Pong: React.FC = () => {
   
         {winner ? (
           <div className="space-y-6">
-            <h2 className="text-3xl text-[#00ff99] font-bold">{winner} ha ganado!</h2>
+            <h2 className="text-3xl text-[#00ff99] font-bold">{winner} wins!</h2>
             <button
               onClick={resetGame}
               className="bg-[#00d9ff] text-[#1e1e1e] px-6 py-3 rounded-lg text-lg font-bold hover:bg-[#00a6c4] transition"

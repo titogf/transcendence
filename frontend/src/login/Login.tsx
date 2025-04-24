@@ -42,6 +42,13 @@ const Login: React.FC = () => {
         ⬅ Return
       </button>
 
+      <button
+        onClick={() => navigate("/")}
+        className="absolute top-5 left-[130px] bg-[#00d9ff] text-[#1e1e1e] px-4 py-2 rounded-md font-bold hover:bg-[#00a6c4] transition"
+      >
+        🏠
+      </button>
+
       <h2 className="text-4xl font-bold text-[#00d9ff] mb-8 mt-12">Sign in</h2>
 
       <form
@@ -50,7 +57,7 @@ const Login: React.FC = () => {
       >
         <input
           type="text"
-          placeholder="Usuario"
+          placeholder="User"
           value={username}
           onChange={(e) => setUsername(e.target.value)}
           required
@@ -58,7 +65,7 @@ const Login: React.FC = () => {
         />
         <input
           type="password"
-          placeholder="Contraseña"
+          placeholder="Password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required
@@ -71,7 +78,18 @@ const Login: React.FC = () => {
           Sign in
         </button>
 
-        {/* Mensaje de error con animación de vibración */}
+        {/* Nuevo bloque "or Register" */}
+        <div className="text-center text-sm text-gray-400">
+          or{" "}
+          <span
+            onClick={() => navigate("/register", { state: { from: location.pathname } })}
+            className="text-[#00d9ff] cursor-pointer hover:underline font-semibold"
+          >
+            Register
+          </span>
+        </div>
+
+        {/* Mensaje de error */}
         {error && (
           <p
             className={`text-red-500 text-sm font-semibold text-center ${

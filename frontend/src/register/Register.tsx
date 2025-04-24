@@ -33,13 +33,13 @@ const Register: React.FC = () => {
 
       if (!res.ok) {
         const data = await res.json();
-        throw new Error(data.message || "Error al registrar");
+        throw new Error(data.message || "Username already in use");
       }
 
       // Registro exitoso: redirige a login
-      navigate("/login", { state: { from } });
+      navigate("/login", { state: { from: "/register" } });
     } catch (err: any) {
-      setError(err.message || "Error desconocido");
+      setError(err.message || "Unknown error");
       triggerShake();
     }
   };
@@ -63,6 +63,13 @@ const Register: React.FC = () => {
         ⬅ Return
       </button>
 
+      <button
+        onClick={() => navigate("/")}
+        className="absolute top-5 left-[130px] bg-[#00d9ff] text-[#1e1e1e] px-4 py-2 rounded-md font-bold hover:bg-[#00a6c4] transition"
+      >
+        🏠
+      </button>
+
       <h2 className="text-4xl font-bold text-[#00d9ff] mb-8 mt-12">Register</h2>
 
       <form
@@ -71,7 +78,7 @@ const Register: React.FC = () => {
       >
         <input
           type="text"
-          placeholder="Usuario"
+          placeholder="User"
           value={username}
           onChange={(e) => setUsername(e.target.value)}
           required
@@ -79,7 +86,7 @@ const Register: React.FC = () => {
         />
         <input
           type="password"
-          placeholder="Contraseña"
+          placeholder="Password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required
@@ -87,7 +94,7 @@ const Register: React.FC = () => {
         />
         <input
           type="password"
-          placeholder="Repetir contraseña"
+          placeholder="Repeat Password"
           value={confirmPassword}
           onChange={(e) => setConfirmPassword(e.target.value)}
           required
@@ -99,6 +106,16 @@ const Register: React.FC = () => {
         >
           Register
         </button>
+
+        <div className="text-center text-sm text-gray-400">
+          or{" "}
+          <span
+            onClick={() => navigate("/login", { state: { from: location.pathname } })}
+            className="text-[#00d9ff] cursor-pointer hover:underline font-semibold"
+          >
+            Sign in
+          </span>
+        </div>
 
         {error && (
           <p
