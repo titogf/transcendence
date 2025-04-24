@@ -3,6 +3,7 @@ import Home from "./pages/Home";
 import Pong from "./game/Pong";
 import Login from "./login/Login";
 import Profile from "./profile/Profile";
+import Register from "./register/Register";
 
 function App() {
   return (
@@ -12,6 +13,7 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/game" element={<Pong />} />
         <Route path="/profile" element={<Profile />} />
+        <Route path="/register" element={<Register />} />
       </Routes>
     </Router>
   );
