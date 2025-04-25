@@ -10,6 +10,10 @@ const Pong: React.FC = () => {
     const [player2Score, setPlayer2Score] = useState(0);
     const [winner, setWinner] = useState<string | null>(null);
 
+    // 🆕 Cuenta atrás y control de movimiento de la bola
+    const [countdown, setCountdown] = useState<number | null>(null);
+    const [ballMoving, setBallMoving] = useState(false);
+
     const paddleWidth = 10, paddleHeight = 100, ballRadius = 10;
     let player1Y = 150, player2Y = 150;
     let ballX = 400, ballY = 200, ballSpeedX = 8, ballSpeedY = 5;
@@ -19,6 +23,22 @@ const Pong: React.FC = () => {
     const username = user?.username;
     const navigate = useNavigate();
 
+    const startCountdown = () => {
+        setBallMoving(false);
+        let counter = 3;
+        setCountdown(counter);
+
+        const interval = setInterval(() => {
+            counter--;
+            if (counter === 0) {
+                clearInterval(interval);
+                setCountdown(null);
+                setBallMoving(true);
+            } else {
+                setCountdown(counter);
+            }
+        }, 1000);
+    };
 
     useEffect(() => {
         if (!gameStarted || winner) return;
@@ -66,8 +86,10 @@ const Pong: React.FC = () => {
             if (upKeyPressed && player2Y > 0) player2Y -= 10;
             if (downKeyPressed && player2Y < canvas.height - paddleHeight) player2Y += 10;
 
-            ballX += ballSpeedX;
-            ballY += ballSpeedY;
+            if (ballMoving) {
+                ballX += ballSpeedX;
+                ballY += ballSpeedY;
+            }
 
             if (ballY < 0 || ballY > canvas.height) ballSpeedY = -ballSpeedY;
 
@@ -84,7 +106,10 @@ const Pong: React.FC = () => {
                     if (newScore === 5) {
                         setWinner("Guest");
                         stopGame();
-                    } else resetBalltoPlayer1();
+                    } else {
+                        resetBalltoPlayer1();
+                        startCountdown();
+                    }
                     return newScore;
                 });
             }
@@ -95,7 +120,10 @@ const Pong: React.FC = () => {
                     if (newScore === 5) {
                         user ? setWinner(user.username) : setWinner("Jugador 1");
                         stopGame();
-                    } else resetBalltoPlayer2();
+                    } else {
+                        resetBalltoPlayer2();
+                        startCountdown();
+                    }
                     return newScore;
                 });
             }
@@ -134,7 +162,7 @@ const Pong: React.FC = () => {
                 animationFrameRef.current = null;
             }
         };
-    }, [gameStarted, winner]);
+    }, [gameStarted, winner, ballMoving]);
 
     const resetGame = () => {
         setPlayer1Score(0);
@@ -147,6 +175,7 @@ const Pong: React.FC = () => {
         ballY = 200;
         ballSpeedX = (Math.random() > 0.5 ? 1 : -1) * 8;
         ballSpeedY = (Math.random() > 0.5 ? 1 : -1) * 5;
+        startCountdown();
     };
 
     return (
@@ -163,7 +192,7 @@ const Pong: React.FC = () => {
 
           <button
             onClick={() => navigate("/")}
-            className="absolute top-4 left-[135px] bg-[#00d9ff] text-[#1e1e1e] px-4 py-2 rounded-md font-bold hover:bg-[#00a6c4] transition"
+            className="absolute top-4 left-[140px] bg-[#00d9ff] text-[#1e1e1e] px-4 py-2 rounded-md font-bold hover:bg-[#00a6c4] transition"
           >
             🏠
           </button>
@@ -212,6 +241,13 @@ const Pong: React.FC = () => {
             <div id="scoreboard" className="text-2xl font-bold mb-4">
               {player1Score} - {player2Score}
             </div>
+
+            {/* 🆕 Muestra la cuenta atrás */}
+            {countdown !== null && (
+              <div className="absolute top-1/2 transform -translate-y-1/2 text-[80px] font-bold text-[#00ff99]">
+                {countdown}
+              </div>
+            )}
   
             <canvas
               ref={canvasRef}
@@ -226,4 +262,5 @@ const Pong: React.FC = () => {
 };
 
 export default Pong;
+
 

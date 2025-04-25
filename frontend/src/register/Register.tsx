@@ -3,6 +3,8 @@ import React, { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 
 const Register: React.FC = () => {
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -28,15 +30,14 @@ const Register: React.FC = () => {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ username, password }),
+        body: JSON.stringify({ name, email, username, password }),
       });
 
       if (!res.ok) {
         const data = await res.json();
-        throw new Error(data.message || "Username already in use");
+        throw new Error(data.error || "Error en el registro");
       }
 
-      // Registro exitoso: redirige a login
       navigate("/login", { state: { from: "/register" } });
     } catch (err: any) {
       setError(err.message || "Unknown error");
@@ -65,7 +66,7 @@ const Register: React.FC = () => {
 
       <button
         onClick={() => navigate("/")}
-        className="absolute top-5 left-[130px] bg-[#00d9ff] text-[#1e1e1e] px-4 py-2 rounded-md font-bold hover:bg-[#00a6c4] transition"
+        className="absolute top-5 left-[135px] bg-[#00d9ff] text-[#1e1e1e] px-4 py-2 rounded-md font-bold hover:bg-[#00a6c4] transition"
       >
         🏠
       </button>
@@ -78,7 +79,23 @@ const Register: React.FC = () => {
       >
         <input
           type="text"
-          placeholder="User"
+          placeholder="Full name"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          required
+          className="px-4 py-3 rounded-md bg-[#1e1e1e] border border-[#00d9ff] text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#00d9ff]"
+        />
+        <input
+          type="email"
+          placeholder="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+          className="px-4 py-3 rounded-md bg-[#1e1e1e] border border-[#00d9ff] text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#00d9ff]"
+        />
+        <input
+          type="text"
+          placeholder="Username"
           value={username}
           onChange={(e) => setUsername(e.target.value)}
           required
@@ -132,3 +149,4 @@ const Register: React.FC = () => {
 };
 
 export default Register;
+

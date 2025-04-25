@@ -1,0 +1,13 @@
+Hay que hacer 7 Major modules(2 minor son un major).
+
+Hechos(2 major):
+    1 -> Framework a as backend(major module).
+    2 -> Use a front-end framework or toolkit(minor module).
+    3 -> Use a database for the backend(minor module).
+
+Para hacer:
+    1 -> Remote players(major module).
+    2 -> Multiple players(major module).
+    3 -> Game Customization Options(minor module).
+    4 -> Introduce an AI Opponent(major module).
+    5 -> User and Game Stats Dashboards(minor module).

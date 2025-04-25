@@ -44,7 +44,7 @@ const Login: React.FC = () => {
 
       <button
         onClick={() => navigate("/")}
-        className="absolute top-5 left-[130px] bg-[#00d9ff] text-[#1e1e1e] px-4 py-2 rounded-md font-bold hover:bg-[#00a6c4] transition"
+        className="absolute top-5 left-[135px] bg-[#00d9ff] text-[#1e1e1e] px-4 py-2 rounded-md font-bold hover:bg-[#00a6c4] transition"
       >
         🏠
       </button>
@@ -57,7 +57,7 @@ const Login: React.FC = () => {
       >
         <input
           type="text"
-          placeholder="User"
+          placeholder="User or email"
           value={username}
           onChange={(e) => setUsername(e.target.value)}
           required

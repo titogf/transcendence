@@ -2,6 +2,8 @@ import React, { createContext, useContext, useState, ReactNode } from "react";
 
 interface User {
   username: string;
+  name: string;
+  email: string;
   token: string;
 }
 
@@ -35,10 +37,16 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   
       if (response.ok) {
         const data = await response.json();
-        console.log("Login OK:", data.message);
       
-        setUser({ username: data.username, token: data.token });
-        localStorage.setItem("user", JSON.stringify({ username: data.username, token: data.token }));
+        const userData = {
+          username: data.username,
+          name: data.name,
+          email: data.email,
+          token: data.token || "", // si tienes token
+        };
+      
+        setUser(userData);
+        localStorage.setItem("user", JSON.stringify(userData));
       
         return true;
       } else {

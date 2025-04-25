@@ -1,8 +1,6 @@
 logins:
 
-{"username": "newuser", "password": "mypassword"}
-
-{"username": "carlos-m", "password": "pocilgueta"}
+{"username": "carlos-m", "password": "pocilgueta", "name": "Carlos Martin", "email": "carlos-m@student.42madrid.com"}
 
 
 
@@ -10,4 +8,4 @@ logins:
 
 curl -X POST http://localhost:3000/auth/login \
   -H "Content-Type: application/json" \
-  -d '{"username": "newuser", "password": "mypassword"}'
+  -d '{"username": "carlos-m", "password": "pocilgueta"}'
