@@ -118,7 +118,7 @@ const Pong: React.FC = () => {
                 setPlayer1Score(prev => {
                     const newScore = prev + 1;
                     if (newScore === 5) {
-                        user ? setWinner(user.username) : setWinner("Jugador 1");
+                        user ? setWinner(user.username) : setWinner("Player 1");
                         stopGame();
                     } else {
                         resetBalltoPlayer2();

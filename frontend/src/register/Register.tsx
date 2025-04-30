@@ -25,7 +25,7 @@ const Register: React.FC = () => {
     }
 
     try {
-      const res = await fetch("http://localhost:3000/auth/register", {
+      const res = await fetch("https://localhost:3000/auth/register", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
