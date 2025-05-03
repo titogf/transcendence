@@ -1,5 +1,3 @@
-import https from "https";
-import fs from "fs";
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
@@ -17,15 +15,6 @@ app.use(express.static(path.join(__dirname)));
 
 app.use("/auth", authRoutes);
 
-const httpsOptions = {
-  key: fs.readFileSync("certs/key.pem"),
-  cert: fs.readFileSync("certs/cert.pem"),
-};
-
-// app.listen(PORT, () => {
-//   console.log(`🚀 Servidor corriendo en http://localhost:${PORT}`);
-// });
-
-https.createServer(httpsOptions, app).listen(PORT, () => {
-  console.log(`🚀 Servidor corriendo en https://localhost:${PORT}`);
+app.listen(PORT, () => {
+  console.log(`🚀 Servidor corriendo en http://localhost:${PORT}`);
 });
