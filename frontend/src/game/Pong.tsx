@@ -15,8 +15,12 @@ const Pong: React.FC = () => {
     const [ballMoving, setBallMoving] = useState(false);
 
     const paddleWidth = 10, paddleHeight = 100, ballRadius = 10;
-    let player1Y = 150, player2Y = 150;
-    let ballX = 400, ballY = 200, ballSpeedX = 8, ballSpeedY = 5;
+    const player1Y = useRef(150);
+    const player2Y = useRef(150);
+    const ballX = useRef(400);
+    const ballY = useRef(200);
+    const ballSpeedX = useRef(8);
+    const ballSpeedY = useRef(5);
     let wKeyPressed = false, sKeyPressed = false, upKeyPressed = false, downKeyPressed = false;
 
     const { user } = useAuth();
@@ -72,35 +76,35 @@ const Pong: React.FC = () => {
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
             ctx.fillStyle = "#00d9ff";
-            ctx.fillRect(0, player1Y, paddleWidth, paddleHeight);
-            ctx.fillRect(canvas.width - paddleWidth, player2Y, paddleWidth, paddleHeight);
+            ctx.fillRect(0, player1Y.current, paddleWidth, paddleHeight);
+            ctx.fillRect(canvas.width - paddleWidth, player2Y.current, paddleWidth, paddleHeight);
 
             if (!winner) {
                 ctx.beginPath();
-                ctx.arc(ballX, ballY, ballRadius, 0, Math.PI * 2);
+                ctx.arc(ballX.current, ballY.current, ballRadius, 0, Math.PI * 2);
                 ctx.fill();
             }
 
-            if (wKeyPressed && player1Y > 0) player1Y -= 10;
-            if (sKeyPressed && player1Y < canvas.height - paddleHeight) player1Y += 10;
-            if (upKeyPressed && player2Y > 0) player2Y -= 10;
-            if (downKeyPressed && player2Y < canvas.height - paddleHeight) player2Y += 10;
+            if (wKeyPressed && player1Y.current > 0) player1Y.current -= 10;
+            if (sKeyPressed && player1Y.current < canvas.height - paddleHeight) player1Y.current += 10;
+            if (upKeyPressed && player2Y.current > 0) player2Y.current -= 10;
+            if (downKeyPressed && player2Y.current < canvas.height - paddleHeight) player2Y.current += 10;
 
             if (ballMoving) {
-                ballX += ballSpeedX;
-                ballY += ballSpeedY;
+                ballX.current += ballSpeedX.current;
+                ballY.current += ballSpeedY.current;
             }
 
-            if (ballY < 0 || ballY > canvas.height) ballSpeedY = -ballSpeedY;
+            if (ballY.current < 0 || ballY.current > canvas.height) ballSpeedY.current = -ballSpeedY.current;
 
-            if (ballX - ballRadius <= paddleWidth && ballY >= player1Y && ballY <= player1Y + paddleHeight) {
-                ballSpeedX = -ballSpeedX;
+            if (ballX.current - ballRadius <= paddleWidth && ballY.current >= player1Y.current && ballY.current <= player1Y.current + paddleHeight) {
+                ballSpeedX.current = -ballSpeedX.current;
             }
-            if (ballX + ballRadius >= canvas.width - paddleWidth && ballY >= player2Y && ballY <= player2Y + paddleHeight) {
-                ballSpeedX = -ballSpeedX;
+            if (ballX.current + ballRadius >= canvas.width - paddleWidth && ballY.current >= player2Y.current && ballY.current <= player2Y.current + paddleHeight) {
+                ballSpeedX.current = -ballSpeedX.current;
             }
 
-            if (ballX <= 0) {
+            if (ballX.current <= 0) {
                 setPlayer2Score(prev => {
                     const newScore = prev + 1;
                     if (newScore === 5) {
@@ -114,7 +118,7 @@ const Pong: React.FC = () => {
                 });
             }
 
-            if (ballX >= canvas.width) {
+            if (ballX.current >= canvas.width) {
                 setPlayer1Score(prev => {
                     const newScore = prev + 1;
                     if (newScore === 5) {
@@ -132,16 +136,16 @@ const Pong: React.FC = () => {
         };
 
         const resetBalltoPlayer1 = () => {
-            ballX = canvas.width / 2;
-            ballY = canvas.height / 2;
-            ballSpeedX = -8;
-            ballSpeedY = (Math.random() > 0.5 ? 1 : -1) * 5;
+            ballX.current = canvas.width / 2;
+            ballY.current = canvas.height / 2;
+            ballSpeedX.current = -8;
+            ballSpeedY.current = (Math.random() > 0.5 ? 1 : -1) * 5;
         };
         const resetBalltoPlayer2 = () => {
-            ballX = canvas.width / 2;
-            ballY = canvas.height / 2;
-            ballSpeedX = 8;
-            ballSpeedY = (Math.random() > 0.5 ? 1 : -1) * 5;
+            ballX.current = canvas.width / 2;
+            ballY.current = canvas.height / 2;
+            ballSpeedX.current = 8;
+            ballSpeedY.current = (Math.random() > 0.5 ? 1 : -1) * 5;
         };
 
         const stopGame = () => {
@@ -169,12 +173,12 @@ const Pong: React.FC = () => {
         setPlayer2Score(0);
         setWinner(null);
         setGameStarted(true);
-        player1Y = 150;
-        player2Y = 150;
-        ballX = 400;
-        ballY = 200;
-        ballSpeedX = (Math.random() > 0.5 ? 1 : -1) * 8;
-        ballSpeedY = (Math.random() > 0.5 ? 1 : -1) * 5;
+        player1Y.current = 150;
+        player2Y.current = 150;
+        ballX.current = 400;
+        ballY.current = 200;
+        ballSpeedX.current = (Math.random() > 0.5 ? 1 : -1) * 8;
+        ballSpeedY.current = (Math.random() > 0.5 ? 1 : -1) * 5;
         startCountdown();
     };
 
