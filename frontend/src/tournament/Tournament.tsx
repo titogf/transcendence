@@ -1,184 +1,296 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from "react";
+import PongTournament from "./PongGame";
 
-type Rounds = [string, string][][];
-
-const shufflePairs = (players: string[]): [string, string][] => {
-  const shuffled = [...players];
-  for (let i = shuffled.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-  }
-
-  const pairs: [string, string][] = [];
-  for (let i = 0; i < shuffled.length; i += 2) {
-    if (i + 1 < shuffled.length) {
-      pairs.push([shuffled[i], shuffled[i + 1]]);
-    } else {
-      pairs.push([shuffled[i], 'BYE']);
-    }
-  }
-  return pairs;
+type Match = {
+  player1: string;
+  player2: string;
 };
 
-const Tournament: React.FC = () => {
-  const [numPlayers, setNumPlayers] = useState<number>(0);
+export default function Tournament() {
+  const [step, setStep] = useState<"setup" | "game" | "result">("setup");
+  const [numPlayers, setNumPlayers] = useState(4);
   const [playerNames, setPlayerNames] = useState<string[]>([]);
-  const [inputNames, setInputNames] = useState<string[]>([]);
-  const [rounds, setRounds] = useState<Rounds>([]);
-  const [currentRound, setCurrentRound] = useState(0);
-  const [winner, setWinner] = useState<string | null>(null);
-  const [matchWinners, setMatchWinners] = useState<{ [key: number]: string }>({});
+  const [matches, setMatches] = useState<Match[]>([]);
+  const [currentMatchIndex, setCurrentMatchIndex] = useState(0);
+  const [roundWinners, setRoundWinners] = useState<string[]>([]);
+  const [finalWinner, setFinalWinner] = useState<string | null>(null);
+  const [player1Score, setPlayer1Score] = useState(0);
+  const [player2Score, setPlayer2Score] = useState(0);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
 
-  const handleNumPlayersChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const n = parseInt(e.target.value, 10);
-    setNumPlayers(n);
-    setInputNames(Array(n).fill(''));
-  };
+  // ==== GAME LOGIC ====
 
-  const handleNameChange = (index: number, value: string) => {
-    const newNames = [...inputNames];
-    newNames[index] = value;
-    setInputNames(newNames);
-  };
+  // useEffect(() => {
+  //   if (step !== "game") return;
 
-  const handleSubmitNames = () => {
-    const validNames = inputNames.map(name => name.trim()).filter(name => name !== '');
-    if (validNames.length < 2) {
-      alert('Debe haber al menos 2 jugadores.');
-      return;
+  //   const canvas = canvasRef.current;
+  //   if (!canvas) return;
+
+  //   const ctx = canvas.getContext("2d");
+  //   if (!ctx) return;
+
+  //   canvas.width = 800;
+  //   canvas.height = 400;
+
+  //   const paddleWidth = 10;
+  //   const paddleHeight = 80;
+  //   const ballSize = 10;
+
+  //   let paddle1Y = canvas.height / 2 - paddleHeight / 2;
+  //   let paddle2Y = canvas.height / 2 - paddleHeight / 2;
+
+  //   const paddleSpeed = 5;
+
+  //   let ballX = canvas.width / 2;
+  //   let ballY = canvas.height / 2;
+  //   let ballSpeedX = 3;
+  //   let ballSpeedY = 3;
+
+  //   const keys: { [key: string]: boolean } = {};
+
+  //   const resetBall = () => {
+  //     ballX = canvas.width / 2;
+  //     ballY = canvas.height / 2;
+  //     ballSpeedX = -ballSpeedX;
+  //     ballSpeedY = 3 * (Math.random() > 0.5 ? 1 : -1);
+  //   };
+
+  //   const draw = () => {
+  //     ctx.fillStyle = "black";
+  //     ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  //     ctx.setLineDash([5, 5]);
+  //     ctx.beginPath();
+  //     ctx.moveTo(canvas.width / 2, 0);
+  //     ctx.lineTo(canvas.width / 2, canvas.height);
+  //     ctx.strokeStyle = "white";
+  //     ctx.stroke();
+  //     ctx.setLineDash([]);
+
+  //     ctx.fillStyle = "white";
+  //     ctx.fillRect(10, paddle1Y, paddleWidth, paddleHeight);
+  //     ctx.fillRect(canvas.width - 20, paddle2Y, paddleWidth, paddleHeight);
+  //     ctx.fillRect(ballX, ballY, ballSize, ballSize);
+
+  //     ctx.font = "30px Arial";
+  //     ctx.fillText(matches[currentMatchIndex]?.player1 || "", canvas.width / 4 - 50, 30);
+  //     ctx.fillText(matches[currentMatchIndex]?.player2 || "", (canvas.width * 3) / 4 - 50, 30);
+  //     ctx.fillText(String(player1Score), canvas.width / 4, 60);
+  //     ctx.fillText(String(player2Score), (canvas.width * 3) / 4, 60);
+  //   };
+
+  //   const update = () => {
+  //     if (keys["w"] && paddle1Y > 0) paddle1Y -= paddleSpeed;
+  //     if (keys["s"] && paddle1Y < canvas.height - paddleHeight)
+  //       paddle1Y += paddleSpeed;
+  //     if (keys["ArrowUp"] && paddle2Y > 0) paddle2Y -= paddleSpeed;
+  //     if (keys["ArrowDown"] && paddle2Y < canvas.height - paddleHeight)
+  //       paddle2Y += paddleSpeed;
+
+  //     ballX += ballSpeedX;
+  //     ballY += ballSpeedY;
+
+  //     if (ballY <= 0 || ballY + ballSize >= canvas.height)
+  //       ballSpeedY = -ballSpeedY;
+
+  //     if (
+  //       ballX <= 20 &&
+  //       ballY + ballSize >= paddle1Y &&
+  //       ballY <= paddle1Y + paddleHeight
+  //     ) {
+  //       ballSpeedX = -ballSpeedX;
+  //       ballX = 20;
+  //     }
+
+  //     if (
+  //       ballX + ballSize >= canvas.width - 20 &&
+  //       ballY + ballSize >= paddle2Y &&
+  //       ballY <= paddle2Y + paddleHeight
+  //     ) {
+  //       ballSpeedX = -ballSpeedX;
+  //       ballX = canvas.width - 20 - ballSize;
+  //     }
+
+  //     if (ballX <= 0) {
+  //       setPlayer2Score((s) => s + 1);
+  //       resetBall();
+  //     }
+
+  //     if (ballX + ballSize >= canvas.width) {
+  //       setPlayer1Score((s) => s + 1);
+  //       resetBall();
+  //     }
+  //   };
+
+  //   const gameLoop = () => {
+  //     update();
+  //     draw();
+
+  //     if (player1Score >= 5) {
+  //       declareWinner(matches[currentMatchIndex].player1);
+  //       return;
+  //     }
+
+  //     if (player2Score >= 5) {
+  //       declareWinner(matches[currentMatchIndex].player2);
+  //       return;
+  //     }
+
+  //     requestAnimationFrame(gameLoop);
+  //   };
+
+  //   gameLoop();
+
+  //   const handleKeyDown = (e: KeyboardEvent) => {
+  //     keys[e.key] = true;
+  //   };
+  //   const handleKeyUp = (e: KeyboardEvent) => {
+  //     keys[e.key] = false;
+  //   };
+
+  //   window.addEventListener("keydown", handleKeyDown);
+  //   window.addEventListener("keyup", handleKeyUp);
+
+  //   return () => {
+  //     window.removeEventListener("keydown", handleKeyDown);
+  //     window.removeEventListener("keyup", handleKeyUp);
+  //   };
+  // }, [step, player1Score, player2Score, currentMatchIndex]);
+  //game hasta aqui
+
+  const declareWinner = (winner: string) => {
+    const nextWinners = [...roundWinners, winner];
+    setRoundWinners(nextWinners);
+
+    if (currentMatchIndex + 1 < matches.length) {
+      setCurrentMatchIndex(currentMatchIndex + 1);
+      setPlayer1Score(0);
+      setPlayer2Score(0);
+    } else {
+      // Next round or final
+      if (nextWinners.length === 1) {
+        setFinalWinner(nextWinners[0]);
+        setStep("result");
+      } else {
+        const nextMatches: Match[] = [];
+        for (let i = 0; i < nextWinners.length; i += 2) {
+          nextMatches.push({
+            player1: nextWinners[i],
+            player2: nextWinners[i + 1],
+          });
+        }
+        setMatches(nextMatches);
+        setCurrentMatchIndex(0);
+        setRoundWinners([]);
+        setPlayer1Score(0);
+        setPlayer2Score(0);
+      }
     }
-    setPlayerNames(validNames);
-    const initialPairs = shufflePairs(validNames);
-    setRounds([initialPairs]);
-    setCurrentRound(0);
-    setMatchWinners({});
-    setWinner(null);
   };
 
-  const handleWinner = (index: number, name: string) => {
-    setMatchWinners(prev => ({ ...prev, [index]: name }));
+  const handleStartTournament = () => {
+    const shuffled = [...playerNames];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+
+    const generatedMatches: Match[] = [];
+    for (let i = 0; i < shuffled.length; i += 2) {
+      generatedMatches.push({
+        player1: shuffled[i],
+        player2: shuffled[i + 1],
+      });
+    }
+
+    setMatches(generatedMatches);
+    setStep("game");
   };
 
-  const nextRound = () => {
-    const currentPairs = rounds[currentRound];
-    const winners = currentPairs.map((_, i) =>
-      matchWinners[i] ? matchWinners[i] : simulateMatch(currentPairs[i])
-    );
-    const nextPairs = shufflePairs(winners);
-    const newRounds = [...rounds, nextPairs];
-    setRounds(newRounds);
-    setMatchWinners({});
-    setCurrentRound(currentRound + 1);
+  // ==== UI ====
 
-    if (nextPairs.length === 1 && nextPairs[0][1] !== 'BYE') {
-      setWinner(null); // Aún no jugado
-    }
-
-    if (nextPairs.length === 1 && nextPairs[0][1] === 'BYE') {
-      setWinner(nextPairs[0][0]);
-    }
-  };
-
-  const allMatchesResolved = () => {
-    const currentPairs = rounds[currentRound];
-    return currentPairs.every((_, i) => matchWinners[i]);
-  };
-
-  const renderGame = (index: number, p1: string, p2: string) => {
-    if (matchWinners[index]) {
-      return <div className="text-green-600">Ganador: {matchWinners[index]}</div>;
-    }
-
-    if (p2 === 'BYE') {
-      handleWinner(index, p1);
-      return <div className="text-yellow-500">Automáticamente clasificado</div>;
-    }
-
+  if (step === "setup") {
     return (
-      <div className="space-x-2 mt-2">
-        <button onClick={() => handleWinner(index, p1)} className="px-2 py-1 bg-blue-400 rounded text-white">
-          Gana {p1}
-        </button>
-        <button onClick={() => handleWinner(index, p2)} className="px-2 py-1 bg-purple-400 rounded text-white">
-          Gana {p2}
-        </button>
-      </div>
-    );
-  };
-
-  if (playerNames.length === 0) {
-    return (
-      <div className="text-center">
+      <div className="flex flex-col items-center text-white bg-gray-900 min-h-screen p-4">
         <h1 className="text-3xl font-bold mb-4">Configurar Torneo</h1>
-        <div className="mb-4">
-          <label htmlFor="numPlayers">Número de jugadores:</label>
+        <label className="mb-2">Número de jugadores (múltiplo de 2):</label>
+        <input
+          type="number"
+          value={numPlayers}
+          onChange={(e) => setNumPlayers(parseInt(e.target.value))}
+          min={2}
+          max={16}
+          className="text-black mb-4 p-2"
+        />
+        {Array.from({ length: numPlayers }, (_, i) => (
           <input
-            id="numPlayers"
-            type="number"
-            min="2"
-            className="ml-2 p-1 border rounded"
-            value={numPlayers || ''}
-            onChange={handleNumPlayersChange}
+            key={i}
+            type="text"
+            placeholder={`Jugador ${i + 1}`}
+            value={playerNames[i] || ""}
+            onChange={(e) => {
+              const newNames = [...playerNames];
+              newNames[i] = e.target.value;
+              setPlayerNames(newNames);
+            }}
+            className="text-black mb-2 p-2"
           />
-        </div>
-        {inputNames.length > 0 && (
-          <div className="mb-4">
-            {inputNames.map((name, index) => (
-              <div key={index} className="mb-2">
-                <input
-                  type="text"
-                  className="p-1 border rounded"
-                  placeholder={`Nombre del jugador ${index + 1}`}
-                  value={name}
-                  onChange={(e) => handleNameChange(index, e.target.value)}
-                />
-              </div>
-            ))}
-            <button
-              onClick={handleSubmitNames}
-              className="mt-2 px-4 py-2 bg-blue-500 text-white rounded"
-            >
-              Comenzar Torneo
-            </button>
-          </div>
-        )}
+        ))}
+        <button
+          onClick={handleStartTournament}
+          className="mt-4 bg-green-600 hover:bg-green-700 px-6 py-2 rounded"
+        >
+          Empezar Torneo
+        </button>
       </div>
     );
   }
 
-  const currentPairs = rounds[currentRound];
+  if (step === "game") {
+    const currentMatch = matches[currentMatchIndex];
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen bg-gray-900 text-white">
+        <h2 className="text-2xl mb-2">
+          {currentMatch.player1} vs {currentMatch.player2}
+        </h2>
+        <p className="mb-2">Primer a 5 puntos</p>
+        <p className="mb-4">Controles: W/S y ↑/↓</p>
+  
+        <PongTournament
+          player1={currentMatch.player1}
+          player2={currentMatch.player2}
+          onGameEnd={(winner) => {
+          console.log("Ganó", winner);
+          //funciona y sale en consola quien ha ganado, hay que hacer que sigan todas las partidas
+          }}
+        />
+      </div>
+    );
+  }
 
-  return (
-    <div className="text-center">
-      <h1 className="text-3xl font-bold mb-4">Torneo</h1>
-      <h2 className="text-2xl mb-2">Ronda {currentRound + 1}</h2>
-      <ul className="mb-4 space-y-4">
-        {currentPairs.map(([p1, p2], index) => (
-          <li key={index} className="border p-4 rounded shadow-md">
-            <div className="font-semibold">{p1} vs {p2 === 'BYE' ? 'Descansa' : p2}</div>
-            {renderGame(index, p1, p2)}
-          </li>
-        ))}
-      </ul>
-
-      {winner ? (
-        <div className="text-green-600 text-xl font-semibold">🏆 ¡Ganador: {winner}!</div>
-      ) : (
+  if (step === "result" && finalWinner) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen bg-gray-900 text-white">
+        <h1 className="text-4xl font-bold mb-4">¡Campeón del Torneo!</h1>
+        <h2 className="text-2xl">{finalWinner}</h2>
         <button
-          onClick={nextRound}
-          disabled={!allMatchesResolved()}
-          className={`px-4 py-2 rounded text-white ${allMatchesResolved() ? 'bg-green-500' : 'bg-gray-400 cursor-not-allowed'}`}
+          className="mt-6 px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded"
+          onClick={() => {
+            setStep("setup");
+            setPlayerNames([]);
+            setMatches([]);
+            setCurrentMatchIndex(0);
+            setRoundWinners([]);
+            setFinalWinner(null);
+            setPlayer1Score(0);
+            setPlayer2Score(0);
+          }}
         >
-          Siguiente Ronda
+          Volver a empezar
         </button>
-      )}
-    </div>
-  );
-};
+      </div>
+    );
+  }
 
-const simulateMatch = ([p1, p2]: [string, string]): string => {
-  if (p2 === 'BYE') return p1;
-  return Math.random() < 0.5 ? p1 : p2;
-};
-
-export default Tournament;
+  return null;
+}

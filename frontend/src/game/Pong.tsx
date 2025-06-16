@@ -95,13 +95,19 @@ const Pong: React.FC = () => {
                 ballY.current += ballSpeedY.current;
             }
 
-            if (ballY.current < 0 || ballY.current > canvas.height) ballSpeedY.current = -ballSpeedY.current;
+            if (ballY.current - ballRadius <= 0 || ballY.current + ballRadius >= canvas.height) {
+              ballSpeedY.current = -ballSpeedY.current;
+              ballY.current = Math.max(ballRadius, Math.min(ballY.current, canvas.height - ballRadius));
+            }
+          
 
             if (ballX.current - ballRadius <= paddleWidth && ballY.current >= player1Y.current && ballY.current <= player1Y.current + paddleHeight) {
-                ballSpeedX.current = -ballSpeedX.current;
+              ballX.current = paddleWidth + ballRadius + 1;
+              ballSpeedX.current = -ballSpeedX.current;
             }
             if (ballX.current + ballRadius >= canvas.width - paddleWidth && ballY.current >= player2Y.current && ballY.current <= player2Y.current + paddleHeight) {
-                ballSpeedX.current = -ballSpeedX.current;
+              ballX.current = canvas.width - paddleWidth - ballRadius - 1;
+              ballSpeedX.current = -ballSpeedX.current;
             }
 
             if (ballX.current <= 0) {
@@ -266,5 +272,3 @@ const Pong: React.FC = () => {
 };
 
 export default Pong;
-
-
