@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Pong</title>
+    <link rel="stylesheet" href="/dist/output.css" />
+  </head>
+  <body class="min-h-screen bg-[#1e1e1e] text-white flex flex-col items-center justify-center text-center font-sans relative">
+    
+
+    <div class="w-full flex justify-between items-center px-6 py-4 absolute top-0">
+      <button id="return-btn" class="bg-[#00d9ff] px-4 py-2 rounded hover:bg-[#00a6c4] transition-colors font-bold">⬅ Return</button>
+      <button id="home-btn" class="absolute top-4 left-[140px] bg-[#00d9ff] px-4 py-2 rounded hover:bg-[#00a6c4] transition-colors font-bold">🏠</button>
+      <button id="profile-btn" class="bg-[#00d9ff] px-4 py-2 rounded hover:bg-[#00a6c4] transition-colors font-bold">👤 username</button>
+    </div>
+
+
+    <h1 class="text-5xl mb-6 mt-20 text-[#00d9ff]">Pong</h1>
+
+
+    <div id="winner-msg" class="hidden">
+      <h2 class="text-3xl text-[#00ff99] mb-4" id="winner-text">wins!</h2>
+      <button id="restart-btn" class="bg-[#00d9ff] px-6 py-3 rounded hover:bg-[#00a6c4] transition-colors font-bold">Restart</button>
+    </div>
+
+
+    <div id="player2-modal" class="absolute inset-0 bg-black bg-opacity-80 flex-col items-center justify-center p-4 gap-4 hidden">
+      <h2 class="text-xl font-bold">Player 2 Login</h2>
+      <input id="player2-username" class="p-2 rounded text-black" placeholder="Username" />
+      <input id="player2-password" type="password" class="p-2 rounded text-black" placeholder="Password" />
+      <p id="player2-error" class="text-red-500"></p>
+      <button id="confirm-btn" class="bg-[#00d9ff] px-4 py-2 rounded text-black font-bold">Confirm</button>
+    </div>
+
+
+    <div class="text-2xl mb-4" id="scoreboard">
+      <span id="score1">0</span> - <span id="score2">0</span>
+    </div>
+
+
+    <div id="countdown" class="absolute text-[80px] font-bold text-[#00ff99] hidden"></div>
+
+
+    <canvas id="pongCanvas" width="800" height="400" class="border-4 border-[#00d9ff] bg-black"></canvas>
+
+
+    <script src="./pong.js" type="module" defer></script>
+  </body>
+</html>

@@ -1,11 +1,30 @@
-logins:
+Registro:
 
-{"username": "carlos-m", "password": "pocilgueta", "name": "Carlos Martin", "email": "carlos-m@student.42madrid.com"}
+curl -X POST http://localhost:3000/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{
+    "username": "carlosm",
+    "password": "1234",
+    "name": "Carlos",
+    "email": "carlos@example.com"
+  }'
+
+curl -X POST http://localhost:3000/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{
+    "username": "a",
+    "password": "1",
+    "name": "a",
+    "email": "a@example.com"
+  }'
 
 
-
-
+Login:
 
 curl -X POST http://localhost:3000/auth/login \
   -H "Content-Type: application/json" \
-  -d '{"username": "carlos-m", "password": "pocilgueta"}'
+  -d '{"username":"carlosm","password":"1234"}'
+
+curl -X POST http://localhost:3000/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"username":"a","password":"1"}'

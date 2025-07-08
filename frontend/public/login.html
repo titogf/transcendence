@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login</title>
+    <link rel="stylesheet" href="/dist/output.css" />
+  </head>
+  <body class="min-h-screen bg-[#1e1e1e] text-white flex flex-col items-center justify-center px-4 relative font-sans">
+
+    <!-- Botón Return -->
+    <button
+      id="return-btn"
+      class="absolute top-5 left-5 bg-[#00d9ff] text-[#1e1e1e] px-4 py-2 rounded-md font-bold hover:bg-[#00a6c4] transition cursor-pointer"
+    >
+      ⬅ Return
+    </button>
+
+    <!-- Botón Home -->
+    <button
+      id="home-btn"
+      class="absolute top-5 left-[135px] bg-[#00d9ff] text-[#1e1e1e] px-4 py-2 rounded-md font-bold hover:bg-[#00a6c4] transition cursor-pointer"
+    >
+      🏠
+    </button>
+
+    <h2 class="text-4xl font-bold text-[#00d9ff] mb-8 mt-12">Sign in</h2>
+
+    <form
+      id="login-form"
+      class="flex flex-col gap-6 w-full max-w-md bg-[#2a2a2a] p-8 rounded-lg shadow-md"
+    >
+      <input
+        type="text"
+        id="username"
+        placeholder="User or email"
+        required
+        class="px-4 py-3 rounded-md bg-[#1e1e1e] border border-[#00d9ff] text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#00d9ff]"
+      />
+      <input
+        type="password"
+        id="password"
+        placeholder="Password"
+        required
+        class="px-4 py-3 rounded-md bg-[#1e1e1e] border border-[#00d9ff] text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#00d9ff]"
+      />
+      <button
+        type="submit"
+        class="bg-[#00d9ff] text-[#1e1e1e] py-3 px-6 rounded-md font-bold hover:bg-[#00a6c4] transition"
+      >
+        Sign in
+      </button>
+
+      <div class="text-center text-sm text-gray-400">
+        or
+        <span
+          id="register-link"
+          class="text-[#00d9ff] cursor-pointer hover:underline font-semibold"
+        >
+          Register
+        </span>
+      </div>
+
+      <p
+        id="error-msg"
+        class="text-red-500 text-sm font-semibold text-center hidden"
+      ></p>
+    </form>
+
+    <script src="/login.js" type="module"></script>
+  </body>
+</html>

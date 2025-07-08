@@ -1,0 +1,67 @@
+<!-- Guarda como public/profile.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Profile</title>
+  <link rel="stylesheet" href="/dist/output.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="min-h-screen bg-[#1e1e1e] text-white font-sans flex flex-col items-center justify-center p-4 relative">
+  <button id="return-btn" class="absolute top-5 left-5 bg-[#00d9ff] text-[#1e1e1e] font-bold px-4 py-2 rounded hover:bg-[#00a6c4] transition-colors">⬅ Return</button>
+  <button id="home-btn" class="absolute top-5 left-[135px] bg-[#00d9ff] text-[#1e1e1e] px-4 py-2 rounded-md font-bold hover:bg-[#00a6c4] transition">🏠</button>
+
+  <h1 class="text-4xl text-[#00d9ff] mb-6">Profile Dashboard</h1>
+  <h2 class="text-xl mb-2">Welcome, <span id="username" class="font-bold"></span></h2>
+  <h3 class="text-md mb-6">Email: <span id="email" class="font-bold"></span></h3>
+
+  <!-- Ratios -->
+  <div class="flex flex-col sm:flex-row justify-center gap-4 mb-6"> 
+    <div class="bg-[#2b2b2b] p-4 rounded shadow w-60">
+      <h4 class="text-[#00ff99] font-bold mb-2">🏆 Win Rate</h4>
+      <p id="win-rate" class="text-2xl"></p>
+    </div>
+    <div class="bg-[#2b2b2b] p-4 rounded shadow w-60">
+      <h4 class="text-[#00ff99] font-bold mb-2">⚽ Avg Goals</h4>
+      <p id="avg-goals" class="text-2xl"></p>
+    </div>
+  </div>
+
+  <!-- Gráficas -->
+  <div class="w-full max-w-3xl grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+    <div class="bg-[#2b2b2b] p-4 rounded shadow">
+      <h4 class="mb-2 text-[#00ff99] font-bold">Victories vs Defeats</h4>
+      <canvas id="victory-chart"></canvas>
+    </div>
+    <div class="bg-[#2b2b2b] p-4 rounded shadow">
+      <h4 class="mb-2 text-[#00ff99] font-bold">Goals Stats</h4>
+      <canvas id="goals-chart"></canvas>
+    </div>
+  </div>
+
+  <!-- Tabla de historial -->
+  <div class="w-full max-w-3xl bg-[#2b2b2b] p-4 rounded shadow mb-8 overflow-x-auto">
+    <h4 class="mb-4 text-[#00ff99] font-bold text-xl">📋 Match History Board</h4>
+    <table id="match-table" class="w-full text-left border-collapse hidden">
+      <thead>
+        <tr class="border-b border-[#444]">
+          <th class="p-2">Date</th>
+          <th class="p-2">Opponent</th>
+          <th class="p-2">Scored</th>
+          <th class="p-2">Conceded</th>
+          <th class="p-2">Result</th>
+        </tr>
+      </thead>
+      <tbody id="match-body"></tbody>
+    </table>
+    <p id="no-matches" class="text-center">No matches found</p>
+  </div>
+
+  <button id="logout-btn" class="bg-[#00d9ff] text-[#1e1e1e] font-bold px-6 py-3 rounded hover:bg-[#00a6c4] transition-colors">
+    Cerrar sesión
+  </button>
+
+  <script type="module" src="profile.js"></script>
+</body>
+</html>
