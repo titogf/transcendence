@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Torneo</title>
+  <link rel="stylesheet" href="/dist/output.css" />
+</head>
+<body class="min-h-screen bg-[#1e1e1e] text-white flex flex-col items-center justify-center p-4">
+  <h1 class="text-4xl text-[#00d9ff] mb-6">🏆 Torneo</h1>
+
+  <div id="setup">
+    <label for="num-players" class="mb-2">Número de jugadores (2, 4, 8, ...):</label>
+    <input type="number" id="num-players" class="p-2 mb-4 text-black" min="2" step="2" />
+    <button id="start-register" class="bg-[#00d9ff] text-[#1e1e1e] px-4 py-2 rounded hover:bg-[#00a6c4] transition">Empezar Registro</button>
+  </div>
+
+  <div id="login-players" class="hidden flex-col gap-4 items-center mt-4">
+    <h2 id="login-title" class="text-xl mb-2">Jugador 1 - Login</h2>
+    <input type="text" id="player-username" placeholder="Username" class="p-2 text-black"/>
+    <input type="password" id="player-password" placeholder="Password" class="p-2 text-black"/>
+    <button id="confirm-player" class="bg-[#00d9ff] text-[#1e1e1e] px-4 py-2 rounded hover:bg-[#00a6c4] transition">Confirmar</button>
+    <p id="login-error" class="text-red-500"></p>
+  </div>
+
+  <div id="tournament-board" class="hidden mt-6 w-full max-w-2xl">
+    <h2 class="text-2xl mb-4">Emparejamientos</h2>
+    <table class="w-full text-left border-collapse border border-[#00d9ff]">
+      <thead>
+        <tr>
+          <th class="border px-4 py-2">Partido</th>
+          <th class="border px-4 py-2">Jugador 1</th>
+          <th class="border px-4 py-2">Jugador 2</th>
+          <th class="border px-4 py-2">Ganador</th>
+        </tr>
+      </thead>
+      <tbody id="match-table-body"></tbody>
+    </table>
+    <button id="next-match-btn" class="mt-6 bg-[#00d9ff] text-[#1e1e1e] px-6 py-2 rounded hover:bg-[#00a6c4] transition">Jugar siguiente partido</button>
+  </div>
+
+  <div id="pong-game" class="hidden flex flex-col items-center mt-8 w-full max-w-[1000px]">
+    <div id="scoreboard" class="text-2xl font-bold mb-4">
+      <span id="score1">0</span> - <span id="score2">0</span>
+    </div>
+    <canvas id="pongCanvas" width="800" height="400" class="bg-black border-4 border-[#00d9ff]"></canvas>
+
+    <div id="winner-msg" class="text-3xl mt-6 font-bold text-green-400 hidden">
+      <span id="winner-text"></span>
+    </div>
+
+    <div id="countdown" class="text-5xl font-bold text-yellow-400 mt-4 hidden">3</div>
+
+    <button id="restart-btn" class="mt-6 bg-[#00d9ff] text-[#1e1e1e] px-6 py-2 rounded hover:bg-[#00a6c4] transition hidden">
+      Jugar siguiente partido
+    </button>
+  </div>
+
+  <script type="module" src="./tournament.js"></script>
+</body>
+</html>

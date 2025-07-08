@@ -1,6 +1,7 @@
 window.addEventListener("DOMContentLoaded", () => {
   const playBtn = document.getElementById("play-btn") as HTMLButtonElement | null;
   const loginBtn = document.getElementById("singin-btn") as HTMLButtonElement | null;
+  const tournamentBtn = document.getElementById("tournament-btn") as HTMLButtonElement | null;
 
   // Si hay usuario logueado en localStorage, mostrar botón perfil
   const userStr = localStorage.getItem("user");
@@ -26,6 +27,12 @@ window.addEventListener("DOMContentLoaded", () => {
   if (playBtn) {
     playBtn.addEventListener("click", () => {
       window.location.href = "./pong.html";
+    });
+  }
+
+  if (tournamentBtn) {
+    tournamentBtn.addEventListener("click", () => {
+      window.location.href = "./tournament.html";
     });
   }
 });
