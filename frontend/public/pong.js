@@ -38,6 +38,7 @@ else {
         window.location.href = "./profile.html";
     });
 }
+localStorage.removeItem("user2");
 homeBtn === null || homeBtn === void 0 ? void 0 : homeBtn.addEventListener("click", () => {
     window.location.href = "./index.html";
 });

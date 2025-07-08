@@ -1,77 +1,85 @@
 declare const Chart: any;
 
 window.addEventListener("DOMContentLoaded", () => {
-  const user = JSON.parse(localStorage.getItem("user") || "null");
-  if (!user) {
+  const userFromStorage = JSON.parse(localStorage.getItem("user") || "null");
+  if (!userFromStorage) {
     window.location.href = "./login.html";
     return;
   }
 
-  document.getElementById("username")!.textContent = user.username;
-  document.getElementById("email")!.textContent = user.email;
+  fetch(`http://localhost:3000/auth/user-info/${userFromStorage.username}`)
+  .then(res => res.json())
+  .then(user => {
+    // Actualiza los elementos del DOM con los datos nuevos
+    document.getElementById("username")!.textContent = user.username;
+    document.getElementById("email")!.textContent = user.email;
 
-  const totalMatches = user.matches_played || 0;
-  const avgGoals = totalMatches > 0 ? (user.goals_scored / totalMatches).toFixed(2) : "0";
-  const winRate = totalMatches > 0 ? ((user.wins / totalMatches) * 100).toFixed(1) + "%" : "0%";
+    const totalMatches = user.matches_played || 0;
+    const avgGoals = totalMatches > 0 ? (user.goals_scored / totalMatches).toFixed(2) : "0";
+    const winRate = totalMatches > 0 ? ((user.wins / totalMatches) * 100).toFixed(1) + "%" : "0%";
 
-  document.getElementById("avg-goals")!.textContent = avgGoals;
-  document.getElementById("win-rate")!.textContent = winRate;
+    document.getElementById("avg-goals")!.textContent = avgGoals;
+    document.getElementById("win-rate")!.textContent = winRate;
 
-  new Chart("victory-chart", {
-    type: "bar",
-    data: {
-      labels: ["Victories", "Defeats"],
-      datasets: [{
-        label: "Games",
-        data: [user.wins, user.losses],
-        backgroundColor: ["#00ff99", "#ff4d4d"],
-      }],
-    },
-    options: {
-      responsive: true,
-      plugins: { legend: { display: false } },
-    },
-  });
-
-  new Chart("goals-chart", {
-    type: "bar",
-    data: {
-      labels: ["Goals Scored", "Goals Conceded"],
-      datasets: [{
-        label: "Goals",
-        data: [user.goals_scored, user.goals_conceded],
-        backgroundColor: ["#00d9ff", "#ffaa00"],
-      }],
-    },
-    options: {
-      responsive: true,
-      plugins: { legend: { display: false } },
-    },
-  });
-
-  fetch(`http://localhost:3000/auth/user-matches/${user.username}`)
-    .then(res => res.json())
-    .then(data => {
-      const table = document.getElementById("match-table")!;
-      const tbody = document.getElementById("match-body")!;
-      const fallback = document.getElementById("no-matches")!;
-      if (data.length > 0) {
-        table.classList.remove("hidden");
-        fallback.style.display = "none";
-        for (const m of data) {
-          const row = document.createElement("tr");
-          row.className = "hover:bg-[#3a3a3a] border-b border-[#444]";
-          row.innerHTML = `
-            <td class="p-2">${new Date(m.date).toLocaleDateString()}</td>
-            <td class="p-2">${m.opponent}</td>
-            <td class="p-2">${m.goals_scored}</td>
-            <td class="p-2">${m.goals_conceded}</td>
-            <td class="p-2 ${m.result === "win" ? "text-green-400" : "text-red-400"}">${m.result.toUpperCase()}</td>
-          `;
-          tbody.appendChild(row);
-        }
-      }
+    // Cargar gráficas
+    new Chart("victory-chart", {
+      type: "bar",
+      data: {
+        labels: ["Victories", "Defeats"],
+        datasets: [{
+          label: "Games",
+          data: [user.wins, user.losses],
+          backgroundColor: ["#00ff99", "#ff4d4d"],
+        }],
+      },
+      options: {
+        responsive: true,
+        plugins: { legend: { display: false } },
+      },
     });
+
+    new Chart("goals-chart", {
+      type: "bar",
+      data: {
+        labels: ["Goals Scored", "Goals Conceded"],
+        datasets: [{
+          label: "Goals",
+          data: [user.goals_scored, user.goals_conceded],
+          backgroundColor: ["#00d9ff", "#ffaa00"],
+        }],
+      },
+      options: {
+        responsive: true,
+        plugins: { legend: { display: false } },
+      },
+    });
+
+    // Cargar historial de partidas
+    fetch(`http://localhost:3000/auth/user-matches/${user.username}`)
+      .then(res => res.json())
+      .then(data => {
+        const table = document.getElementById("match-table")!;
+        const tbody = document.getElementById("match-body")!;
+        const fallback = document.getElementById("no-matches")!;
+        if (data.length > 0) {
+          table.classList.remove("hidden");
+          fallback.style.display = "none";
+          for (const m of data) {
+            const row = document.createElement("tr");
+            row.className = "hover:bg-[#3a3a3a] border-b border-[#444]";
+            row.innerHTML = `
+              <td class="p-2">${new Date(m.date).toLocaleDateString()}</td>
+              <td class="p-2">${m.opponent}</td>
+              <td class="p-2">${m.goals_scored}</td>
+              <td class="p-2">${m.goals_conceded}</td>
+              <td class="p-2 ${m.result === "win" ? "text-green-400" : "text-red-400"}">${m.result.toUpperCase()}</td>
+            `;
+            tbody.appendChild(row);
+          }
+        }
+      });
+    });
+
 
   document.getElementById("logout-btn")?.addEventListener("click", () => {
     localStorage.removeItem("user");

@@ -31,6 +31,8 @@ if (!user) {
   });
 }
 
+localStorage.removeItem("user2");
+
 homeBtn?.addEventListener("click", () => {
   window.location.href = "./index.html";
 });

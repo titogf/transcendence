@@ -102,6 +102,27 @@ async function authRoutes(fastify, options) {
     }
   });
 
+  fastify.get("/user-info/:username", async (request, reply) => {
+    const { username } = request.params;
+
+    try {
+      const user = await dbGet(
+        `SELECT id, name, email, username, wins, losses, goals_scored, goals_conceded, matches_played
+         FROM users WHERE username = ?`,
+        [username]
+      );
+
+      if (!user) {
+        return reply.code(404).send({ error: "Usuario no encontrado" });
+      }
+
+      return reply.send(user);
+    } catch (err) {
+      console.error("Error en /user-info/:username:", err);
+      return reply.code(500).send({ error: "Error interno del servidor" });
+    }
+  });
+
   // Validar usuario
   fastify.post("/validate-user", async (request, reply) => {
     const { username, password } = request.body;

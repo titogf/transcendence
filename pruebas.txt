@@ -28,3 +28,7 @@ curl -X POST http://localhost:3000/auth/login \
 curl -X POST http://localhost:3000/auth/login \
   -H "Content-Type: application/json" \
   -d '{"username":"a","password":"1"}'
+
+curl -X POST http://localhost:3000/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"username":"manoloe","password":"123"}'
