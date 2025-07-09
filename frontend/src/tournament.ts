@@ -6,8 +6,10 @@ interface User {
   let players: User[] = [];
   let totalPlayers = 0;
   let currentLoginIndex = 0;
-  let rounds: { player1: User; player2: User; winner?: string }[] = [];
+  let rounds: { player1: User; player2: User; winner?: string }[][] = [];
+  let currentRoundIndex = 0;
   let currentMatchIndex = 0;
+  let ani: number = 0;
   
   const numInput = document.getElementById("num-players") as HTMLInputElement;
   const startBtn = document.getElementById("start-register")!;
@@ -83,16 +85,44 @@ interface User {
     boardDiv.classList.remove("hidden");
     shuffleArray(players);
   
+    const firstRound: { player1: User; player2: User; winner?: string }[] = [];
     for (let i = 0; i < players.length; i += 2) {
-      rounds.push({ player1: players[i], player2: players[i + 1] });
+      firstRound.push({ player1: players[i], player2: players[i + 1] });
     }
   
+    rounds.push(firstRound);
     updateMatchTable();
   }
   
+  function createNextRound() {
+    const currentRound = rounds[currentRoundIndex];
+    const winners = currentRound.map(m => {
+      return players.find(p => p.username === m.winner)!;
+    });
+  
+    if (winners.length === 1) {
+      alert(`🏆 ¡Torneo finalizado! Ganador: ${winners[0].username}`);
+      nextMatchBtn.classList.add("hidden");
+      return;
+    }
+  
+    const nextRound = [];
+    for (let i = 0; i < winners.length; i += 2) {
+      nextRound.push({ player1: winners[i], player2: winners[i + 1] });
+    }
+  
+    rounds.push(nextRound);
+    currentRoundIndex++;
+    currentMatchIndex = 0;
+    updateMatchTable();
+  }
+  
+  
   function updateMatchTable() {
     matchTable.innerHTML = "";
-    rounds.forEach((match, idx) => {
+    const currentRound = rounds[currentRoundIndex];
+  
+    currentRound.forEach((match, idx) => {
       const tr = document.createElement("tr");
       tr.innerHTML = `
         <td class="border px-4 py-2">Partido ${idx + 1}</td>
@@ -104,17 +134,24 @@ interface User {
     });
   }
   
+  
   nextMatchBtn.addEventListener("click", () => {
-    if (currentMatchIndex >= rounds.length) {
-      alert("🏁 Torneo terminado");
+    const currentRound = rounds[currentRoundIndex];
+  
+    if (currentMatchIndex >= currentRound.length) {
+      alert("Ya se jugaron todos los partidos de esta ronda");
       return;
     }
   
-    const match = rounds[currentMatchIndex];
+    const match = currentRound[currentMatchIndex];
     boardDiv.classList.add("hidden");
     document.getElementById("pong-game")?.classList.remove("hidden");
+  
+    // 👇 NUEVO: cancela cualquier animación anterior antes de arrancar
+    cancelAnimationFrame(ani);
+  
     startPongMatch(match.player1, match.player2);
-  });
+  });  
   
   function shuffleArray(array: any[]) {
     for (let i = array.length - 1; i > 0; i--) {
@@ -137,11 +174,12 @@ interface User {
     let bX = 400, bY = 200;
     let bSpeedX = 8, bSpeedY = 5;
     let w = false, s = false, up = false, down = false;
-    let ani: number;
     let s1 = 0, s2 = 0;
     let winner: string | null = null;
     let moving = false;
   
+    
+
     function draw() {
       ctx.fillStyle = "black";
       ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -201,20 +239,29 @@ interface User {
     }
   
     function check() {
+      if (winner) return;
+    
       if (s1 === 3) winner = player1.username;
       else if (s2 === 3) winner = player2.username;
-  
+    
       if (winner) {
         moving = false;
         cancelAnimationFrame(ani);
+        rounds[currentRoundIndex][currentMatchIndex].winner = winner;
+    
         winnerText.textContent = `${winner} wins!`;
         winnerMsg.classList.remove("hidden");
         restartBtn.classList.remove("hidden");
-        rounds[currentMatchIndex].winner = winner;
+    
         currentMatchIndex++;
+    
+        const currentRound = rounds[currentRoundIndex];
+        const allPlayed = currentRound.every(m => m.winner);
+    
+        if (allPlayed) createNextRound();
       }
     }
-  
+
     function resetBall(dir: "left" | "right") {
       bX = 400;
       bY = 200;
@@ -239,20 +286,19 @@ interface User {
       }, 1000);
     }
   
-    restartBtn.addEventListener("click", () => {
+    restartBtn.onclick = () => {
       document.getElementById("pong-game")?.classList.add("hidden");
       boardDiv.classList.remove("hidden");
       updateMatchTable();
       restartBtn.classList.add("hidden");
       winnerMsg.classList.add("hidden");
-  
-      if (currentMatchIndex < rounds.length) {
+    
+      if (currentMatchIndex < rounds[currentRoundIndex].length) {
         nextMatchBtn.classList.remove("hidden");
-      } else {
-        alert("🏆 ¡Torneo finalizado!");
       }
-    });
-  
+    };
+
+
     document.addEventListener("keydown", e => {
       if (e.key === "w") w = true;
       if (e.key === "s") s = true;
@@ -268,10 +314,21 @@ interface User {
     });
   
     // Iniciar partida
-    s1 = s2 = 0;
+    // Reset del estado del juego
+    p1Y = 150;
+    p2Y = 150;
+    bX = 400;
+    bY = 200;
+    bSpeedX = 8;
+    bSpeedY = 5;
+    w = s = up = down = false;
+    s1 = 0;
+    s2 = 0;
     winner = null;
+    moving = false;
     update();
     resetBall(Math.random() > 0.5 ? "left" : "right");
+    if (ani) cancelAnimationFrame(ani); // 🔴 Asegúrate de parar animaciones anteriores
     countdown();
     draw();
   }

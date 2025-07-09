@@ -12,7 +12,9 @@ let players = [];
 let totalPlayers = 0;
 let currentLoginIndex = 0;
 let rounds = [];
+let currentRoundIndex = 0;
 let currentMatchIndex = 0;
+let ani = 0;
 const numInput = document.getElementById("num-players");
 const startBtn = document.getElementById("start-register");
 const setupDiv = document.getElementById("setup");
@@ -77,14 +79,36 @@ function updateLoginTitle() {
 function startTournament() {
     boardDiv.classList.remove("hidden");
     shuffleArray(players);
+    const firstRound = [];
     for (let i = 0; i < players.length; i += 2) {
-        rounds.push({ player1: players[i], player2: players[i + 1] });
+        firstRound.push({ player1: players[i], player2: players[i + 1] });
     }
+    rounds.push(firstRound);
+    updateMatchTable();
+}
+function createNextRound() {
+    const currentRound = rounds[currentRoundIndex];
+    const winners = currentRound.map(m => {
+        return players.find(p => p.username === m.winner);
+    });
+    if (winners.length === 1) {
+        alert(`🏆 ¡Torneo finalizado! Ganador: ${winners[0].username}`);
+        nextMatchBtn.classList.add("hidden");
+        return;
+    }
+    const nextRound = [];
+    for (let i = 0; i < winners.length; i += 2) {
+        nextRound.push({ player1: winners[i], player2: winners[i + 1] });
+    }
+    rounds.push(nextRound);
+    currentRoundIndex++;
+    currentMatchIndex = 0;
     updateMatchTable();
 }
 function updateMatchTable() {
     matchTable.innerHTML = "";
-    rounds.forEach((match, idx) => {
+    const currentRound = rounds[currentRoundIndex];
+    currentRound.forEach((match, idx) => {
         const tr = document.createElement("tr");
         tr.innerHTML = `
         <td class="border px-4 py-2">Partido ${idx + 1}</td>
@@ -97,13 +121,16 @@ function updateMatchTable() {
 }
 nextMatchBtn.addEventListener("click", () => {
     var _a;
-    if (currentMatchIndex >= rounds.length) {
-        alert("🏁 Torneo terminado");
+    const currentRound = rounds[currentRoundIndex];
+    if (currentMatchIndex >= currentRound.length) {
+        alert("Ya se jugaron todos los partidos de esta ronda");
         return;
     }
-    const match = rounds[currentMatchIndex];
+    const match = currentRound[currentMatchIndex];
     boardDiv.classList.add("hidden");
     (_a = document.getElementById("pong-game")) === null || _a === void 0 ? void 0 : _a.classList.remove("hidden");
+    // 👇 NUEVO: cancela cualquier animación anterior antes de arrancar
+    cancelAnimationFrame(ani);
     startPongMatch(match.player1, match.player2);
 });
 function shuffleArray(array) {
@@ -125,7 +152,6 @@ function startPongMatch(player1, player2) {
     let bX = 400, bY = 200;
     let bSpeedX = 8, bSpeedY = 5;
     let w = false, s = false, up = false, down = false;
-    let ani;
     let s1 = 0, s2 = 0;
     let winner = null;
     let moving = false;
@@ -183,6 +209,8 @@ function startPongMatch(player1, player2) {
         score2.textContent = String(s2);
     }
     function check() {
+        if (winner)
+            return;
         if (s1 === 3)
             winner = player1.username;
         else if (s2 === 3)
@@ -190,11 +218,15 @@ function startPongMatch(player1, player2) {
         if (winner) {
             moving = false;
             cancelAnimationFrame(ani);
+            rounds[currentRoundIndex][currentMatchIndex].winner = winner;
             winnerText.textContent = `${winner} wins!`;
             winnerMsg.classList.remove("hidden");
             restartBtn.classList.remove("hidden");
-            rounds[currentMatchIndex].winner = winner;
             currentMatchIndex++;
+            const currentRound = rounds[currentRoundIndex];
+            const allPlayed = currentRound.every(m => m.winner);
+            if (allPlayed)
+                createNextRound();
         }
     }
     function resetBall(dir) {
@@ -220,20 +252,51 @@ function startPongMatch(player1, player2) {
             }
         }, 1000);
     }
-    restartBtn.addEventListener("click", () => {
+    // restartBtn.addEventListener("click", () => {
+    //   document.getElementById("pong-game")?.classList.add("hidden");
+    //   boardDiv.classList.remove("hidden");
+    //   updateMatchTable();
+    //   restartBtn.classList.add("hidden");
+    //   winnerMsg.classList.add("hidden");
+    //   const currentRound = rounds[currentRoundIndex];
+    //   const match = currentRound[currentMatchIndex];
+    //   if (match.winner) {
+    //     currentMatchIndex++;
+    //   }
+    //   // Si aún quedan partidos en la ronda
+    //   if (currentMatchIndex < currentRound.length) {
+    //     nextMatchBtn.classList.remove("hidden");
+    //   } else {
+    //     // Generar siguiente ronda con los ganadores
+    //     const winners = currentRound.map(m => {
+    //       return players.find(p => p.username === m.winner)!;
+    //     });
+    //     if (winners.length === 1) {
+    //       alert(`🏆 ¡Torneo finalizado! Ganador: ${winners[0].username}`);
+    //       return;
+    //     }
+    //     const nextRound = [];
+    //     for (let i = 0; i < winners.length; i += 2) {
+    //       nextRound.push({ player1: winners[i], player2: winners[i + 1] });
+    //     }
+    //     rounds.push(nextRound);
+    //     currentRoundIndex++;
+    //     currentMatchIndex = 0;
+    //     updateMatchTable();
+    //     nextMatchBtn.classList.remove("hidden");
+    //   }
+    // });
+    restartBtn.onclick = () => {
         var _a;
         (_a = document.getElementById("pong-game")) === null || _a === void 0 ? void 0 : _a.classList.add("hidden");
         boardDiv.classList.remove("hidden");
         updateMatchTable();
         restartBtn.classList.add("hidden");
         winnerMsg.classList.add("hidden");
-        if (currentMatchIndex < rounds.length) {
+        if (currentMatchIndex < rounds[currentRoundIndex].length) {
             nextMatchBtn.classList.remove("hidden");
         }
-        else {
-            alert("🏆 ¡Torneo finalizado!");
-        }
-    });
+    };
     document.addEventListener("keydown", e => {
         if (e.key === "w")
             w = true;
@@ -255,10 +318,22 @@ function startPongMatch(player1, player2) {
             down = false;
     });
     // Iniciar partida
-    s1 = s2 = 0;
+    // Reset del estado del juego
+    p1Y = 150;
+    p2Y = 150;
+    bX = 400;
+    bY = 200;
+    bSpeedX = 8;
+    bSpeedY = 5;
+    w = s = up = down = false;
+    s1 = 0;
+    s2 = 0;
     winner = null;
+    moving = false;
     update();
     resetBall(Math.random() > 0.5 ? "left" : "right");
+    if (ani)
+        cancelAnimationFrame(ani); // 🔴 Asegúrate de parar animaciones anteriores
     countdown();
     draw();
 }
