@@ -16,7 +16,8 @@ fastify.register(authRoutes, { prefix: '/auth' });
 
 const start = async () => {
   try {
-    await fastify.listen({ port: process.env.PORT || 3000 });
+    // 👇 Cambiar aquí
+    await fastify.listen({ port: process.env.PORT || 3000, host: '0.0.0.0' });
     console.log(`🚀 Servidor en http://localhost:${process.env.PORT || 3000}`);
   } catch (err) {
     fastify.log.error(err);
