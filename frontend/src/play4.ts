@@ -1,5 +1,21 @@
-const canva = document.getElementById("gameCanvas") as HTMLCanvasElement;
-const ctx_ = canva.getContext("2d")!;
+interface User {
+  username: string;
+  email: string;
+}
+
+const playersInfo: User[] = [];
+let currentLogin = 2;
+
+const login_Div = document.getElementById("login-others")!;
+const username_In = document.getElementById("username") as HTMLInputElement;
+const password_In = document.getElementById("password") as HTMLInputElement;
+const confirm_Btn = document.getElementById("confirm-player")!;
+const login_Title = document.getElementById("login-title")!;
+const error_Msg = document.getElementById("login-error")!;
+const gameContainer = document.getElementById("game-container")!;
+const countdown_El = document.getElementById("countdown")!;
+const winner_Msg = document.getElementById("winner-msg")!;
+const winner_Text = document.getElementById("winner-name")!;
 
 const livesDisplay = [
   document.getElementById("p1-lives")!,
@@ -8,10 +24,59 @@ const livesDisplay = [
   document.getElementById("p4-lives")!
 ];
 
-const winner_Msg = document.getElementById("winner-msg")!;
-const winner_Text = document.getElementById("winner-text")!;
+const canva = document.getElementById("pongCanvas") as HTMLCanvasElement;
+const ctx_ = canva.getContext("2d")!;
 
-type Player = {
+const userStr = localStorage.getItem("user");
+if (!userStr) {
+  window.location.href = "./login.html";
+} else {
+  playersInfo.push(JSON.parse(userStr));
+}
+
+confirm_Btn.addEventListener("click", async () => {
+  const username = username_In.value.trim();
+  const password = password_In.value.trim();
+  error_Msg.textContent = "";
+
+  try {
+    const res = await fetch("http://localhost:3000/auth/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username, password }),
+    });
+
+    if (!res.ok) {
+      const data = await res.json();
+      error_Msg.textContent = data.error || "Error";
+      return;
+    }
+
+    const user: User = await res.json();
+    if (playersInfo.find(p => p.username === user.username)) {
+      error_Msg.textContent = "Jugador ya registrado.";
+      return;
+    }
+
+    playersInfo.push(user);
+    currentLogin++;
+
+    if (playersInfo.length === 4) {
+      login_Div.classList.add("hidden");
+      start_Game();
+    } else {
+      username_In.value = "";
+      password_In.value = "";
+      login_Title.textContent = `Jugador ${currentLogin} - Login`;
+    }
+  } catch {
+    error_Msg.textContent = "Error de conexión.";
+  }
+});
+
+// ==== Juego ====
+
+interface Player {
   side: "left" | "right" | "top" | "bottom";
   color: string;
   x: number;
@@ -22,45 +87,72 @@ type Player = {
   moveDown: boolean;
   lives: number;
   eliminated: boolean;
-};
+}
 
 const players_: Player[] = [
   { side: "left", color: "red",    x: 0, y: 250, w: 10, h: 100, moveUp: false, moveDown: false, lives: 3, eliminated: false },
-  { side: "right",color: "blue",   x: 590, y: 250, w: 10, h: 100, moveUp: false, moveDown: false, lives: 3, eliminated: false },
-  { side: "top",  color: "green",  x: 250, y: 0, w: 100, h: 10, moveUp: false, moveDown: false, lives: 3, eliminated: false },
-  { side: "bottom",color: "yellow",x: 250, y: 590, w: 100, h: 10, moveUp: false, moveDown: false, lives: 3, eliminated: false }
+  { side: "right", color: "blue",   x: 590, y: 250, w: 10, h: 100, moveUp: false, moveDown: false, lives: 3, eliminated: false },
+  { side: "top", color: "green",    x: 250, y: 0, w: 100, h: 10, moveUp: false, moveDown: false, lives: 3, eliminated: false },
+  { side: "bottom", color: "yellow", x: 250, y: 590, w: 100, h: 10, moveUp: false, moveDown: false, lives: 3, eliminated: false },
 ];
 
-// Bola
 let ball_X = 300, ball_Y = 300;
-let speedX = 5 * (Math.random() < 0.5 ? 1 : -1);
-let speedY = 5 * (Math.random() < 0.5 ? 1 : -1);
+let speedX = 0;
+let speedY = 0;
+let ani_: number;
 
-// Movimiento
+let allowMove = false;
+
+function startRound() {
+  ball_X = 300;
+  ball_Y = 300;
+  allowMove = false;
+  countdown_El.textContent = "3";
+  countdown_El.classList.remove("hidden");
+  let count = 3;
+  const interval = setInterval(() => {
+    count--;
+    countdown_El.textContent = count > 0 ? String(count) : "";
+    if (count <= 0) {
+      clearInterval(interval);
+      countdown_El.classList.add("hidden");
+      speedX = 5 * (Math.random() < 0.5 ? 1 : -1);
+      speedY = 5 * (Math.random() < 0.5 ? 1 : -1);
+      allowMove = true;
+    }
+  }, 1000);
+}
+
 document.addEventListener("keydown", e => {
-  if (e.key === "w") players_[0].moveUp = true;
-  if (e.key === "s") players_[0].moveDown = true;
-  if (e.key === "ArrowUp") players_[1].moveUp = true;
-  if (e.key === "ArrowDown") players_[1].moveDown = true;
-  if (e.key === "i") players_[2].moveUp = true;
-  if (e.key === "k") players_[2].moveDown = true;
-  if (e.key === "z") players_[3].moveUp = true;
-  if (e.key === "x") players_[3].moveDown = true;
+  if (["ArrowUp", "ArrowDown", "w", "s", "i", "k", "z", "x"].includes(e.key)) {
+    e.preventDefault();
+    if (e.key === "w") players_[0].moveUp = true;
+    if (e.key === "s") players_[0].moveDown = true;
+    if (e.key === "ArrowUp") players_[1].moveUp = true;
+    if (e.key === "ArrowDown") players_[1].moveDown = true;
+    if (e.key === "i") players_[2].moveUp = true;
+    if (e.key === "k") players_[2].moveDown = true;
+    if (e.key === "z") players_[3].moveUp = true;
+    if (e.key === "x") players_[3].moveDown = true;
+  }
 });
 
 document.addEventListener("keyup", e => {
-  if (e.key === "w") players_[0].moveUp = false;
-  if (e.key === "s") players_[0].moveDown = false;
-  if (e.key === "ArrowUp") players_[1].moveUp = false;
-  if (e.key === "ArrowDown") players_[1].moveDown = false;
-  if (e.key === "i") players_[2].moveUp = false;
-  if (e.key === "k") players_[2].moveDown = false;
-  if (e.key === "z") players_[3].moveUp = false;
-  if (e.key === "x") players_[3].moveDown = false;
+  if (["ArrowUp", "ArrowDown", "w", "s", "i", "k", "z", "x"].includes(e.key)) {
+    e.preventDefault();
+    if (e.key === "w") players_[0].moveUp = false;
+    if (e.key === "s") players_[0].moveDown = false;
+    if (e.key === "ArrowUp") players_[1].moveUp = false;
+    if (e.key === "ArrowDown") players_[1].moveDown = false;
+    if (e.key === "i") players_[2].moveUp = false;
+    if (e.key === "k") players_[2].moveDown = false;
+    if (e.key === "z") players_[3].moveUp = false;
+    if (e.key === "x") players_[3].moveDown = false;
+  }
 });
 
 function update() {
-  // Mover paletas
+
   players_.forEach(p => {
     if (p.eliminated) return;
     if (p.side === "left" || p.side === "right") {
@@ -72,11 +164,11 @@ function update() {
     }
   });
 
-  // Mover bola
+  if (!allowMove) return;
+
   ball_X += speedX;
   ball_Y += speedY;
 
-  // Rebote y colisiones
   let rebote = false;
   for (const p of players_) {
     if (p.eliminated) continue;
@@ -92,7 +184,11 @@ function update() {
   }
 
   if (!rebote) {
-    if (ball_X <= 0) loseLife(0);
+    if (ball_X <= 0 && players_[0].eliminated) speedX *= -1;
+    else if (ball_X >= canva.width && players_[1].eliminated) speedX *= -1;
+    else if (ball_Y <= 0 && players_[2].eliminated) speedY *= -1;
+    else if (ball_Y >= canva.height && players_[3].eliminated) speedY *= -1;
+    else if (ball_X <= 0) loseLife(0);
     else if (ball_X >= canva.width) loseLife(1);
     else if (ball_Y <= 0) loseLife(2);
     else if (ball_Y >= canva.height) loseLife(3);
@@ -107,33 +203,28 @@ function loseLife(index: number) {
   updateLives();
   if (p.lives === 0) p.eliminated = true;
 
-  // Comprobar si hay un ganador
   const vivos = players_.filter(p => !p.eliminated);
   if (vivos.length === 1) {
-    winner_Text.textContent = `¡${vivos[0].color.toUpperCase()} gana!`;
+    const idx = players_.indexOf(vivos[0]);
+    winner_Text.textContent = playersInfo[idx].username;
     winner_Msg.classList.remove("hidden");
     cancelAnimationFrame(ani_);
     return;
   }
 
-  // Reset bola
-  ball_X = 300;
-  ball_Y = 300;
-  speedX = 5 * (Math.random() < 0.5 ? 1 : -1);
-  speedY = 5 * (Math.random() < 0.5 ? 1 : -1);
+  startRound();
 }
 
 function updateLives() {
   players_.forEach((p, i) => {
     const emoji = ["🟥", "🟦", "🟩", "🟨"][i];
-    livesDisplay[i].textContent = `${emoji} P${i + 1}: ${p.eliminated ? "💀 Eliminado" : `${p.lives} vidas`}`;
+    livesDisplay[i].textContent = `${emoji} ${p.eliminated ? "💀 Eliminado" : `${p.lives} vidas`}`;
   });
 }
 
 function draw_() {
   ctx_.clearRect(0, 0, canva.width, canva.height);
 
-  // Dibujar paletas
   players_.forEach(p => {
     if (!p.eliminated) {
       ctx_.fillStyle = p.color;
@@ -141,21 +232,27 @@ function draw_() {
     }
   });
 
-  // Dibujar bola
   ctx_.fillStyle = "white";
   ctx_.beginPath();
   ctx_.arc(ball_X, ball_Y, 10, 0, Math.PI * 2);
   ctx_.fill();
 }
 
-let ani_: number;
 function loop() {
   update();
   draw_();
   ani_ = requestAnimationFrame(loop);
 }
 
-updateLives();
-loop();
+function start_Game() {
+  gameContainer.classList.remove("hidden");
 
+  document.getElementById("p1-name")!.textContent = playersInfo[0].username;
+  document.getElementById("p2-name")!.textContent = playersInfo[1].username;
+  document.getElementById("p3-name")!.textContent = playersInfo[2].username;
+  document.getElementById("p4-name")!.textContent = playersInfo[3].username;
 
+  updateLives();
+  startRound();
+  loop();
+}

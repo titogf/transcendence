@@ -2,35 +2,60 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Play4</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PONG 4</title>
   <link rel="stylesheet" href="/dist/output.css" />
 </head>
-<body class="min-h-screen bg-[#1e1e1e] text-white flex flex-col items-center justify-center p-4 relative">
+<body class="bg-[#1e1e1e] text-white min-h-screen flex flex-col items-center justify-center p-4 font-sans relative">
 
   <!-- Botón Home -->
   <button
-    id="home-btn"
-    class="absolute top-5 left-5 bg-[#00d9ff] text-[#1e1e1e] px-4 py-2 rounded-md font-bold hover:bg-[#00a6c4] transition cursor-pointer"
+    onclick="window.location.href='index.html'"
+    class="absolute top-5 left-5 bg-[#00d9ff] text-[#1e1e1e] px-4 py-2 rounded-md font-bold hover:bg-[#00a6c4] transition"
   >
     🏠
   </button>
 
-  <h1 class="text-3xl text-[#00d9ff] font-bold mb-4">🔥 Play 4 - Modo Batalla</h1>
+  <!-- Título -->
+  <h1 class="text-4xl text-[#00d9ff] mb-6">🎮 PONG 4</h1>
 
-  <!-- Panel de vidas -->
-  <div id="lives" class="grid grid-cols-2 gap-4 text-center text-lg mb-4">
-    <div id="p1-lives">🟥 P1: 3 vidas</div>
-    <div id="p2-lives">🟦 P2: 3 vidas</div>
-    <div id="p3-lives">🟩 P3: 3 vidas</div>
-    <div id="p4-lives">🟨 P4: 3 vidas</div>
+  <!-- Pantalla de login para jugadores 2-4 -->
+  <div id="login-others" class="flex flex-col items-center gap-4">
+    <h2 id="login-title" class="text-xl font-bold">Jugador 2 - Login</h2>
+    <input id="username" type="text" placeholder="Username" class="p-2 text-black rounded" />
+    <input id="password" type="password" placeholder="Password" class="p-2 text-black rounded" />
+    <button id="confirm-player" class="bg-[#00d9ff] text-[#1e1e1e] px-4 py-2 rounded hover:bg-[#00a6c4] transition">Confirmar</button>
+    <p id="login-error" class="text-red-500"></p>
   </div>
 
-  <canvas id="gameCanvas" width="600" height="600" class="bg-black border-4 border-[#00d9ff]"></canvas>
+  <!-- Juego -->
+  <div id="game-container" class="relative hidden flex flex-col items-center">
 
-  <div id="winner-msg" class="text-3xl mt-6 font-bold text-green-400 hidden">
-    <span id="winner-text"></span>
+    <div id="countdown" class="text-6xl font-bold text-yellow-400 mb-4">3</div>
+
+    <div class="grid grid-cols-2 gap-4 mb-10 mt-4">
+      <div id="p1-lives">🟥 P1: 3 vidas</div>
+      <div id="p2-lives">🟦 P2: 3 vidas</div>
+      <div id="p3-lives">🟩 P3: 3 vidas</div>
+      <div id="p4-lives">🟨 P4: 3 vidas</div>
+    </div>
+
+    <!-- Canvas y nombres -->
+    <div class="relative w-[600px] h-[600px]">
+      <canvas id="pongCanvas" width="600" height="600" class="bg-black border-4 border-[#00d9ff]"></canvas>
+
+      <!-- Nombres posicionados respecto al canvas -->
+      <div id="p1-name" class="absolute left-[-60px] top-1/2 -translate-y-1/2 rotate-[-90deg] text-red-400 font-bold text-sm">P1</div>
+      <div id="p2-name" class="absolute right-[-60px] top-1/2 -translate-y-1/2 rotate-[90deg] text-blue-400 font-bold text-sm">P2</div>
+      <div id="p3-name" class="absolute top-[-28px] left-1/2 -translate-x-1/2 text-green-400 font-bold text-sm">P3</div>
+      <div id="p4-name" class="absolute bottom-[-40px] left-1/2 -translate-x-1/2 text-yellow-400 font-bold text-sm">P4</div>
+    </div>
+
+    <div id="winner-msg" class="text-3xl mt-6 font-bold text-green-400 hidden">
+      Ganador: <span id="winner-name"></span>
+    </div>
   </div>
+
 
   <script type="module" src="./play4.js"></script>
 </body>
