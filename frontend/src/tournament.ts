@@ -229,8 +229,8 @@ interface User {
         check();
         if (!winner) resetBall("right"), countdown();
       }
-  
-      ani = requestAnimationFrame(draw);
+      if (!winner)
+        ani = requestAnimationFrame(draw);
     }
   
     function update() {
@@ -300,17 +300,23 @@ interface User {
 
 
     document.addEventListener("keydown", e => {
-      if (e.key === "w") w = true;
-      if (e.key === "s") s = true;
-      if (e.key === "ArrowUp") up = true;
-      if (e.key === "ArrowDown") down = true;
+      if (["ArrowUp", "ArrowDown", "w", "s"].includes(e.key)) {
+        e.preventDefault(); // 👈 Previene scroll
+        if (e.key === "w") w = true;
+        if (e.key === "s") s = true;
+        if (e.key === "ArrowUp") up = true;
+        if (e.key === "ArrowDown") down = true;
+      }
     });
   
     document.addEventListener("keyup", e => {
-      if (e.key === "w") w = false;
-      if (e.key === "s") s = false;
-      if (e.key === "ArrowUp") up = false;
-      if (e.key === "ArrowDown") down = false;
+      if (["ArrowUp", "ArrowDown", "w", "s"].includes(e.key)) {
+        e.preventDefault(); // 👈 Previene scroll
+        if (e.key === "w") w = false;
+        if (e.key === "s") s = false;
+        if (e.key === "ArrowUp") up = false;
+        if (e.key === "ArrowDown") down = false;
+      }
     });
   
     // Iniciar partida
@@ -332,4 +338,8 @@ interface User {
     countdown();
     draw();
   }
+
+document.getElementById("home-btn")?.addEventListener("click", () => {
+  window.location.href = "/index.html"; // o la ruta correcta a tu home
+});
   

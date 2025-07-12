@@ -8,6 +8,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var _a;
 let players = [];
 let totalPlayers = 0;
 let currentLoginIndex = 0;
@@ -202,7 +203,8 @@ function startPongMatch(player1, player2) {
             if (!winner)
                 resetBall("right"), countdown();
         }
-        ani = requestAnimationFrame(draw);
+        if (!winner)
+            ani = requestAnimationFrame(draw);
     }
     function update() {
         score1.textContent = String(s1);
@@ -252,40 +254,6 @@ function startPongMatch(player1, player2) {
             }
         }, 1000);
     }
-    // restartBtn.addEventListener("click", () => {
-    //   document.getElementById("pong-game")?.classList.add("hidden");
-    //   boardDiv.classList.remove("hidden");
-    //   updateMatchTable();
-    //   restartBtn.classList.add("hidden");
-    //   winnerMsg.classList.add("hidden");
-    //   const currentRound = rounds[currentRoundIndex];
-    //   const match = currentRound[currentMatchIndex];
-    //   if (match.winner) {
-    //     currentMatchIndex++;
-    //   }
-    //   // Si aún quedan partidos en la ronda
-    //   if (currentMatchIndex < currentRound.length) {
-    //     nextMatchBtn.classList.remove("hidden");
-    //   } else {
-    //     // Generar siguiente ronda con los ganadores
-    //     const winners = currentRound.map(m => {
-    //       return players.find(p => p.username === m.winner)!;
-    //     });
-    //     if (winners.length === 1) {
-    //       alert(`🏆 ¡Torneo finalizado! Ganador: ${winners[0].username}`);
-    //       return;
-    //     }
-    //     const nextRound = [];
-    //     for (let i = 0; i < winners.length; i += 2) {
-    //       nextRound.push({ player1: winners[i], player2: winners[i + 1] });
-    //     }
-    //     rounds.push(nextRound);
-    //     currentRoundIndex++;
-    //     currentMatchIndex = 0;
-    //     updateMatchTable();
-    //     nextMatchBtn.classList.remove("hidden");
-    //   }
-    // });
     restartBtn.onclick = () => {
         var _a;
         (_a = document.getElementById("pong-game")) === null || _a === void 0 ? void 0 : _a.classList.add("hidden");
@@ -298,24 +266,30 @@ function startPongMatch(player1, player2) {
         }
     };
     document.addEventListener("keydown", e => {
-        if (e.key === "w")
-            w = true;
-        if (e.key === "s")
-            s = true;
-        if (e.key === "ArrowUp")
-            up = true;
-        if (e.key === "ArrowDown")
-            down = true;
+        if (["ArrowUp", "ArrowDown", "w", "s"].includes(e.key)) {
+            e.preventDefault(); // 👈 Previene scroll
+            if (e.key === "w")
+                w = true;
+            if (e.key === "s")
+                s = true;
+            if (e.key === "ArrowUp")
+                up = true;
+            if (e.key === "ArrowDown")
+                down = true;
+        }
     });
     document.addEventListener("keyup", e => {
-        if (e.key === "w")
-            w = false;
-        if (e.key === "s")
-            s = false;
-        if (e.key === "ArrowUp")
-            up = false;
-        if (e.key === "ArrowDown")
-            down = false;
+        if (["ArrowUp", "ArrowDown", "w", "s"].includes(e.key)) {
+            e.preventDefault(); // 👈 Previene scroll
+            if (e.key === "w")
+                w = false;
+            if (e.key === "s")
+                s = false;
+            if (e.key === "ArrowUp")
+                up = false;
+            if (e.key === "ArrowDown")
+                down = false;
+        }
     });
     // Iniciar partida
     // Reset del estado del juego
@@ -337,3 +311,6 @@ function startPongMatch(player1, player2) {
     countdown();
     draw();
 }
+(_a = document.getElementById("home-btn")) === null || _a === void 0 ? void 0 : _a.addEventListener("click", () => {
+    window.location.href = "/index.html"; // o la ruta correcta a tu home
+});
