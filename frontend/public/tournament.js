@@ -141,6 +141,10 @@ function shuffleArray(array) {
     }
 }
 function startPongMatch(player1, player2) {
+    const player1Name = document.getElementById("player1-name");
+    const player2Name = document.getElementById("player2-name");
+    player1Name.textContent = player1.username;
+    player2Name.textContent = player2.username;
     const canvas = document.getElementById("pongCanvas");
     const ctx = canvas.getContext("2d");
     const score1 = document.getElementById("score1");
