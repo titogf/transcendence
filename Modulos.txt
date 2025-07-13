@@ -1,0 +1,15 @@
+PARTE OBLIGATORIA:
+    - Your website must be protected against SQL injections/XSS attacks.
+
+HECHOS: (4)
+    - Major module: Use a framework to build the backend (completo)
+    - Major module: Multiple players (completo)
+    - Minor module: Use a framework or toolkit to build the front-end (completo)
+    - Minor module: Use a database for the backend -and more (completo)
+    - Minor module: User and Game Stats Dashboards (completo)
+    - Minor module: Expanding Browser Compatibility (completo)
+
+PARA HACER:
+    - Major module: Implement remote authentication
+    - Major module: Introduce an AI opponent.
+    - Minor module: Monitoring system.

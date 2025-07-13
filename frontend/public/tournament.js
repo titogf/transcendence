@@ -22,6 +22,7 @@ const setupDiv = document.getElementById("setup");
 const loginDiv = document.getElementById("login-players");
 const usernameIn = document.getElementById("player-username");
 const passwordIn = document.getElementById("player-password");
+const nicknameIn = document.getElementById("player-nickname");
 const confirmBt = document.getElementById("confirm-player");
 const erMsg = document.getElementById("login-error");
 const loginTitle = document.getElementById("login-title");
@@ -31,7 +32,7 @@ const nextMatchBtn = document.getElementById("next-match-btn");
 startBtn.addEventListener("click", () => {
     totalPlayers = parseInt(numInput.value);
     if (![2, 4, 8, 16].includes(totalPlayers)) {
-        alert("Solo se permiten números de jugadores como 2, 4, 8, 16...");
+        alert("Solo se permiten números de jugadores como 2, 4, 8 o 16");
         return;
     }
     setupDiv.classList.add("hidden");
@@ -41,7 +42,22 @@ startBtn.addEventListener("click", () => {
 confirmBt.addEventListener("click", () => __awaiter(void 0, void 0, void 0, function* () {
     const username = usernameIn.value.trim();
     const password = passwordIn.value.trim();
+    const nickname_ = nicknameIn.value.trim();
     erMsg.textContent = "";
+    if (!username || !password || !nickname_) {
+        erMsg.textContent = "Rellena todos los campos";
+        return;
+    }
+    if (players.find(p => p.nickname === nickname_)) {
+        erMsg.textContent = "Este apodo ya ha sido elegido";
+        clearInputs();
+        return;
+    }
+    if (players.find(p => p.username === username)) {
+        erMsg.textContent = "Este jugador ya ha sido registrado";
+        clearInputs();
+        return;
+    }
     try {
         const res = yield fetch("http://localhost:3000/auth/login", {
             method: "POST",
@@ -50,30 +66,37 @@ confirmBt.addEventListener("click", () => __awaiter(void 0, void 0, void 0, func
         });
         if (!res.ok) {
             const data = yield res.json();
-            erMsg.textContent = data.error || "Error";
+            erMsg.textContent = data.error || "Error de login";
+            clearInputs();
             return;
         }
-        const user = yield res.json();
-        if (players.find(p => p.username === user.username)) {
-            erMsg.textContent = "Este jugador ya ha sido registrado";
-            return;
-        }
+        const rawUser = yield res.json();
+        const user = {
+            username: rawUser.username,
+            email: rawUser.email,
+            nickname: nickname_,
+        };
         players.push(user);
         currentLoginIndex++;
+        clearInputs();
         if (players.length === totalPlayers) {
             loginDiv.classList.add("hidden");
             startTournament();
         }
         else {
-            usernameIn.value = "";
-            passwordIn.value = "";
             updateLoginTitle();
         }
     }
     catch (err) {
         erMsg.textContent = "Error de conexión";
+        clearInputs();
     }
 }));
+function clearInputs() {
+    usernameIn.value = "";
+    passwordIn.value = "";
+    nicknameIn.value = "";
+}
 function updateLoginTitle() {
     loginTitle.textContent = `Jugador ${currentLoginIndex + 1} - Login`;
 }
@@ -90,10 +113,10 @@ function startTournament() {
 function createNextRound() {
     const currentRound = rounds[currentRoundIndex];
     const winners = currentRound.map(m => {
-        return players.find(p => p.username === m.winner);
+        return players.find(p => p.nickname === m.winner);
     });
     if (winners.length === 1) {
-        alert(`🏆 ¡Torneo finalizado! Ganador: ${winners[0].username}`);
+        alert(`🏆 ¡Torneo finalizado! Ganador: ${winners[0].nickname}`);
         nextMatchBtn.classList.add("hidden");
         return;
     }
@@ -112,11 +135,11 @@ function updateMatchTable() {
     currentRound.forEach((match, idx) => {
         const tr = document.createElement("tr");
         tr.innerHTML = `
-        <td class="border px-4 py-2">Partido ${idx + 1}</td>
-        <td class="border px-4 py-2">${match.player1.username}</td>
-        <td class="border px-4 py-2">${match.player2.username}</td>
-        <td class="border px-4 py-2">${match.winner || ""}</td>
-      `;
+      <td class="border px-4 py-2">Partido ${idx + 1}</td>
+      <td class="border px-4 py-2">${match.player1.nickname}</td>
+      <td class="border px-4 py-2">${match.player2.nickname}</td>
+      <td class="border px-4 py-2">${match.winner || ""}</td>
+    `;
         matchTable.appendChild(tr);
     });
 }
@@ -130,7 +153,6 @@ nextMatchBtn.addEventListener("click", () => {
     const match = currentRound[currentMatchIndex];
     boardDiv.classList.add("hidden");
     (_a = document.getElementById("pong-game")) === null || _a === void 0 ? void 0 : _a.classList.remove("hidden");
-    // 👇 NUEVO: cancela cualquier animación anterior antes de arrancar
     cancelAnimationFrame(ani);
     startPongMatch(match.player1, match.player2);
 });
@@ -143,8 +165,8 @@ function shuffleArray(array) {
 function startPongMatch(player1, player2) {
     const player1Name = document.getElementById("player1-name");
     const player2Name = document.getElementById("player2-name");
-    player1Name.textContent = player1.username;
-    player2Name.textContent = player2.username;
+    player1Name.textContent = player1.nickname;
+    player2Name.textContent = player2.nickname;
     const canvas = document.getElementById("pongCanvas");
     const ctx = canvas.getContext("2d");
     const score1 = document.getElementById("score1");
@@ -218,9 +240,9 @@ function startPongMatch(player1, player2) {
         if (winner)
             return;
         if (s1 === 3)
-            winner = player1.username;
+            winner = player1.nickname;
         else if (s2 === 3)
-            winner = player2.username;
+            winner = player2.nickname;
         if (winner) {
             moving = false;
             cancelAnimationFrame(ani);
@@ -271,7 +293,7 @@ function startPongMatch(player1, player2) {
     };
     document.addEventListener("keydown", e => {
         if (["ArrowUp", "ArrowDown", "w", "s"].includes(e.key)) {
-            e.preventDefault(); // 👈 Previene scroll
+            e.preventDefault();
             if (e.key === "w")
                 w = true;
             if (e.key === "s")
@@ -284,7 +306,7 @@ function startPongMatch(player1, player2) {
     });
     document.addEventListener("keyup", e => {
         if (["ArrowUp", "ArrowDown", "w", "s"].includes(e.key)) {
-            e.preventDefault(); // 👈 Previene scroll
+            e.preventDefault();
             if (e.key === "w")
                 w = false;
             if (e.key === "s")
@@ -295,8 +317,7 @@ function startPongMatch(player1, player2) {
                 down = false;
         }
     });
-    // Iniciar partida
-    // Reset del estado del juego
+    // Iniciar juego
     p1Y = 150;
     p2Y = 150;
     bX = 400;
@@ -311,10 +332,10 @@ function startPongMatch(player1, player2) {
     update();
     resetBall(Math.random() > 0.5 ? "left" : "right");
     if (ani)
-        cancelAnimationFrame(ani); // 🔴 Asegúrate de parar animaciones anteriores
+        cancelAnimationFrame(ani);
     countdown();
     draw();
 }
 (_a = document.getElementById("home-btn")) === null || _a === void 0 ? void 0 : _a.addEventListener("click", () => {
-    window.location.href = "/index.html"; // o la ruta correcta a tu home
+    window.location.href = "/index.html";
 });
