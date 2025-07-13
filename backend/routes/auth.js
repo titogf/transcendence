@@ -1,6 +1,8 @@
 const bcrypt = require("bcryptjs");
 const util = require("util");
 const db = require("../db");
+const { OAuth2Client } = require("google-auth-library");
+const googleClient = new OAuth2Client("125487297400-n3bg28smb3i77ra2lroqco76vc6s964u.apps.googleusercontent.com");
 
 const dbGet = util.promisify(db.get).bind(db);
 const dbRun = util.promisify(db.run).bind(db);
@@ -241,6 +243,53 @@ async function authRoutes(fastify, options) {
       return reply.code(500).send({ error: "Error interno del servidor" });
     }
   });
+
+  fastify.post("/google", async (request, reply) => {
+    const { token } = request.body;
+
+    if (!token) {
+      return reply.code(400).send({ error: "Token no proporcionado" });
+    }
+
+    try {
+      const ticket = await googleClient.verifyIdToken({
+        idToken: token,
+        audience: "125487297400-n3bg28smb3i77ra2lroqco76vc6s964u.apps.googleusercontent.com",
+      });
+  
+      const payload = ticket.getPayload();
+      const email = payload?.email;
+      const name = payload?.name;
+  
+      // Verifica si el usuario existe
+      let user = await dbGet("SELECT * FROM users WHERE email = ?", [email]);
+  
+      if (!user) {
+        // Crear usuario si no existe (puedes adaptar los campos)
+        await dbRun(
+          `INSERT INTO users (name, email, username, password) VALUES (?, ?, ?, ?)`,
+          [name, email, email.split("@")[0], ""]  // sin contraseña
+        );
+        user = await dbGet("SELECT * FROM users WHERE email = ?", [email]);
+      }
+  
+      return reply.send({
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        username: user.username,
+        wins: user.wins,
+        losses: user.losses,
+        goals_scored: user.goals_scored,
+        goals_conceded: user.goals_conceded,
+        matches_played: user.matches_played,
+      });
+    } catch (err) {
+      console.error("Error en /auth/google:", err);
+      return reply.code(401).send({ error: "Token inválido" });
+    }
+  });
+
 }
 
 module.exports = authRoutes;

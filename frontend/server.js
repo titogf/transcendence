@@ -11,6 +11,12 @@ const fastify = require("fastify")({
 
 const fastifyStatic = require("@fastify/static");
 
+fastify.addHook("onSend", async (request, reply, payload) => {
+  reply.header("Cross-Origin-Opener-Policy", "unsafe-none");
+  reply.header("Cross-Origin-Embedder-Policy", "unsafe-none");
+  return payload;
+});
+
 // dist = estilos generados
 fastify.register(fastifyStatic, {
   root: path.join(__dirname, "dist"),

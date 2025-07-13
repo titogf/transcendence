@@ -9,9 +9,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 const existingUser = localStorage.getItem("user");
-if (existingUser) {
+if (existingUser)
     window.location.href = "profile.html";
-}
 const loginForm = document.getElementById("login-form");
 const usernameInput = document.getElementById("username");
 const passwordInput = document.getElementById("password");
@@ -21,9 +20,8 @@ const hmBtn = document.getElementById("home-btn");
 const registerLink = document.getElementById("register-link");
 function shakeError(message) {
     errorMsg.textContent = message;
-    errorMsg.classList.remove("hidden");
-    errorMsg.classList.remove("shake");
-    void errorMsg.offsetWidth; // fuerza reflow
+    errorMsg.classList.remove("hidden", "shake");
+    void errorMsg.offsetWidth;
     errorMsg.classList.add("shake");
 }
 loginForm.addEventListener("submit", (e) => __awaiter(void 0, void 0, void 0, function* () {
@@ -49,12 +47,26 @@ loginForm.addEventListener("submit", (e) => __awaiter(void 0, void 0, void 0, fu
         shakeError("Error de conexión");
     }
 }));
-retBtn === null || retBtn === void 0 ? void 0 : retBtn.addEventListener("click", () => {
-    window.history.back();
-});
-hmBtn === null || hmBtn === void 0 ? void 0 : hmBtn.addEventListener("click", () => {
-    window.location.href = "index.html";
-});
-registerLink === null || registerLink === void 0 ? void 0 : registerLink.addEventListener("click", () => {
-    window.location.href = "register.html";
+retBtn === null || retBtn === void 0 ? void 0 : retBtn.addEventListener("click", () => window.history.back());
+hmBtn === null || hmBtn === void 0 ? void 0 : hmBtn.addEventListener("click", () => window.location.href = "index.html");
+registerLink === null || registerLink === void 0 ? void 0 : registerLink.addEventListener("click", () => window.location.href = "register.html");
+window.handleGoogleSignIn = (response) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const idToken = response.credential;
+        const res = yield fetch("http://localhost:3000/auth/google", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ token: idToken }),
+        });
+        if (!res.ok) {
+            throw new Error("Error validando con Google");
+        }
+        const userData = yield res.json();
+        localStorage.setItem("user", JSON.stringify(userData));
+        window.location.href = "index.html";
+    }
+    catch (err) {
+        console.error("Error autenticando con Google:", err);
+        shakeError("Error autenticando con Google");
+    }
 });

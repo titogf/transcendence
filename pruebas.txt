@@ -18,6 +18,15 @@ curl -X POST http://localhost:3000/auth/register \
     "email": "a@example.com"
   }'
 
+curl -X POST http://localhost:3000/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{
+    "username": "carlos-m",
+    "password": "pocilgueta",
+    "name": "Carlos Martin",
+    "email": "carlosemartingu@gmail.com"
+  }'
+
 
 Login:
 
