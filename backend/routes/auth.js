@@ -290,6 +290,33 @@ async function authRoutes(fastify, options) {
     }
   });
 
+  fastify.post("/update-profile", async (request, reply) => {
+    const { currentUsername, newUsername, newEmail, newPassword } = request.body;
+
+    try {
+      const user = await dbGet("SELECT * FROM users WHERE username = ?", [currentUsername]);
+      if (!user) {
+        return reply.code(404).send({ error: "Usuario no encontrado" });
+      }
+
+      const updatedUsername = newUsername || user.username;
+      const updatedEmail = newEmail || user.email;
+      const updatedPassword = newPassword
+        ? await bcrypt.hash(newPassword, 10)
+        : user.password;
+
+      await dbRun(
+        `UPDATE users SET username = ?, email = ?, password = ? WHERE username = ?`,
+        [updatedUsername, updatedEmail, updatedPassword, currentUsername]
+      );
+
+      return reply.send({ success: true });
+    } catch (err) {
+      console.error("Error en /update-profile:", err);
+      return reply.code(500).send({ error: "Error al actualizar perfil" });
+    }
+  });
+
 }
 
 module.exports = authRoutes;

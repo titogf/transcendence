@@ -1,6 +1,6 @@
 "use strict";
 window.addEventListener("DOMContentLoaded", () => {
-    var _a, _b, _c;
+    var _a, _b, _c, _d;
     const userFromStorage = JSON.parse(localStorage.getItem("user") || "null");
     if (!userFromStorage) {
         window.location.href = "./login.html";
@@ -82,5 +82,8 @@ window.addEventListener("DOMContentLoaded", () => {
     });
     (_c = document.getElementById("home-btn")) === null || _c === void 0 ? void 0 : _c.addEventListener("click", () => {
         window.location.href = "./index.html";
+    });
+    (_d = document.getElementById("settings-btn")) === null || _d === void 0 ? void 0 : _d.addEventListener("click", () => {
+        window.location.href = "./settings.html";
     });
 });
