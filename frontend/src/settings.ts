@@ -5,13 +5,16 @@ window.addEventListener("DOMContentLoaded", () => {
     return;
   }
 
-  // Botones de navegación
   document.getElementById("return-btn")?.addEventListener("click", () => {
     window.history.back();
   });
 
   document.getElementById("home-btn")?.addEventListener("click", () => {
     window.location.href = "./index.html";
+  });
+  document.getElementById("logout-btn")?.addEventListener("click", () => {
+    localStorage.removeItem("user");
+    window.location.href = "./login.html";
   });
 
   // Guardar cambios
@@ -38,7 +41,6 @@ window.addEventListener("DOMContentLoaded", () => {
       const result = await response.json();
 
       if (result.success) {
-        alert("Perfil actualizado correctamente.");
         localStorage.setItem("user", JSON.stringify({ username: newUsername || currentUsername }));
         window.location.href = "./profile.html";
       } else {

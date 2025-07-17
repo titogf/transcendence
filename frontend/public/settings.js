@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 window.addEventListener("DOMContentLoaded", () => {
-    var _a, _b;
+    var _a, _b, _c;
     const userFromStorage = JSON.parse(localStorage.getItem("user") || "null");
     if (!userFromStorage) {
         window.location.href = "./login.html";
@@ -21,6 +21,10 @@ window.addEventListener("DOMContentLoaded", () => {
     });
     (_b = document.getElementById("home-btn")) === null || _b === void 0 ? void 0 : _b.addEventListener("click", () => {
         window.location.href = "./index.html";
+    });
+    (_c = document.getElementById("logout-btn")) === null || _c === void 0 ? void 0 : _c.addEventListener("click", () => {
+        localStorage.removeItem("user");
+        window.location.href = "./login.html";
     });
     // Guardar cambios
     const saveBtn = document.getElementById("save-btn");
@@ -42,7 +46,6 @@ window.addEventListener("DOMContentLoaded", () => {
             });
             const result = yield response.json();
             if (result.success) {
-                alert("Perfil actualizado correctamente.");
                 localStorage.setItem("user", JSON.stringify({ username: newUsername || currentUsername }));
                 window.location.href = "./profile.html";
             }
