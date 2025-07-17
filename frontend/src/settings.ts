@@ -51,4 +51,25 @@ window.addEventListener("DOMContentLoaded", () => {
       alert("Error al conectar con el servidor.");
     }
   });
+
+  const deleteBtn = document.getElementById("delete-account-btn");
+  deleteBtn?.addEventListener("click", async () => {
+    const username = JSON.parse(localStorage.getItem("user")!).username;
+
+    const response = await fetch("http://localhost:3000/auth/delete-account", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username }),
+    });
+
+    const result = await response.json();
+
+    if (result.success) {
+      localStorage.removeItem("user");
+      window.location.href = "./index.html";
+    } else {
+      alert(result.error || "Error deleting account");
+    }
+  });
+
 });

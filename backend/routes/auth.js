@@ -317,6 +317,24 @@ async function authRoutes(fastify, options) {
     }
   });
 
+  // Eliminar cuenta de usuario
+  fastify.post("/delete-account", async (request, reply) => {
+    const { username } = request.body;
+
+    if (!username) {
+      return reply.code(400).send({ error: "Missing username" });
+    }
+    try {
+      await dbRun(`DELETE FROM matches WHERE user_id = (SELECT id FROM users WHERE username = ?)`, [username]);
+      await dbRun(`DELETE FROM users WHERE username = ?`, [username]);
+
+      return reply.send({ success: true, message: "Account deleted successfully" });
+    } catch (err) {
+      console.error("Error in /delete-account:", err);
+      return reply.code(500).send({ error: "Internal server error" });
+    }
+  });
+
 }
 
 module.exports = authRoutes;

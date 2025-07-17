@@ -15,7 +15,6 @@ window.addEventListener("DOMContentLoaded", () => {
         window.location.href = "./login.html";
         return;
     }
-    // Botones de navegación
     (_a = document.getElementById("return-btn")) === null || _a === void 0 ? void 0 : _a.addEventListener("click", () => {
         window.history.back();
     });
@@ -56,6 +55,23 @@ window.addEventListener("DOMContentLoaded", () => {
         catch (error) {
             console.error("Error al actualizar:", error);
             alert("Error al conectar con el servidor.");
+        }
+    }));
+    const deleteBtn = document.getElementById("delete-account-btn");
+    deleteBtn === null || deleteBtn === void 0 ? void 0 : deleteBtn.addEventListener("click", () => __awaiter(void 0, void 0, void 0, function* () {
+        const username = JSON.parse(localStorage.getItem("user")).username;
+        const response = yield fetch("http://localhost:3000/auth/delete-account", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ username }),
+        });
+        const result = yield response.json();
+        if (result.success) {
+            localStorage.removeItem("user");
+            window.location.href = "./index.html";
+        }
+        else {
+            alert(result.error || "Error deleting account");
         }
     }));
 });
