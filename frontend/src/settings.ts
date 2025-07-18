@@ -5,6 +5,16 @@ window.addEventListener("DOMContentLoaded", () => {
     return;
   }
 
+  fetch(`http://localhost:3000/auth/user-info/${userFromStorage.username}`)
+    .then(res => res.json())
+    .then(user => {
+      (document.getElementById("username") as HTMLElement).textContent = user.username;
+      (document.getElementById("email") as HTMLElement).textContent = user.email;
+      
+      const avatarIndex = user.avatar >= 0 && user.avatar <= 9 ? user.avatar : 0;
+      (document.getElementById("user-avatar") as HTMLImageElement).src = `/avatars/${avatarIndex}.png`;
+    });
+
   document.getElementById("return-btn")?.addEventListener("click", () => {
     window.history.back();
   });
@@ -52,7 +62,7 @@ window.addEventListener("DOMContentLoaded", () => {
 
       if (result.success) {
         localStorage.setItem("user", JSON.stringify({ username: newUsername || currentUsername }));
-        window.location.href = "./profile.html";
+        window.location.href = "./settings.html";
       } else {
         alert(result.error || "No se pudo actualizar el perfil.");
       }
