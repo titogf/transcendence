@@ -8,6 +8,7 @@ window.addEventListener("DOMContentLoaded", () => {
   fetch(`http://localhost:3000/auth/user-info/${userFromStorage.username}`)
     .then(res => res.json())
     .then(user => {
+      (document.getElementById("name") as HTMLElement).textContent = user.name;
       (document.getElementById("username") as HTMLElement).textContent = user.username;
       (document.getElementById("email") as HTMLElement).textContent = user.email;
       

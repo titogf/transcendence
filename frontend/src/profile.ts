@@ -11,6 +11,7 @@ window.addEventListener("DOMContentLoaded", () => {
     .then(res => res.json())
     .then(user => {
 
+      document.getElementById("name")!.textContent = user.name;
       document.getElementById("username")!.textContent = user.username;
       document.getElementById("email")!.textContent = user.email;
 

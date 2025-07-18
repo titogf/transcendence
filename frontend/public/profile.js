@@ -9,6 +9,7 @@ window.addEventListener("DOMContentLoaded", () => {
     fetch(`http://localhost:3000/auth/user-info/${userFromStorage.username}`)
         .then(res => res.json())
         .then(user => {
+        document.getElementById("name").textContent = user.name;
         document.getElementById("username").textContent = user.username;
         document.getElementById("email").textContent = user.email;
         const avatarIndex = user.avatar >= 0 && user.avatar <= 9 ? user.avatar : 0;
