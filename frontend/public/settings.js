@@ -18,12 +18,11 @@ window.addEventListener("DOMContentLoaded", () => {
     fetch(`http://localhost:3000/auth/user-info/${userFromStorage.username}`)
         .then(res => res.json())
         .then(user => {
-        // Actualiza los elementos del DOM con los datos nuevos
         document.getElementById("username").textContent = user.username;
         document.getElementById("email").textContent = user.email;
-        const avatarIndex = (user.avatar >= 0 && user.avatar <= 9) ? user.avatar : 0;
+        const avatarIndex = user.avatar >= 0 && user.avatar <= 9 ? user.avatar : 0;
         document.getElementById("user-avatar").src = `/avatars/${avatarIndex}.png`;
-        });
+    });
     (_a = document.getElementById("return-btn")) === null || _a === void 0 ? void 0 : _a.addEventListener("click", () => {
         window.history.back();
     });
@@ -38,6 +37,7 @@ window.addEventListener("DOMContentLoaded", () => {
     const saveBtn = document.getElementById("save-btn");
     saveBtn === null || saveBtn === void 0 ? void 0 : saveBtn.addEventListener("click", () => __awaiter(void 0, void 0, void 0, function* () {
         const currentUsername = userFromStorage.username;
+        const newAvatar = document.getElementById("new-avatar").value;
         const newUsername = document.getElementById("new-username").value.trim();
         const newEmail = document.getElementById("new-email").value.trim();
         const newPassword = document.getElementById("new-password").value;
@@ -56,6 +56,7 @@ window.addEventListener("DOMContentLoaded", () => {
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     currentUsername,
+                    newAvatar,
                     newUsername,
                     newEmail,
                     newPassword,

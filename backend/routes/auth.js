@@ -291,7 +291,7 @@ async function authRoutes(fastify, options) {
   });
 
   fastify.post("/update-profile", async (request, reply) => {
-    const { currentUsername, newUsername, newEmail, newPassword } = request.body;
+    const { currentUsername, newAvatar, newUsername, newEmail, newPassword } = request.body;
 
     try {
       const user = await dbGet("SELECT * FROM users WHERE username = ?", [currentUsername]);
@@ -299,6 +299,7 @@ async function authRoutes(fastify, options) {
         return reply.code(404).send({ error: "Usuario no encontrado" });
       }
 
+      const updatedAvatar = newAvatar || user.avatar;
       const updatedUsername = newUsername || user.username;
       const updatedEmail = newEmail || user.email;
       const updatedPassword = newPassword
@@ -306,8 +307,8 @@ async function authRoutes(fastify, options) {
         : user.password;
 
       await dbRun(
-        `UPDATE users SET username = ?, email = ?, password = ? WHERE username = ?`,
-        [updatedUsername, updatedEmail, updatedPassword, currentUsername]
+        `UPDATE users SET avatar = ?, username = ?, email = ?, password = ? WHERE username = ?`,
+        [updatedAvatar, updatedUsername, updatedEmail, updatedPassword, currentUsername]
       );
 
       return reply.send({ success: true });

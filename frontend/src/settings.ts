@@ -33,6 +33,7 @@ window.addEventListener("DOMContentLoaded", () => {
   saveBtn?.addEventListener("click", async () => {
     const currentUsername = userFromStorage.username;
 
+    const newAvatar = (document.getElementById("new-avatar") as HTMLInputElement).value;
     const newUsername = (document.getElementById("new-username") as HTMLInputElement).value.trim();
     const newEmail = (document.getElementById("new-email") as HTMLInputElement).value.trim();
     const newPassword = (document.getElementById("new-password") as HTMLInputElement).value;
@@ -52,6 +53,7 @@ window.addEventListener("DOMContentLoaded", () => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           currentUsername,
+          newAvatar,
           newUsername,
           newEmail,
           newPassword,
