@@ -21,6 +21,8 @@ window.addEventListener("DOMContentLoaded", () => {
         // Actualiza los elementos del DOM con los datos nuevos
         document.getElementById("username").textContent = user.username;
         document.getElementById("email").textContent = user.email;
+        const avatarIndex = (user.avatar >= 0 && user.avatar <= 9) ? user.avatar : 0;
+        document.getElementById("user-avatar").src = `/avatars/${avatarIndex}.png`;
         });
     (_a = document.getElementById("return-btn")) === null || _a === void 0 ? void 0 : _a.addEventListener("click", () => {
         window.history.back();

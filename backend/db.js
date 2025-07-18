@@ -18,6 +18,7 @@ db.serialize(() => {
       password TEXT NOT NULL,
       name TEXT NOT NULL,
       email TEXT UNIQUE NOT NULL,
+      avatar INTEGER DEFAULT 0,
       wins INTEGER DEFAULT 0,
       losses INTEGER DEFAULT 0,
       goals_scored INTEGER DEFAULT 0,
