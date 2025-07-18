@@ -6,7 +6,7 @@ const googleClient = new OAuth2Client("125487297400-n3bg28smb3i77ra2lroqco76vc6s
 
 const dbGet = util.promisify(db.get).bind(db);
 const dbRun = util.promisify(db.run).bind(db);
-const dbAll = util.promisify(db.all).bind(db);  // ✅ añadido
+const dbAll = util.promisify(db.all).bind(db);
 
 async function authRoutes(fastify, options) {
   // Registro

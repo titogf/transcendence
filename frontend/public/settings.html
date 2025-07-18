@@ -15,6 +15,11 @@
 
         <div class="flex flex-wrap justify-center gap-8 mb-8">
             <div class="w-80 bg-[#2b2b2b] p-8 rounded-lg shadow space-y-6">
+                <h4 class="tfont-bold text-[#00d9ff]">👤 Username: <span id="username" class="font-bold text-white"></span></h4>
+                <h4 class="tfont-bold text-[#00d9ff]">✉️ Email: <span id="email" class="font-bold text-white"></span></h4>    
+            </div>
+
+            <div class="w-80 bg-[#2b2b2b] p-8 rounded-lg shadow space-y-6">
                 <h2 class="text-xl font-semibold text-[#00d9ff] mb-3">Edit Profile</h2>
 
                 <label class="mb-3">
@@ -31,6 +36,13 @@
                 <span class="text-sm text-gray-300">New Password</span>
                 <input id="new-password" type="password" placeholder="New password" class="w-full mt-1 px-3 py-2 bg-[#1e1e1e] text-white border border-gray-600 rounded" />
                 </label>
+
+                <label class="mb-3">
+                <span class="text-sm text-gray-300">Repeat Password</span>
+                <input id="confirm-password" type="password" placeholder="Repeat password"
+                        class="w-full mt-1 px-3 py-2 bg-[#1e1e1e] text-white border border-gray-600 rounded" />
+                </label>
+                <span id="password-error" class="text-red-500 text-sm hidden">Passwords do not match.</span>
 
                 <div class="flex justify-end">
                 <button id="save-btn" class="bg-[#00ff99] hover:bg-[#00a6c4] text-black font-bold py-2 px-4 rounded">Save Changes</button>

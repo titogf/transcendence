@@ -15,6 +15,13 @@ window.addEventListener("DOMContentLoaded", () => {
         window.location.href = "./login.html";
         return;
     }
+    fetch(`http://localhost:3000/auth/user-info/${userFromStorage.username}`)
+        .then(res => res.json())
+        .then(user => {
+        // Actualiza los elementos del DOM con los datos nuevos
+        document.getElementById("username").textContent = user.username;
+        document.getElementById("email").textContent = user.email;
+        });
     (_a = document.getElementById("return-btn")) === null || _a === void 0 ? void 0 : _a.addEventListener("click", () => {
         window.history.back();
     });
@@ -32,6 +39,15 @@ window.addEventListener("DOMContentLoaded", () => {
         const newUsername = document.getElementById("new-username").value.trim();
         const newEmail = document.getElementById("new-email").value.trim();
         const newPassword = document.getElementById("new-password").value;
+        const confirm = document.getElementById("confirm-password").value;
+        const errorSpan = document.getElementById("password-error");
+        if (newPassword && newPassword !== confirm) {
+            errorSpan === null || errorSpan === void 0 ? void 0 : errorSpan.classList.remove("hidden");
+            return;
+        }
+        else {
+            errorSpan === null || errorSpan === void 0 ? void 0 : errorSpan.classList.add("hidden");
+        }
         try {
             const response = yield fetch("http://localhost:3000/auth/update-profile", {
                 method: "POST",
@@ -46,7 +62,7 @@ window.addEventListener("DOMContentLoaded", () => {
             const result = yield response.json();
             if (result.success) {
                 localStorage.setItem("user", JSON.stringify({ username: newUsername || currentUsername }));
-                window.location.href = "./profile.html";
+                window.location.href = "./settings.html";
             }
             else {
                 alert(result.error || "No se pudo actualizar el perfil.");

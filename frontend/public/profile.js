@@ -10,8 +10,7 @@ window.addEventListener("DOMContentLoaded", () => {
         .then(res => res.json())
         .then(user => {
         // Actualiza los elementos del DOM con los datos nuevos
-        document.getElementById("username").textContent = user.username;
-        document.getElementById("email").textContent = user.email;
+
         const totalMatches = user.matches_played || 0;
         const avgGoals = totalMatches > 0 ? (user.goals_scored / totalMatches).toFixed(2) : "0";
         const winRate = totalMatches > 0 ? ((user.wins / totalMatches) * 100).toFixed(1) + "%" : "0%";

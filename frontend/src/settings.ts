@@ -12,6 +12,7 @@ window.addEventListener("DOMContentLoaded", () => {
   document.getElementById("home-btn")?.addEventListener("click", () => {
     window.location.href = "./index.html";
   });
+
   document.getElementById("logout-btn")?.addEventListener("click", () => {
     localStorage.removeItem("user");
     window.location.href = "./login.html";
@@ -25,6 +26,15 @@ window.addEventListener("DOMContentLoaded", () => {
     const newUsername = (document.getElementById("new-username") as HTMLInputElement).value.trim();
     const newEmail = (document.getElementById("new-email") as HTMLInputElement).value.trim();
     const newPassword = (document.getElementById("new-password") as HTMLInputElement).value;
+    const confirm = (document.getElementById("confirm-password") as HTMLInputElement).value;
+    const errorSpan = document.getElementById("password-error");
+
+    if (newPassword && newPassword !== confirm) {
+      errorSpan?.classList.remove("hidden");
+      return;
+    } else {
+      errorSpan?.classList.add("hidden");
+    }
 
     try {
       const response = await fetch("http://localhost:3000/auth/update-profile", {
@@ -71,5 +81,4 @@ window.addEventListener("DOMContentLoaded", () => {
       alert(result.error || "Error deleting account");
     }
   });
-
 });
