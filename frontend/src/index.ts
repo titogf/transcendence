@@ -14,7 +14,6 @@ window.addEventListener("DOMContentLoaded", () => {
     loginBtn.onclick = () => {
       window.location.href = "./profile.html";
     };
-
     fetch(`http://localhost:3000/auth/user-info/${user.username}`)
       .then(res => res.json())
       .then(userData => {
