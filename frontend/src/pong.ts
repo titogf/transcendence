@@ -10,6 +10,7 @@ const restartBtn = document.getElementById("restart-btn")!;
 const homeBtn = document.getElementById("home-btn");
 const returnBtn = document.getElementById("return-btn");
 const profileBtn = document.getElementById("profile-btn")!;
+const isAI = new URLSearchParams(window.location.search).get("ai") === "1";
 
 // Modal login player 2
 const user2Modal = document.getElementById("player2-modal")!;
@@ -55,7 +56,10 @@ let ballMoving = false;
 
 // Mostrar modal si no hay user2
 user2 = JSON.parse(localStorage.getItem("user2") || "null");
-if (!user2) {
+if (isAI) {
+  user2 = { username: "IA" };
+  startGame();
+} else if (!user2) {
   user2Modal.classList.remove("hidden");
 } else {
   startGame();
@@ -116,8 +120,41 @@ function draw() {
 
   if (wKey && player1Y > 0) player1Y -= 10;
   if (sKey && player1Y < canvas.height - 100) player1Y += 10;
-  if (upKey && player2Y > 0) player2Y -= 10;
-  if (downKey && player2Y < canvas.height - 100) player2Y += 10;
+  if (isAI) {
+    if (ballSpeedX > 0) {
+      // Solo predecimos cuando la pelota se acerca
+      const predictedY = predictBallY();
+      const targetY = predictedY - 50;           // centra la pala (100px alto / 2)
+      const centerY = player2Y + 50;             // punto medio actual de la pala
+      const delta = targetY - centerY;
+      const aiMaxSpeed = 6;                      // velocidad máxima movimiento IA
+      const threshold = 2;                       // umbral para considerar "ya en posición"
+
+      if (Math.abs(delta) > aiMaxSpeed) {
+        // mover a velocidad tope si falta mucho
+        player2Y += delta > 0 ? aiMaxSpeed : -aiMaxSpeed;
+      } else if (Math.abs(delta) > threshold) {
+        // moverse muy despacio si queda poca distancia
+        player2Y += delta > 0 ? 1 : -1;
+      }
+      // si |delta| <= threshold → NO actualizar player2Y: permanece quieta
+    } else {
+      // cuando la bola retrocede, vuelve al centro suavemente
+      const centerCourt = (canvas.height - 100) / 2;
+      const backDelta = (player2Y) - centerCourt;
+      if (Math.abs(backDelta) > 1) {
+        player2Y += backDelta > 0 ? -1 : 1;
+      }
+    }
+
+    // Limitar dentro del canvas
+    player2Y = Math.max(0, Math.min(canvas.height - 100, player2Y));
+
+  } else {
+    // control manual
+    if (upKey && player2Y > 0)    player2Y -= 10;
+    if (downKey && player2Y < canvas.height - 100) player2Y += 10;
+  }
 
   if (ballMoving) {
     ballX += ballSpeedX;
@@ -171,11 +208,7 @@ function updateScore() {
 }
 
 function checkWinner() {
-  if (scoreP1 === 3) {
-    winner = user.username;
-  } else if (scoreP2 === 3) {
-    winner = user2.username;
-  }
+  winner = scoreP1 === 3 ? user.username : (isAI ? "IA" : user2.username);
 
   if (winner) {
     ballMoving = false;
@@ -197,6 +230,27 @@ function resetBall(direction: "left" | "right" | "zero") {
     ballSpeedY = Math.random() > 0.5 ? 5 : -5;
   }
 }
+
+function predictBallY(): number {
+  let simX = ballX;
+  let simY = ballY;
+  let simSpeedX = ballSpeedX;
+  let simSpeedY = ballSpeedY;
+
+  if (simSpeedX < 0) simSpeedX = -simSpeedX;
+
+  while (simX < canvas.width - 20) {
+    simX += simSpeedX;
+    simY += simSpeedY;
+
+    if (simY - 10 <= 0 || simY + 10 >= canvas.height) {
+      simSpeedY *= -1;
+    }
+  }
+
+  return simY + 10;
+}
+
 
 function startCountdown() {
   ballMoving = false;
@@ -233,6 +287,7 @@ function restartGame() {
 }
 
 async function sendMatchResult() {
+  if (isAI) return;
   const winnerUsername = scoreP1 === 3 ? user.username : user2.username;
   const loserUsername = scoreP1 === 3 ? user2.username : user.username;
   const winnerGoals = Math.max(scoreP1, scoreP2);
