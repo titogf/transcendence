@@ -4,6 +4,7 @@ window.addEventListener("DOMContentLoaded", () => {
     const loginBtn = document.getElementById("singin-btn");
     const tournamentBtn = document.getElementById("tournament-btn");
     const play4Btn = document.getElementById("play4-btn");
+    const playAiBtn = document.getElementById("play-ai-btn");
     const userAvatar = document.getElementById("user-avatar");
     const userStr = localStorage.getItem("user");
     if (userStr && loginBtn) {
@@ -34,6 +35,11 @@ window.addEventListener("DOMContentLoaded", () => {
     if (playBtn) {
         playBtn.addEventListener("click", () => {
             window.location.href = "./pong.html";
+        });
+    }
+    if (playAiBtn) {
+        playAiBtn.addEventListener("click", () => {
+            window.location.href = "./pong.html?ai=1";
         });
     }
     if (tournamentBtn) {

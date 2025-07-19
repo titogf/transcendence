@@ -3,6 +3,7 @@ window.addEventListener("DOMContentLoaded", () => {
   const loginBtn = document.getElementById("singin-btn") as HTMLButtonElement | null;
   const tournamentBtn = document.getElementById("tournament-btn") as HTMLButtonElement | null;
   const play4Btn = document.getElementById("play4-btn") as HTMLButtonElement | null;
+  const playAiBtn = document.getElementById("play-ai-btn") as HTMLButtonElement | null;
   const userAvatar = document.getElementById("user-avatar") as HTMLImageElement | null;
 
   const userStr = localStorage.getItem("user");
@@ -35,6 +36,12 @@ window.addEventListener("DOMContentLoaded", () => {
   if (playBtn) {
     playBtn.addEventListener("click", () => {
       window.location.href = "./pong.html";
+    });
+  }
+
+  if (playAiBtn) {
+    playAiBtn.addEventListener("click", () => {
+      window.location.href = "./pong.html?ai=1";
     });
   }
 
