@@ -233,11 +233,33 @@ window.addEventListener("keyup", e => {
 });
 
 restartBtn.addEventListener("click", () => {
+  // Ocultar mensaje de victoria
+  winnerMsg.classList.add("hidden");
+
+  // Reset variables del juego
+  scoreP1 = 0;
+  scoreP2 = 0;
+  player1Y = 150;
+  player2Y = 150;
+  updateScore();
+  winner = null;
+
+  // Reiniciar IA si está activa
+  if (isAI) {
+    if (aiPredictionInterval) clearInterval(aiPredictionInterval);
+    if (aiMoveInterval) clearInterval(aiMoveInterval);
+    startAI();
+  }
+
+  // Reiniciar pelota y empezar con cuenta atrás
+  resetBall("right");
+  startCountdown();
+
+  // Iniciar de nuevo el bucle de dibujo
   if (animationId) cancelAnimationFrame(animationId);
-  if (aiInterval) clearInterval(aiInterval);
-  scoreP1 = scoreP2 = 0; winner = null; player1Y = player2Y = 150;
-  updateScore(); winnerMsg.classList.add("hidden"); resetBall(Math.random() > 0.5 ? "left" : "right"); startCountdown(); draw();
+  animationId = requestAnimationFrame(draw);
 });
+
 
 function startGame() {
   resetBall("left"); startCountdown(); draw();
