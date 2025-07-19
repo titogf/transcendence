@@ -191,7 +191,7 @@ function startAI() {
     predictedY = predictBallY();
   }, 1000);
 
-  // Mueve la pala cada 300 ms en función de la predicción más reciente
+  // Mueve la pala cada 250 ms en función de la predicción más reciente
   aiMoveInterval = window.setInterval(() => {
     if (!ballMoving) return;
     const centerPaddle = player2Y + 50;
@@ -202,7 +202,7 @@ function startAI() {
       window.dispatchEvent(new KeyboardEvent("keydown", { key }));
       setTimeout(() => window.dispatchEvent(new KeyboardEvent("keyup", { key })), aiPressDuration);
     }
-  }, 300);
+  }, 250);
 }
 
 async function sendMatchResult() {
