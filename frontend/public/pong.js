@@ -8,6 +8,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+// frontend/src/pong.ts
 const canvas = document.getElementById("pongCanvas");
 const ctx = canvas.getContext("2d");
 const scoreboard = document.getElementById("scoreboard");
@@ -20,13 +21,15 @@ const restartBtn = document.getElementById("restart-btn");
 const homeBtn = document.getElementById("home-btn");
 const returnBtn = document.getElementById("return-btn");
 const profileBtn = document.getElementById("profile-btn");
+// Detect AI mode
+const isAI = new URLSearchParams(window.location.search).get("ai") === "1";
 // Modal login player 2
 const user2Modal = document.getElementById("player2-modal");
 const player2Input = document.getElementById("player2-username");
 const player2Pass = document.getElementById("player2-password");
 const player2Error = document.getElementById("player2-error");
 const confirmBtn = document.getElementById("confirm-btn");
-// --- Usuarios ---
+// Users
 const user = JSON.parse(localStorage.getItem("user") || "null");
 let user2 = null;
 if (!user) {
@@ -34,17 +37,12 @@ if (!user) {
 }
 else {
     profileBtn.textContent = `👤 ${user.username}`;
-    profileBtn.addEventListener("click", () => {
-        window.location.href = "./profile.html";
-    });
+    profileBtn.addEventListener("click", () => window.location.href = "./profile.html");
 }
 localStorage.removeItem("user2");
-homeBtn === null || homeBtn === void 0 ? void 0 : homeBtn.addEventListener("click", () => {
-    window.location.href = "./index.html";
-});
-returnBtn === null || returnBtn === void 0 ? void 0 : returnBtn.addEventListener("click", () => {
-    window.history.back();
-});
+homeBtn === null || homeBtn === void 0 ? void 0 : homeBtn.addEventListener("click", () => window.location.href = "./index.html");
+returnBtn === null || returnBtn === void 0 ? void 0 : returnBtn.addEventListener("click", () => window.history.back());
+// Game state
 let player1Y = 150;
 let player2Y = 150;
 let ballX = 400;
@@ -57,15 +55,26 @@ let scoreP1 = 0;
 let scoreP2 = 0;
 let winner = null;
 let ballMoving = false;
-// Mostrar modal si no hay user2
+let predictedY = 0;
+let aiPredictionInterval = null;
+let aiMoveInterval = null;
+// AI controls
+let aiInterval = null;
+const aiPressDuration = 100;
+// Initialize game or modal
 user2 = JSON.parse(localStorage.getItem("user2") || "null");
-if (!user2) {
+if (isAI) {
+    user2 = { username: "IA" };
+    startGame();
+    startAI();
+}
+else if (!user2) {
     user2Modal.classList.remove("hidden");
 }
 else {
     startGame();
 }
-// Confirmar login de player2
+// Player 2 login when not AI
 confirmBtn.addEventListener("click", () => __awaiter(void 0, void 0, void 0, function* () {
     const username = player2Input.value;
     const password = player2Pass.value;
@@ -74,11 +83,7 @@ confirmBtn.addEventListener("click", () => __awaiter(void 0, void 0, void 0, fun
         return;
     }
     try {
-        const res = yield fetch("http://localhost:3000/auth/login", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ username, password }),
-        });
+        const res = yield fetch("http://localhost:3000/auth/login", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ username, password }) });
         if (!res.ok) {
             player2Error.textContent = "Usuario o contraseña incorrectos";
             return;
@@ -93,25 +98,32 @@ confirmBtn.addEventListener("click", () => __awaiter(void 0, void 0, void 0, fun
         user2Modal.classList.add("hidden");
         startGame();
     }
-    catch (err) {
+    catch (_a) {
         player2Error.textContent = "Error de conexión";
     }
 }));
+// Game draw loop
 function draw() {
+    // Clear
     ctx.fillStyle = "black";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
+    // Paddles
     ctx.fillStyle = "#00d9ff";
     ctx.fillRect(0, player1Y, 10, 100);
     ctx.fillRect(canvas.width - 10, player2Y, 10, 100);
+    // Ball
     if (!winner) {
         ctx.beginPath();
         ctx.arc(ballX, ballY, 10, 0, Math.PI * 2);
         ctx.fill();
     }
+    // Movement
+    // Paleta 1 (W/S)
     if (wKey && player1Y > 0)
         player1Y -= 10;
     if (sKey && player1Y < canvas.height - 100)
         player1Y += 10;
+    // Paleta 2 (respuesta a eventos de tecla, ya sea humano o IA)
     if (upKey && player2Y > 0)
         player2Y -= 10;
     if (downKey && player2Y < canvas.height - 100)
@@ -120,18 +132,19 @@ function draw() {
         ballX += ballSpeedX;
         ballY += ballSpeedY;
     }
+    // Wall collision
     if (ballY - 10 <= 0 || ballY + 10 >= canvas.height)
         ballSpeedY *= -1;
-    // Colisión paddle izquierda
+    // Paddle collision
     if (ballX - 10 <= 10 && ballY >= player1Y && ballY <= player1Y + 100) {
         ballX = 21;
         ballSpeedX *= -1;
     }
-    // Colisión paddle derecha
     if (ballX + 10 >= canvas.width - 10 && ballY >= player2Y && ballY <= player2Y + 100) {
         ballX = canvas.width - 21;
         ballSpeedX *= -1;
     }
+    // Score
     if (ballX <= 0) {
         scoreP2++;
         updateScore();
@@ -142,6 +155,10 @@ function draw() {
         }
         else {
             resetBall("zero");
+            if (aiPredictionInterval)
+                clearInterval(aiPredictionInterval);
+            if (aiMoveInterval)
+                clearInterval(aiMoveInterval);
         }
     }
     if (ballX >= canvas.width) {
@@ -154,6 +171,10 @@ function draw() {
         }
         else {
             resetBall("zero");
+            if (aiPredictionInterval)
+                clearInterval(aiPredictionInterval);
+            if (aiMoveInterval)
+                clearInterval(aiMoveInterval);
         }
     }
     animationId = requestAnimationFrame(draw);
@@ -163,15 +184,15 @@ function updateScore() {
     score2.textContent = String(scoreP2);
 }
 function checkWinner() {
-    if (scoreP1 === 3) {
+    if (scoreP1 === 3)
         winner = user.username;
-    }
-    else if (scoreP2 === 3) {
-        winner = user2.username;
-    }
+    else if (scoreP2 === 3)
+        winner = isAI ? "IA" : user2.username;
     if (winner) {
         ballMoving = false;
         cancelAnimationFrame(animationId);
+        if (aiInterval)
+            clearInterval(aiInterval);
         winnerText.textContent = `${winner} wins!`;
         winnerMsg.classList.remove("hidden");
         sendMatchResult();
@@ -189,6 +210,17 @@ function resetBall(direction) {
         ballSpeedY = Math.random() > 0.5 ? 5 : -5;
     }
 }
+function predictBallY() {
+    let simX = ballX, simY = ballY;
+    let simSpeedX = Math.abs(ballSpeedX), simSpeedY = ballSpeedY;
+    while (simX < canvas.width - 20) {
+        simX += simSpeedX;
+        simY += simSpeedY;
+        if (simY - 10 <= 0 || simY + 10 >= canvas.height)
+            simSpeedY *= -1;
+    }
+    return simY;
+}
 function startCountdown() {
     ballMoving = false;
     let count = 3;
@@ -201,57 +233,56 @@ function startCountdown() {
             clearInterval(interval);
             ballMoving = true;
         }
-        else {
+        else
             countdownEl.textContent = String(count);
-        }
     }, 1000);
 }
-function restartGame() {
-    if (animationId !== null) {
-        cancelAnimationFrame(animationId);
-        animationId = null;
-    }
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    scoreP1 = 0;
-    scoreP2 = 0;
-    winner = null;
-    updateScore();
-    winnerMsg.classList.add("hidden");
-    player1Y = player2Y = 150;
-    resetBall(Math.random() > 0.5 ? "left" : "right");
-    startCountdown();
-    draw();
+function startAI() {
+    // Limpia intervalos anteriores si existen
+    if (aiPredictionInterval)
+        clearInterval(aiPredictionInterval);
+    if (aiMoveInterval)
+        clearInterval(aiMoveInterval);
+    // Actualiza predicción cada 1 segundo
+    aiPredictionInterval = window.setInterval(() => {
+        if (!ballMoving)
+            return;
+        predictedY = predictBallY();
+    }, 1000);
+    // Mueve la pala cada 250 ms en función de la predicción más reciente
+    aiMoveInterval = window.setInterval(() => {
+        if (!ballMoving)
+            return;
+        const centerPaddle = player2Y + 50;
+        const delta = predictedY - centerPaddle;
+        let key = null;
+        if (Math.abs(delta) > 10)
+            key = delta > 0 ? "ArrowDown" : "ArrowUp";
+        if (key) {
+            window.dispatchEvent(new KeyboardEvent("keydown", { key }));
+            setTimeout(() => window.dispatchEvent(new KeyboardEvent("keyup", { key })), aiPressDuration);
+        }
+    }, 250);
 }
 function sendMatchResult() {
     return __awaiter(this, void 0, void 0, function* () {
+        if (isAI)
+            return;
         const winnerUsername = scoreP1 === 3 ? user.username : user2.username;
         const loserUsername = scoreP1 === 3 ? user2.username : user.username;
-        const winnerGoals = Math.max(scoreP1, scoreP2);
-        const loserGoals = Math.min(scoreP1, scoreP2);
         try {
-            const response = yield fetch("http://localhost:3000/auth/match-result", {
+            yield fetch("http://localhost:3000/auth/match-result", {
                 method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({
-                    winner: winnerUsername,
-                    loser: loserUsername,
-                    winner_goals: winnerGoals,
-                    loser_goals: loserGoals
-                })
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ winner: winnerUsername, loser: loserUsername, winner_goals: Math.max(scoreP1, scoreP2), loser_goals: Math.min(scoreP1, scoreP2) })
             });
-            if (!response.ok) {
-                const data = yield response.json();
-                console.error("Error registrando partida:", data.error || response.statusText);
-            }
         }
         catch (err) {
-            console.error("Error de conexión al registrar partida:", err);
+            console.error("Error registrando partida:", err);
         }
     });
 }
-// Event listeners
+// Keyboard listeners (human + AI)
 window.addEventListener("keydown", e => {
     if (e.key === "w")
         wKey = true;
@@ -280,8 +311,32 @@ window.addEventListener("keyup", e => {
         e.preventDefault();
     }
 });
-restartBtn.addEventListener("click", restartGame);
-// ⬇️ Solo llamamos a startGame() cuando ambos usuarios estén listos
+restartBtn.addEventListener("click", () => {
+    // Ocultar mensaje de victoria
+    winnerMsg.classList.add("hidden");
+    // Reset variables del juego
+    scoreP1 = 0;
+    scoreP2 = 0;
+    player1Y = 150;
+    player2Y = 150;
+    updateScore();
+    winner = null;
+    // Reiniciar IA si está activa
+    if (isAI) {
+        if (aiPredictionInterval)
+            clearInterval(aiPredictionInterval);
+        if (aiMoveInterval)
+            clearInterval(aiMoveInterval);
+        startAI();
+    }
+    // Reiniciar pelota y empezar con cuenta atrás
+    resetBall("right");
+    startCountdown();
+    // Iniciar de nuevo el bucle de dibujo
+    if (animationId)
+        cancelAnimationFrame(animationId);
+    animationId = requestAnimationFrame(draw);
+});
 function startGame() {
     resetBall("left");
     startCountdown();
