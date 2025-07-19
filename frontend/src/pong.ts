@@ -51,6 +51,9 @@ let scoreP1 = 0;
 let scoreP2 = 0;
 let winner: string | null = null;
 let ballMoving = false;
+let predictedY: number = 0;
+let aiPredictionInterval: number | null = null;
+let aiMoveInterval: number | null = null;
 
 // AI controls
 let aiInterval: number | null = null;
@@ -124,10 +127,10 @@ function draw() {
   }
   // Score
   if (ballX <= 0) {
-    scoreP2++; updateScore(); checkWinner(); if (!winner) { resetBall("left"); startCountdown(); } else resetBall("zero");
+    scoreP2++; updateScore(); checkWinner(); if (!winner) { resetBall("left"); startCountdown(); } else { resetBall("zero"); if (aiPredictionInterval) clearInterval(aiPredictionInterval); if (aiMoveInterval) clearInterval(aiMoveInterval); }
   }
   if (ballX >= canvas.width) {
-    scoreP1++; updateScore(); checkWinner(); if (!winner) { resetBall("right"); startCountdown(); } else resetBall("zero");
+    scoreP1++; updateScore(); checkWinner(); if (!winner) { resetBall("right"); startCountdown(); } else { resetBall("zero"); if (aiPredictionInterval) clearInterval(aiPredictionInterval); if (aiMoveInterval) clearInterval(aiMoveInterval); }
   }
   animationId = requestAnimationFrame(draw);
 }
@@ -178,9 +181,19 @@ function startCountdown() {
 }
 
 function startAI() {
-  if (aiInterval) clearInterval(aiInterval);
-  aiInterval = window.setInterval(() => {
-    const predictedY = predictBallY();
+  // Limpia intervalos anteriores si existen
+  if (aiPredictionInterval) clearInterval(aiPredictionInterval);
+  if (aiMoveInterval) clearInterval(aiMoveInterval);
+
+  // Actualiza predicción cada 1 segundo
+  aiPredictionInterval = window.setInterval(() => {
+    if (!ballMoving) return;
+    predictedY = predictBallY();
+  }, 1000);
+
+  // Mueve la pala cada 300 ms en función de la predicción más reciente
+  aiMoveInterval = window.setInterval(() => {
+    if (!ballMoving) return;
     const centerPaddle = player2Y + 50;
     const delta = predictedY - centerPaddle;
     let key: "ArrowUp" | "ArrowDown" | null = null;
