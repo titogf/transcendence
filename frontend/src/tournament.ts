@@ -285,10 +285,23 @@ function startPongMatch(player1: User, player2: User) {
 
       const currentRound = rounds[currentRoundIndex];
       const allPlayed = currentRound.every(m => m.winner);
+      sendMatchResult();
 
       if (allPlayed) createNextRound();
     }
   }
+  
+  async function sendMatchResult() {
+  const winnerUsername = s1 === 3 ? player1.username : player2.username;
+  const loserUsername = s1 === 3 ? player2.username : player1.username;
+  try {
+    await fetch("http://localhost:3000/auth/match-result", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ winner: winnerUsername, loser: loserUsername, winner_goals: Math.max(s1, s2), loser_goals: Math.min(s1, s2) })
+    });
+  } catch (err) { console.error("Error registrando partida:", err); }
+}
 
   function resetBall(dir: "left" | "right") {
     bX = 400;
