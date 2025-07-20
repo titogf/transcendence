@@ -309,6 +309,22 @@ async function authRoutes(fastify, options) {
       if (!user) {
         return reply.code(404).send({ error: "Usuario no encontrado" });
       }
+      if (newUsername){
+        const existingUser = await dbGet(
+        `SELECT * FROM users WHERE username = ?`,
+        [newUsername]
+      );
+      if (existingUser) {
+        return reply.code(400).send({ error: "Username exists" });
+      }}
+      if (newEmail){
+        const existingUser = await dbGet(
+        `SELECT * FROM users WHERE email = ?`,
+        [newEmail]
+      );
+      if (existingUser) {
+        return reply.code(400).send({ error: "Email exists" });
+      }}
 
       const updatedAvatar = newAvatar || user.avatar;
       const updatedUsername = newUsername || user.username;
@@ -316,16 +332,20 @@ async function authRoutes(fastify, options) {
       const updatedPassword = newPassword
         ? await bcrypt.hash(newPassword, 10)
         : user.password;
+      const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(updatedEmail);
+      if (!isEmail){
+        return reply.code(400).send({ error: "Bad email format" });
+      }
 
       await dbRun(
         `UPDATE users SET avatar = ?, username = ?, email = ?, password = ? WHERE username = ?`,
         [updatedAvatar, updatedUsername, updatedEmail, updatedPassword, currentUsername]
       );
 
-      return reply.send({ success: true });
+      return reply.send({ message: "Changes updated successfully" });
     } catch (err) {
       console.error("Error en /update-profile:", err);
-      return reply.code(500).send({ error: "Error al actualizar perfil" });
+      return reply.code(500).send({ error: "Error updating profile" });
     }
   });
 

@@ -60,20 +60,27 @@ window.addEventListener("DOMContentLoaded", () => {
           newPassword,
         }),
       });
-
-      const result = await response.json();
-
-      if (result.success) {
-        localStorage.setItem("user", JSON.stringify({ username: newUsername || currentUsername }));
-        window.location.href = "./settings.html";
-      } else {
-        alert(result.error || "No se pudo actualizar el perfil.");
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || "Error");
       }
-    } catch (error) {
-      console.error("Error al actualizar:", error);
-      alert("Error al conectar con el servidor.");
-    }
+      localStorage.setItem("user", JSON.stringify({ username: newUsername || currentUsername }));
+      window.location.href = "./settings.html";
+    } catch (error: any) {
+      showError(error.message || "Error desconocido");
+    }  
   });
+const errorMessage = document.getElementById("error-message")!;
+
+function showError(message: string) {
+  errorMessage.textContent = message;
+  errorMessage.classList.remove("hidden");
+  errorMessage.classList.add("shake");
+
+  setTimeout(() => {
+    errorMessage.classList.remove("shake");
+  }, 500);
+}
 
   const deleteBtn = document.getElementById("delete-account-btn");
   deleteBtn?.addEventListener("click", async () => {
