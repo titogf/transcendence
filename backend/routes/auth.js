@@ -254,6 +254,38 @@ async function authRoutes(fastify, options) {
       return reply.code(500).send({ error: "Error interno del servidor" });
     }
   });
+  
+  fastify.post("/tournament-won", async (request, reply) => {
+    const { username } = request.body;
+
+    if (!username) {
+      return reply.code(400).send({ error: "Username is required" });
+    }
+
+    try {
+      await dbRun(`UPDATE users SET wins_tournaments = wins_tournaments + 1 WHERE username = ?`, [username]);
+      reply.send({ success: true });
+    } catch (err) {
+      console.error("Error en /tournament-won:", err);
+      reply.code(500).send({ error: "Error updating tournament winner" });
+    }
+  });
+
+  fastify.post("/tournament-played", async (request, reply) => {
+    const { username } = request.body;
+
+    if (!username) {
+      return reply.code(400).send({ error: "Username is required" });
+    }
+
+    try {
+      await dbRun(`UPDATE users SET tournaments_played = tournaments_played + 1 WHERE username = ?`, [username]);
+      reply.send({ success: true });
+    } catch (err) {
+      console.error("Error en /tournament-played:", err);
+      reply.code(500).send({ error: "Error updating tournament participation" });
+    }
+  });
 
   fastify.post("/google", async (request, reply) => {
     const { token } = request.body;

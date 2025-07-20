@@ -116,8 +116,25 @@ function createNextRound() {
         return players.find(p => p.nickname === m.winner);
     });
     if (winners.length === 1) {
-        alert(`🏆 ¡Torneo finalizado! Ganador: ${winners[0].nickname}`);
+        const winnerName = winners[0].nickname;
+        const winnerUsername = winners[0].username;
+        const winnerDiv = document.getElementById("tournament-winner");
+        const winnerSpan = document.getElementById("tournament-winner-name");
+        winnerSpan.textContent = winnerName;
+        winnerDiv.classList.remove("hidden");
         nextMatchBtn.classList.add("hidden");
+        fetch("http://localhost:3000/auth/tournament-won", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ username: winnerUsername })
+        });
+        players.forEach(p => {
+            fetch("http://localhost:3000/auth/tournament-played", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ username: p.username })
+            });
+        });
         return;
     }
     const nextRound = [];

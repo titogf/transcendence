@@ -23,7 +23,9 @@ db.serialize(() => {
       losses INTEGER DEFAULT 0,
       goals_scored INTEGER DEFAULT 0,
       goals_conceded INTEGER DEFAULT 0,
-      matches_played INTEGER DEFAULT 0
+      matches_played INTEGER DEFAULT 0,
+      tournaments_played INTEGER DEFAULT 0,
+      wins_tournaments INTEGER DEFAULT 0
     )
   `);
 
