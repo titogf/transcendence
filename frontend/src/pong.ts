@@ -206,7 +206,6 @@ function startAI() {
 }
 
 async function sendMatchResult() {
-  if (isAI) return;
   const winnerUsername = scoreP1 === 3 ? user.username : user2.username;
   const loserUsername = scoreP1 === 3 ? user2.username : user.username;
   try {

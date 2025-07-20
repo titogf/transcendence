@@ -23,6 +23,9 @@ async function authRoutes(fastify, options) {
         [email, username]
       );
 
+      if (username == 'IA') {
+        return reply.code(400).send({ error: "Invalid username" });
+      }
       if (existingUser) {
         return reply.code(400).send({ error: "Email o usuario ya existe" });
       }
@@ -190,25 +193,29 @@ async function authRoutes(fastify, options) {
     }
 
     try {
-      await dbRun(
-        `UPDATE users SET 
-          wins = wins + 1,
-          goals_scored = goals_scored + ?,
-          goals_conceded = goals_conceded + ?,
-          matches_played = matches_played + 1
-        WHERE username = ?`,
-        [winner_goals, loser_goals, winner]
-      );
+      if (winner != 'IA'){
+        await dbRun(
+          `UPDATE users SET 
+            wins = wins + 1,
+            goals_scored = goals_scored + ?,
+            goals_conceded = goals_conceded + ?,
+            matches_played = matches_played + 1
+          WHERE username = ?`,
+          [winner_goals, loser_goals, winner]
+        );
+      }
 
-      await dbRun(
-        `UPDATE users SET 
-          losses = losses + 1,
-          goals_scored = goals_scored + ?,
-          goals_conceded = goals_conceded + ?,
-          matches_played = matches_played + 1
-        WHERE username = ?`,
-        [loser_goals, winner_goals, loser]
-      );
+      if (loser != 'IA'){
+        await dbRun(
+          `UPDATE users SET 
+            losses = losses + 1,
+            goals_scored = goals_scored + ?,
+            goals_conceded = goals_conceded + ?,
+            matches_played = matches_played + 1
+          WHERE username = ?`,
+          [loser_goals, winner_goals, loser]
+        );
+      }
 
       const winnerRow = await dbGet(
         `SELECT id FROM users WHERE username = ?`,
