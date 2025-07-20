@@ -14,7 +14,11 @@ async function authRoutes(fastify, options) {
     const { name, email, username, password } = request.body;
 
     if (!name || !email || !username || !password) {
-      return reply.code(400).send({ error: "Faltan datos" });
+      return reply.code(400).send({ error: "Data is missing" });
+    }
+    const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    if (!isEmail){
+      return reply.code(400).send({ error: "Bad email format" });
     }
 
     try {
@@ -27,7 +31,7 @@ async function authRoutes(fastify, options) {
         return reply.code(400).send({ error: "Invalid username" });
       }
       if (existingUser) {
-        return reply.code(400).send({ error: "Email o usuario ya existe" });
+        return reply.code(400).send({ error: "Email or username exists" });
       }
 
       const hashedPassword = await bcrypt.hash(password, 10);
