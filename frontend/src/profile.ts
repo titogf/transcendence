@@ -25,6 +25,9 @@ window.addEventListener("DOMContentLoaded", () => {
       document.getElementById("avg-goals")!.textContent = avgGoals;
       document.getElementById("win-rate")!.textContent = winRate;
 
+      document.getElementById("win-tournaments")!.textContent = user.wins_tournaments;
+      document.getElementById("tournaments-played")!.textContent = user.tournaments_played;
+      console.log(user);
 
       new Chart("victory-chart", {
         type: "bar",

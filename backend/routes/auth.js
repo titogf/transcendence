@@ -116,7 +116,7 @@ async function authRoutes(fastify, options) {
 
     try {
       const user = await dbGet(
-        `SELECT id, name, email, username, avatar, wins, losses, goals_scored, goals_conceded, matches_played
+        `SELECT id, name, email, username, avatar, wins, losses, goals_scored, goals_conceded, matches_played, wins_tournaments, tournaments_played
          FROM users WHERE username = ?`,
         [username]
       );

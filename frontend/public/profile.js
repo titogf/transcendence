@@ -19,6 +19,9 @@ window.addEventListener("DOMContentLoaded", () => {
         const winRate = totalMatches > 0 ? ((user.wins / totalMatches) * 100).toFixed(1) + "%" : "0%";
         document.getElementById("avg-goals").textContent = avgGoals;
         document.getElementById("win-rate").textContent = winRate;
+        document.getElementById("win-tournaments").textContent = user.wins_tournaments;
+        document.getElementById("tournaments-played").textContent = user.tournaments_played;
+        console.log(user);
         new Chart("victory-chart", {
             type: "bar",
             data: {
