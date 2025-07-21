@@ -6,7 +6,7 @@ const googleClient = new OAuth2Client("125487297400-n3bg28smb3i77ra2lroqco76vc6s
 
 const dbGet = util.promisify(db.get).bind(db);
 const dbRun = util.promisify(db.run).bind(db);
-const dbAll = util.promisify(db.all).bind(db);  // ✅ añadido
+const dbAll = util.promisify(db.all).bind(db);
 
 async function authRoutes(fastify, options) {
   // Registro
@@ -14,7 +14,11 @@ async function authRoutes(fastify, options) {
     const { name, email, username, password } = request.body;
 
     if (!name || !email || !username || !password) {
-      return reply.code(400).send({ error: "Faltan datos" });
+      return reply.code(400).send({ error: "Data is missing" });
+    }
+    const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    if (!isEmail){
+      return reply.code(400).send({ error: "Bad email format" });
     }
 
     try {
@@ -23,8 +27,11 @@ async function authRoutes(fastify, options) {
         [email, username]
       );
 
+      if (username == 'IA') {
+        return reply.code(400).send({ error: "Invalid username" });
+      }
       if (existingUser) {
-        return reply.code(400).send({ error: "Email o usuario ya existe" });
+        return reply.code(400).send({ error: "Email or username exists" });
       }
 
       const hashedPassword = await bcrypt.hash(password, 10);
@@ -109,7 +116,7 @@ async function authRoutes(fastify, options) {
 
     try {
       const user = await dbGet(
-        `SELECT id, name, email, username, wins, losses, goals_scored, goals_conceded, matches_played
+        `SELECT id, name, email, username, avatar, wins, losses, goals_scored, goals_conceded, matches_played, wins_tournaments, tournaments_played
          FROM users WHERE username = ?`,
         [username]
       );
@@ -190,25 +197,29 @@ async function authRoutes(fastify, options) {
     }
 
     try {
-      await dbRun(
-        `UPDATE users SET 
-          wins = wins + 1,
-          goals_scored = goals_scored + ?,
-          goals_conceded = goals_conceded + ?,
-          matches_played = matches_played + 1
-        WHERE username = ?`,
-        [winner_goals, loser_goals, winner]
-      );
+      if (winner != 'IA'){
+        await dbRun(
+          `UPDATE users SET 
+            wins = wins + 1,
+            goals_scored = goals_scored + ?,
+            goals_conceded = goals_conceded + ?,
+            matches_played = matches_played + 1
+          WHERE username = ?`,
+          [winner_goals, loser_goals, winner]
+        );
+      }
 
-      await dbRun(
-        `UPDATE users SET 
-          losses = losses + 1,
-          goals_scored = goals_scored + ?,
-          goals_conceded = goals_conceded + ?,
-          matches_played = matches_played + 1
-        WHERE username = ?`,
-        [loser_goals, winner_goals, loser]
-      );
+      if (loser != 'IA'){
+        await dbRun(
+          `UPDATE users SET 
+            losses = losses + 1,
+            goals_scored = goals_scored + ?,
+            goals_conceded = goals_conceded + ?,
+            matches_played = matches_played + 1
+          WHERE username = ?`,
+          [loser_goals, winner_goals, loser]
+        );
+      }
 
       const winnerRow = await dbGet(
         `SELECT id FROM users WHERE username = ?`,
@@ -241,6 +252,38 @@ async function authRoutes(fastify, options) {
     } catch (err) {
       console.error("Error en /match-result:", err);
       return reply.code(500).send({ error: "Error interno del servidor" });
+    }
+  });
+  
+  fastify.post("/tournament-won", async (request, reply) => {
+    const { username } = request.body;
+
+    if (!username) {
+      return reply.code(400).send({ error: "Username is required" });
+    }
+
+    try {
+      await dbRun(`UPDATE users SET wins_tournaments = wins_tournaments + 1 WHERE username = ?`, [username]);
+      reply.send({ success: true });
+    } catch (err) {
+      console.error("Error en /tournament-won:", err);
+      reply.code(500).send({ error: "Error updating tournament winner" });
+    }
+  });
+
+  fastify.post("/tournament-played", async (request, reply) => {
+    const { username } = request.body;
+
+    if (!username) {
+      return reply.code(400).send({ error: "Username is required" });
+    }
+
+    try {
+      await dbRun(`UPDATE users SET tournaments_played = tournaments_played + 1 WHERE username = ?`, [username]);
+      reply.send({ success: true });
+    } catch (err) {
+      console.error("Error en /tournament-played:", err);
+      reply.code(500).send({ error: "Error updating tournament participation" });
     }
   });
 
@@ -287,6 +330,72 @@ async function authRoutes(fastify, options) {
     } catch (err) {
       console.error("Error en /auth/google:", err);
       return reply.code(401).send({ error: "Token inválido" });
+    }
+  });
+
+  fastify.post("/update-profile", async (request, reply) => {
+    const { currentUsername, newAvatar, newUsername, newEmail, newPassword } = request.body;
+
+    try {
+      const user = await dbGet("SELECT * FROM users WHERE username = ?", [currentUsername]);
+      if (!user) {
+        return reply.code(404).send({ error: "Usuario no encontrado" });
+      }
+      if (newUsername){
+        const existingUser = await dbGet(
+        `SELECT * FROM users WHERE username = ?`,
+        [newUsername]
+      );
+      if (existingUser) {
+        return reply.code(400).send({ error: "Username exists" });
+      }}
+      if (newEmail){
+        const existingUser = await dbGet(
+        `SELECT * FROM users WHERE email = ?`,
+        [newEmail]
+      );
+      if (existingUser) {
+        return reply.code(400).send({ error: "Email exists" });
+      }}
+
+      const updatedAvatar = newAvatar || user.avatar;
+      const updatedUsername = newUsername || user.username;
+      const updatedEmail = newEmail || user.email;
+      const updatedPassword = newPassword
+        ? await bcrypt.hash(newPassword, 10)
+        : user.password;
+      const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(updatedEmail);
+      if (!isEmail){
+        return reply.code(400).send({ error: "Bad email format" });
+      }
+
+      await dbRun(
+        `UPDATE users SET avatar = ?, username = ?, email = ?, password = ? WHERE username = ?`,
+        [updatedAvatar, updatedUsername, updatedEmail, updatedPassword, currentUsername]
+      );
+
+      return reply.send({ message: "Changes updated successfully" });
+    } catch (err) {
+      console.error("Error en /update-profile:", err);
+      return reply.code(500).send({ error: "Error updating profile" });
+    }
+  });
+
+  // Eliminar cuenta de usuario
+  fastify.post("/delete-account", async (request, reply) => {
+    const { username } = request.body;
+
+    if (!username) {
+      return reply.code(400).send({ error: "Missing username" });
+    }
+    try {
+      await dbRun(`DELETE FROM matches WHERE user_id = (SELECT id FROM users WHERE username = ?)`, [username]);
+      await dbRun(`DELETE FROM users WHERE username = ?`, [username]);
+
+      return reply.send({ success: true, message: "Account deleted successfully" });
+    } catch (err) {
+      console.error("Error in /delete-account:", err);
+      return reply.code(500).send({ error: "Internal server error" });
     }
   });
 

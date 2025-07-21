@@ -130,8 +130,28 @@ function createNextRound() {
   });
 
   if (winners.length === 1) {
-    alert(`🏆 ¡Torneo finalizado! Ganador: ${winners[0].nickname}`);
+    const winnerName = winners[0].nickname;
+    const winnerUsername = winners[0].username;
+
+    const winnerDiv = document.getElementById("tournament-winner")!;
+    const winnerSpan = document.getElementById("tournament-winner-name")!;
+    winnerSpan.textContent = winnerName;
+    winnerDiv.classList.remove("hidden");
     nextMatchBtn.classList.add("hidden");
+
+    fetch("http://localhost:3000/auth/tournament-won", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username: winnerUsername })
+    });
+
+    players.forEach(p => {
+      fetch("http://localhost:3000/auth/tournament-played", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username: p.username })
+      });
+    });
     return;
   }
 
@@ -285,10 +305,23 @@ function startPongMatch(player1: User, player2: User) {
 
       const currentRound = rounds[currentRoundIndex];
       const allPlayed = currentRound.every(m => m.winner);
+      sendMatchResult();
 
       if (allPlayed) createNextRound();
     }
   }
+  
+  async function sendMatchResult() {
+  const winnerUsername = s1 === 3 ? player1.username : player2.username;
+  const loserUsername = s1 === 3 ? player2.username : player1.username;
+  try {
+    await fetch("http://localhost:3000/auth/match-result", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ winner: winnerUsername, loser: loserUsername, winner_goals: Math.max(s1, s2), loser_goals: Math.min(s1, s2) })
+    });
+  } catch (err) { console.error("Error registrando partida:", err); }
+}
 
   function resetBall(dir: "left" | "right") {
     bX = 400;

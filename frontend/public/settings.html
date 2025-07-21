@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>User Settings</title>
+  <link rel="stylesheet" href="/dist/output.css" />
+</head>
+    <body class="min-h-screen bg-[#1e1e1e] text-white font-sans p-8 relative">
+
+        <button id="return-btn" class="absolute top-5 left-5 bg-[#00d9ff] text-black font-bold px-4 py-2 rounded hover:bg-[#00a6c4] transition-colors">⬅ Return</button>
+        <button id="home-btn" class="absolute top-5 left-[135px] bg-[#00d9ff] text-black px-4 py-2 rounded-md font-bold hover:bg-[#00a6c4] transition">🏠 Home</button>
+
+        <h1 class="text-4xl font-bold text-center text-[#00d9ff] mt-24 mb-12">⚙️ Account Settings</h1>
+
+        <div class="flex flex-col items-center mb-8 p-8">
+            <div class ="bg-[#2b2b2b] rounded-lg shadow">
+                <img id="user-avatar" class="w-4 h-4 rounded-full mb-4" src="/avatars/0.png" alt="User Avatar" />
+                <h4 class="tfont-bold text-[#00d9ff] text-center"><span id="name" class="font-bold"></span></h4>
+                <h4 class="tfont-bold text-[#00d9ff]">👤 Username: <span id="username" class="font-bold text-white"></span></h4>
+                <h4 class="tfont-bold text-[#00d9ff]">✉️ Email: <span id="email" class="font-bold text-white"></span></h4>    
+            </div>
+        </div>
+        <div class="flex flex-wrap justify-center gap-8 mb-8">
+            <div class="w-80 bg-[#2b2b2b] p-8 rounded-lg shadow space-y-6">
+                <h2 class="text-xl font-semibold text-[#00d9ff] mb-3">Edit Profile</h2>
+
+                <label class="mb-3">
+                <span class="text-sm text-gray-300">New Avatar</span>
+                <input id="new-avatar" type="text" inputmode="numeric" pattern="[0-9]*"maxlength="1" placeholder="Select 0-9" class="w-full mt-1 px-3 py-2 bg-[#1e1e1e] text-white border border-gray-600 rounded" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 1)"/>
+                <div class="w-full shadow-none mt-2">
+                    <img src="avatars/all.png"/>
+                </div>
+                </label>
+
+                <label class="mb-3">
+                <span class="text-sm text-gray-300">New Username</span>
+                <input id="new-username" type="text" maxlength="30" placeholder="New username" class="w-full mt-1 px-3 py-2 bg-[#1e1e1e] text-white border border-gray-600 rounded" />
+                </label>
+
+                <label class="mb-3">
+                <span class="text-sm text-gray-300">New Email</span>
+                <input id="new-email" type="email" maxlength="50" placeholder="New email" class="w-full mt-1 px-3 py-2 bg-[#1e1e1e] text-white border border-gray-600 rounded" />
+                </label>
+
+                <label class="mb-3">
+                <span class="text-sm text-gray-300">New Password</span>
+                <input id="new-password" type="password" placeholder="New password" class="w-full mt-1 px-3 py-2 bg-[#1e1e1e] text-white border border-gray-600 rounded" />
+                </label>
+
+                <label class="mb-3">
+                <span class="text-sm text-gray-300">Repeat Password</span>
+                <input id="confirm-password" type="password" placeholder="Repeat password"
+                        class="w-full mt-1 px-3 py-2 bg-[#1e1e1e] text-white border border-gray-600 rounded" />
+                </label>
+                <span id="password-error" class="text-red-500 text-sm hidden">Passwords do not match.</span>
+
+                <p id="error-message" class="text-red-500 text-sm font-semibold text-center hidden"></p>
+
+                <div class="flex justify-end">
+                <button id="save-btn" class="bg-[#00ff99] hover:bg-[#00a6c4] text-black font-bold py-2 px-4 rounded">Save Changes</button>
+                </div>
+            </div>
+
+            <div class="w-80 bg-[#2b2b2b] p-8 rounded-lg shadow space-y-4">
+                <h2 class="text-xl font-semibold text-red-400">❌ Delete Account</h2>
+                <p class="text-sm text-gray-300">This action is permanent and cannot be undone.</p>
+                <button id="delete-account-btn" class="text-black font-bold py-2 px-4 rounded w-full hover:bg-[#00a6c4]">
+                Delete My Account
+                </button>
+            </div>
+        </div>
+        <div class="text-center ">
+            <button id="logout-btn" class="bg-[#00d9ff] text-[#1e1e1e] font-bold px-6 py-3 rounded hover:bg-[#00a6c4] transition-colors">
+                Cerrar sesión</button>
+        </div>
+
+
+        <script type="module" src="settings.js"></script>
+    </body>
+</html>
