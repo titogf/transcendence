@@ -159,11 +159,22 @@ function resetBall(direction: "left" | "right" | "zero") {
 }
 
 function predictBallY(): number {
+  // 15% de probabilidad de error
+  const errorChance = 0.10;
+  if (Math.random() < errorChance) {
+    // Devuelve uno de los extremos aleatoriamente (0 o 300)
+    return Math.random() < 0.5 ? 0 : canvas.height;
+  }
+
+  // Predicción normal si no hay error
   let simX = ballX, simY = ballY;
   let simSpeedX = Math.abs(ballSpeedX), simSpeedY = ballSpeedY;
   while (simX < canvas.width - 20) {
-    simX += simSpeedX; simY += simSpeedY;
-    if (simY - 10 <= 0 || simY + 10 >= canvas.height) simSpeedY *= -1;
+    simX += simSpeedX;
+    simY += simSpeedY;
+    if (simY - 10 <= 0 || simY + 10 >= canvas.height) {
+      simSpeedY *= -1;
+    }
   }
   return simY;
 }
@@ -194,6 +205,7 @@ function startAI() {
   // Mueve la pala cada 250 ms en función de la predicción más reciente
   aiMoveInterval = window.setInterval(() => {
     if (!ballMoving) return;
+    if (ballSpeedX < 0) return;
     const centerPaddle = player2Y + 50;
     const delta = predictedY - centerPaddle;
     let key: "ArrowUp" | "ArrowDown" | null = null;
