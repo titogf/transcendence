@@ -27,8 +27,8 @@ async function authRoutes(fastify, options) {
         [email, username]
       );
 
-      if (username == 'IA') {
-        return reply.code(400).send({ error: "Invalid username" });
+      if (username === "IA") {
+        return reply.code(400).send({ error: "Username 'IA' is reserved" });
       }
       if (existingUser) {
         return reply.code(400).send({ error: "Email or username exists" });
@@ -162,7 +162,6 @@ async function authRoutes(fastify, options) {
     }
   });
 
-  // ✅ Obtener historial de partidas de un usuario (usando await dbAll)
   fastify.get("/user-matches/:username", async (request, reply) => {
     const { username } = request.params;
 
@@ -188,16 +187,21 @@ async function authRoutes(fastify, options) {
     }
   });
 
-  // Registrar resultado de partida
   fastify.post("/match-result", async (request, reply) => {
-    const { winner, loser, winner_goals, loser_goals } = request.body;
+    const { winner, loser, winner_goals, loser_goals, game_type } = request.body;
 
     if (!winner || !loser) {
       return reply.code(400).send({ error: "Faltan datos" });
     }
 
     try {
-      if (winner != 'IA'){
+      let IA_winner = 0;
+      if (winner === 'IA' && game_type === 'IA')
+          IA_winner = 1;
+      let IA_loser = 0;
+      if (loser === 'IA' && game_type === 'IA')
+          IA_loser = 1;
+      if (!IA_winner) {
         await dbRun(
           `UPDATE users SET 
             wins = wins + 1,
@@ -209,7 +213,7 @@ async function authRoutes(fastify, options) {
         );
       }
 
-      if (loser != 'IA'){
+      if (!IA_loser) {
         await dbRun(
           `UPDATE users SET 
             losses = losses + 1,
@@ -232,19 +236,19 @@ async function authRoutes(fastify, options) {
 
       const date = new Date().toISOString();
 
-      if (winnerRow) {
+      if (winnerRow && !IA_winner) {
         await dbRun(
-          `INSERT INTO matches (user_id, date, opponent, goals_scored, goals_conceded, result)
-           VALUES (?, ?, ?, ?, ?, ?)`,
-          [winnerRow.id, date, loser, winner_goals, loser_goals, "win"]
+          `INSERT INTO matches (user_id, date, opponent, goals_scored, goals_conceded, type, result)
+           VALUES (?, ?, ?, ?, ?, ?, ?)`,
+          [winnerRow.id, date, loser, winner_goals, loser_goals, game_type, "win"]
         );
       }
 
-      if (loserRow) {
+      if (loserRow && !IA_loser) {
         await dbRun(
-          `INSERT INTO matches (user_id, date, opponent, goals_scored, goals_conceded, result)
-           VALUES (?, ?, ?, ?, ?, ?)`,
-          [loserRow.id, date, winner, loser_goals, winner_goals, "loss"]
+          `INSERT INTO matches (user_id, date, opponent, goals_scored, goals_conceded, type, result)
+           VALUES (?, ?, ?, ?, ?, ?, ?)`,
+          [loserRow.id, date, winner, loser_goals, winner_goals, game_type, "loss"]
         );
       }
 

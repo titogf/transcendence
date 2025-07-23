@@ -37,6 +37,7 @@ db.serialize(() => {
       opponent TEXT,
       goals_scored INTEGER,
       goals_conceded INTEGER,
+      type TEXT, -- '1vs1', 'IA', 'tournament'
       result TEXT,
       FOREIGN KEY(user_id) REFERENCES users(id)
     )
