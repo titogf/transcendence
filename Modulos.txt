@@ -1,4 +1,3 @@
-
 FALTA POR HACER:
     - Your website must be protected against SQL injections/XSS attacks (comprobar)
     - Arreglar Play4, se ralla la pelota y cuando acaba el juego la pelota vuelve a salir

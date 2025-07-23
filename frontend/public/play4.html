@@ -17,7 +17,7 @@
   </button>
 
   <!-- Título -->
-  <h1 class="text-4xl text-[#00d9ff] mb-6">🎮 PONG 4</h1>
+  <h1 id="principal_msg" class="text-4xl text-[#00d9ff] mb-6">🎮 PONG 4</h1>
 
   <!-- Pantalla de login para jugadores 2-4 -->
   <div id="login-others" class="flex flex-col items-center gap-4">
@@ -28,6 +28,15 @@
     <p id="login-error" class="text-red-500"></p>
   </div>
 
+  <div id="end-screen" class="hidden flex flex-col items-center justify-center text-center gap-6 mt-10">
+    <h1 class="text-4xl text-[#00d9ff] font-bold">🎮 PONG 4</h1>
+    <p id="winner-msg" class="text-3xl font-bold text-green-400">Winner: <span id="winner-name"></span></p>
+    <button onclick="window.location.href='index.html'" class="bg-[#00d9ff] text-[#1e1e1e] px-6 py-3 rounded-md font-semibold hover:bg-[#00a6c4] transition">
+      Back to menú
+    </button>
+  </div>
+  
+  
   <!-- Juego -->
   <div id="game-container" class="relative hidden flex flex-col items-center">
 
@@ -49,10 +58,6 @@
       <div id="p2-name" class="absolute right-[-60px] top-1/2 -translate-y-1/2 rotate-[90deg] text-blue-400 font-bold text-sm">P2</div>
       <div id="p3-name" class="absolute top-[-28px] left-1/2 -translate-x-1/2 text-green-400 font-bold text-sm">P3</div>
       <div id="p4-name" class="absolute bottom-[-40px] left-1/2 -translate-x-1/2 text-yellow-400 font-bold text-sm">P4</div>
-    </div>
-
-    <div id="winner-msg" class="text-3xl mt-6 font-bold text-green-400 hidden">
-      Ganador: <span id="winner-name"></span>
     </div>
   </div>
 

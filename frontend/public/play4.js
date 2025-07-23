@@ -16,6 +16,7 @@ const password_In = document.getElementById("password");
 const confirm_Btn = document.getElementById("confirm-player");
 const login_Title = document.getElementById("login-title");
 const error_Msg = document.getElementById("login-error");
+const principal_msg = document.getElementById("principal_msg");
 const gameContainer = document.getElementById("game-container");
 const countdown_El = document.getElementById("countdown");
 const winner_Msg = document.getElementById("winner-msg");
@@ -186,22 +187,36 @@ function update() {
         }
     }
     if (!rebote) {
-        if (ball_X <= 0 && players_[0].eliminated)
-            speedX *= -1;
-        else if (ball_X >= canva.width && players_[1].eliminated)
-            speedX *= -1;
-        else if (ball_Y <= 0 && players_[2].eliminated)
-            speedY *= -1;
-        else if (ball_Y >= canva.height && players_[3].eliminated)
-            speedY *= -1;
-        else if (ball_X <= 0)
-            loseLife(0);
-        else if (ball_X >= canva.width)
-            loseLife(1);
-        else if (ball_Y <= 0)
-            loseLife(2);
-        else if (ball_Y >= canva.height)
-            loseLife(3);
+        // Colisiones con paredes SIN paleta (jugador eliminado)
+        if (ball_X <= 0) {
+            if (players_[0].eliminated)
+                speedX *= -1;
+            else
+                loseLife(0);
+        }
+        else if (ball_X >= canva.width) {
+            if (players_[1].eliminated)
+                speedX *= -1;
+            else
+                loseLife(1);
+        }
+        if (ball_Y <= 0) {
+            if (players_[2].eliminated)
+                speedY *= -1;
+            else
+                loseLife(2);
+        }
+        else if (ball_Y >= canva.height) {
+            if (players_[3].eliminated)
+                speedY *= -1;
+            else
+                loseLife(3);
+        }
+        // Prevenir rebote infinito en esquinas (corrección de ángulo mínimo)
+        if (Math.abs(speedX) < 2)
+            speedX = 2 * Math.sign(speedX);
+        if (Math.abs(speedY) < 2)
+            speedY = 2 * Math.sign(speedY);
     }
 }
 function loseLife(index) {
@@ -216,8 +231,13 @@ function loseLife(index) {
     if (vivos.length === 1) {
         const idx = players_.indexOf(vivos[0]);
         winner_Text.textContent = playersInfo[idx].username;
-        winner_Msg.classList.remove("hidden");
         cancelAnimationFrame(ani_);
+        gameContainer.classList.add("hidden");
+        principal_msg.classList.add("hidden");
+        const endScreen = document.getElementById("end-screen");
+        endScreen.classList.remove("hidden");
+        winner_Text.textContent = playersInfo[idx].username;
+        winner_Msg.classList.remove("hidden"); // Asegura que se muestre
         return;
     }
     startRound();
