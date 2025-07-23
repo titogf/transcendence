@@ -16,6 +16,10 @@ window.addEventListener("DOMContentLoaded", () => {
     window.history.back();
   });
 
+  document.getElementById("home-btn")?.addEventListener("click", () => {
+    window.location.href = "./index.html";
+  });
+
   addBtn?.addEventListener("click", async () => {
     if (!input || !error) return;
     
@@ -30,7 +34,7 @@ window.addEventListener("DOMContentLoaded", () => {
     }
 
     try {
-        const res = await fetch("http://localhost:3000/auth/add-friend", {
+      const res = await fetch("http://localhost:3000/auth/add-friend", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ user: username, friend: friend }),
@@ -46,6 +50,8 @@ window.addEventListener("DOMContentLoaded", () => {
       error.classList.remove("hidden");
     }
   });
+
+  // Cargar lista de amigos
   fetch(`http://localhost:3000/auth/user-friends/${username}`)
     .then((res) => {
       if (!res.ok) throw new Error(res.statusText);
@@ -55,20 +61,54 @@ window.addEventListener("DOMContentLoaded", () => {
       if (!listContainer || !noFriendsMsg) return;
       listContainer.innerHTML = "";
 
-    if (data && data.length > 0) {
+      if (data && data.length > 0) {
         data.forEach((friend: any) => {
-        const friendItem = document.createElement("li");
-        friendItem.textContent = "🔴 Offline   " + friend;
-        friendItem.addEventListener("click", () => {
-            window.location.href = `./profile.html?user=${friend}`;
+          const friendItem = document.createElement("p");
+            friendItem.className = "p-0 m-0 flex items-center justify-between hover:bg-[#3a3a3a] cursor-pointer rounded px-2 py-1 transition-colors";
+          friendItem.innerHTML = `
+            <span class="ml-0 hover:text-[#00a6c4] cursor-pointer hover:underline">${friend}</span>
+            <span class="ml-2 px-2 py-0.5 text-xs rounded text-white">🔴 offline</span>`;
+
+          friendItem.querySelector("span")?.addEventListener("click", async (e) => {
+            e.stopPropagation();
+
+            try {
+              const res = await fetch(`http://localhost:3000/auth/user-info/${friend}`);
+              if (!res.ok) throw new Error("Could not load profile");
+              const userData = await res.json();
+
+              const avatarIndex = userData.avatar >= 0 && userData.avatar <= 9 ? userData.avatar : 0;
+              const avgGoals = userData.matches_played > 0
+                ? (userData.goals_scored / userData.matches_played).toFixed(2)
+                : "0";
+              const winRate = userData.matches_played > 0
+                ? ((userData.wins / userData.matches_played) * 100).toFixed(1) + "%"
+                : "0%";
+
+              const profileContent = document.getElementById("profile-content");
+              if (profileContent) {
+                profileContent.innerHTML = `
+                  <h2 class="text-2xl font-bold text-[#00ff99] mb-4">👤 ${userData.username}</h2>
+                  <img src="/avatars/${avatarIndex}.png" alt="Avatar" class="w-24 h-24 mx-auto rounded-full mb-4">
+                  <p><strong>Name:</strong> ${userData.name}</p>
+                  <p><strong>Email:</strong> ${userData.email}</p>
+                  <p><strong>Matches:</strong> ${userData.matches_played}</p>
+                  <p><strong>Goals per match:</strong> ${avgGoals}</p>
+                  <p><strong>Win rate:</strong> ${winRate}</p>
+                `;
+                document.getElementById("friend-profile")?.classList.remove("hidden");
+              }
+            } catch (err) {
+              console.error("Error loading profile:", err);
+            }
+          });
+
+          listContainer.appendChild(friendItem);
         });
-        friendItem.classList.add("text-white", "hover:text-[#00ff99]", "cursor-pointer", "hover:underline");
-        listContainer?.appendChild(friendItem);
-        });
-        noFriendsMsg?.classList.add("hidden");
-    }
-    else {
-        noFriendsMsg?.classList.remove("hidden");
+
+        noFriendsMsg.classList.add("hidden");
+      } else {
+        noFriendsMsg.classList.remove("hidden");
       }
     })
     .catch((err) => {
@@ -78,12 +118,20 @@ window.addEventListener("DOMContentLoaded", () => {
         noFriendsMsg.classList.remove("hidden");
       }
     });
+
+  document.getElementById("close-profile")?.addEventListener("click", () => {
+    document.getElementById("friend-profile")?.classList.add("hidden");
+  });
+
+  document.getElementById("logout-btn")?.addEventListener("click", () => {
+    localStorage.removeItem("user");
+    window.location.href = "./login.html";
+  });
+  document.getElementById("friend-btn")?.addEventListener("click", () => {
+    window.location.href = "./friends.html";
+  });
+
+  document.getElementById("profile-btn")?.addEventListener("click", () => {
+    window.location.href = "./profile.html";
+  });
 });
-
-document.getElementById("return-btn")?.addEventListener("click", () => {
-    window.history.back();
-  });
-
-  document.getElementById("home-btn")?.addEventListener("click", () => {
-    window.location.href = "./index.html";
-  });

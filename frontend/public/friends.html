@@ -10,21 +10,39 @@
 
     <button id="return-btn" class="absolute top-5 left-5 bg-[#00d9ff] text-black font-bold px-4 py-2 rounded hover:bg-[#00a6c4] transition-colors">⬅ Return</button>
     <button id="home-btn" class="absolute top-5 left-[135px] bg-[#00d9ff] text-black px-4 py-2 rounded-md font-bold hover:bg-[#00a6c4] transition">🏠 Home</button>
+    <div class="absolute top-5 right-5">
+    <button id="profile-btn" class="bg-[#00d9ff] text-[#1e1e1e] px-4 py-2 rounded-md font-bold hover:bg-[#00a6c4] transition">👤 Profile</button>
+    <button id="settings-btn" class="bg-[#00d9ff] text-[#1e1e1e] px-4 py-2 rounded-md font-bold hover:bg-[#00a6c4] transition">⚙️ User managment</button>
+  </div>
   
   <h1 class="text-4xl text-[#00d9ff] mt-24 mt-24 mb-8 font-bold">👥 My Friends</h1>
 
-  <div class="bg-[#2b2b2b] p-6 rounded shadow w-full max-w-md mb-8 left-5">
-    <h2 class="text-[#00ff99] font-bold text-lg mb-4">➕ Add Friend</h2>
+  <div class="bg-[#2b2b2b] p-6 rounded shadow w-full max-w-md mb-8">
+    <h2 class="text-[#00ff99] font-bold mb-4">➕ Add Friend</h2>
     <input id="friend-username" type="text" placeholder="Enter username" class="w-60 px-3 py-2 mb-4 bg-[#1e1e1e] text-white border border-gray-600 rounded" /><br>
     <button id="add-friend-btn" class="bg-[#00ff99] text-black px-4 py-2 font-bold rounded hover:bg-[#00a6c4]">Add Friend</button>
     <p id="friend-error" class="text-red-500 mt-2 hidden"></p>
   </div>
 
-  <div id="friend-list" class="w-full max-w-md bg-[#2b2b2b] p-4 rounded shadow">
-    <h2 class="text-[#00ff99] font-bold text-lg mb-4">👤 Friend List</h2>
-    <ul id="friends-container" class="space-y-4 font-bold mb-12"></ul>
+  <div id="friend-list" class="w-full max-w-md bg-[#2b2b2b] p-4 rounded shadow mb-8 pl-0">
+    <div class="flex justify-between items-center mb-4 bg-[#3b3b3b] mb-8 rounded shadow">
+      <h2 class="pl-0 text-[#00ff99] font-bold mb-4">👤 Friend List</h2>
+    </div>
+    <p id="friends-container" class="font-bold mb-8 text-[#00d9ff]"></p>
     <p id="no-friends" class="text-gray-400 text-sm">No friends yet.</p>
   </div>
+
+    <div id="friend-profile" class="hidden fixed inset-0 bg-[#1e1e1e] bg-opacity-60 flex justify-center items-center z-50 mb-8">
+        <div class="bg-[#2b2b2b] text-white p-6 rounded-lg w-full max-w-md relative">
+            <button id="close-profile" class="absolute top-2 right-2 text-[#00d9ff] hover:text-white text-xl">✖</button>
+            <div id="profile-content" class="space-y-4"></div>
+        </div>
+    </div>
+
+    <div class="text-center ">
+        <button id="logout-btn" class="bg-[#00d9ff] text-[#1e1e1e] font-bold px-6 py-3 rounded hover:bg-[#00a6c4] transition-colors">
+            Cerrar sesión</button>
+    </div>
 
   <script type="module" src="friends.js"></script>
 </body>
