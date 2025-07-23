@@ -342,7 +342,7 @@ function sendMatchResult() {
             yield fetch("http://localhost:3000/auth/match-result", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ winner: winnerUsername, loser: loserUsername, winner_goals: Math.max(scoreP1, scoreP2), loser_goals: Math.min(scoreP1, scoreP2) })
+                body: JSON.stringify({ winner: winnerUsername, loser: loserUsername, winner_goals: Math.max(scoreP1, scoreP2), loser_goals: Math.min(scoreP1, scoreP2), game_type: isAI ? "IA" : "1vs1" }),
             });
         }
         catch (err) {

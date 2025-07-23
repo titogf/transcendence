@@ -390,7 +390,7 @@ function startPongMatch(player1: User, player2: User) {
       await fetch("http://localhost:3000/auth/match-result", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ winner: winnerUsername, loser: loserUsername, winner_goals: Math.max(s1, s2), loser_goals: Math.min(s1, s2) })
+        body: JSON.stringify({ winner: winnerUsername, loser: loserUsername, winner_goals: Math.max(s1, s2), loser_goals: Math.min(s1, s2), game_type: "tournament" })
       });
     } catch (err) { console.error("Error registrando partida:", err); }
   }

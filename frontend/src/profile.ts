@@ -81,6 +81,7 @@ window.addEventListener("DOMContentLoaded", () => {
                 <td class="p-2">${m.opponent}</td>
                 <td class="p-2">${m.goals_scored}</td>
                 <td class="p-2">${m.goals_conceded}</td>
+                <td class="p-2">${m.type}</td>
                 <td class="p-2 ${m.result === "win" ? "text-green-400" : "text-red-400"}">${m.result.toUpperCase()}</td>
               `;
               tbody.appendChild(row);
