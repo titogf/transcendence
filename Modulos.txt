@@ -1,15 +1,6 @@
-PARTE OBLIGATORIA, FALTA COMPROBAR:
-    - Your website must be protected against SQL injections/XSS attacks.
 
-HECHOS: (5)
-    - Major module: Use a framework to build the backend (completo)
-    - Major module: Multiple players (completo)
-    - Minor module: Use a framework or toolkit to build the front-end (completo)
-    - Minor module: Use a database for the backend -and more (completo)
-    - Minor module: User and Game Stats Dashboards (completo)
-    - Minor module: Expanding Browser Compatibility (completo)
-    - Major module: Implement remote authentication (completo)
-
-PARA HACER:
-    - Major module: Introduce an AI opponent.
-    - Major module: Standard user management, authentication and users across tournaments.
+FALTA POR HACER:
+    - Your website must be protected against SQL injections/XSS attacks (comprobar)
+    - Arreglar Play4, se ralla la pelota y cuando acaba el juego la pelota vuelve a salir
+    - Modificar velocidad de la pelota con el tiempo
+    - Hacer que coja "efecto" la pelota
