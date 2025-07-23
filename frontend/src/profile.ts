@@ -1,16 +1,20 @@
 declare const Chart: any;
 
 window.addEventListener("DOMContentLoaded", () => {
+  const params = new URLSearchParams(window.location.search);
+  const viewedUsername = params.get("user");
+
   const userFromStorage = JSON.parse(localStorage.getItem("user") || "null");
-  if (!userFromStorage) {
+  if (!userFromStorage && !viewedUsername) {
     window.location.href = "./login.html";
     return;
   }
 
-  fetch(`http://localhost:3000/auth/user-info/${userFromStorage.username}`)
+  const usernameToLoad = viewedUsername || userFromStorage.username;
+
+  fetch(`http://localhost:3000/auth/user-info/${usernameToLoad}`)
     .then(res => res.json())
     .then(user => {
-
       document.getElementById("name")!.textContent = user.name;
       document.getElementById("username")!.textContent = user.username;
       document.getElementById("email")!.textContent = user.email;
@@ -27,7 +31,6 @@ window.addEventListener("DOMContentLoaded", () => {
 
       document.getElementById("win-tournaments")!.textContent = user.wins_tournaments;
       document.getElementById("tournaments-played")!.textContent = user.tournaments_played;
-      console.log(user);
 
       new Chart("victory-chart", {
         type: "bar",
@@ -86,7 +89,6 @@ window.addEventListener("DOMContentLoaded", () => {
         });
     });
 
-
   document.getElementById("logout-btn")?.addEventListener("click", () => {
     localStorage.removeItem("user");
     window.location.href = "./login.html";
@@ -99,11 +101,12 @@ window.addEventListener("DOMContentLoaded", () => {
   document.getElementById("home-btn")?.addEventListener("click", () => {
     window.location.href = "./index.html";
   });
+
   document.getElementById("friend-btn")?.addEventListener("click", () => {
     window.location.href = "./friends.html";
   });
+
   document.getElementById("settings-btn")?.addEventListener("click", () => {
     window.location.href = "./settings.html";
   });
-
 });

@@ -68,10 +68,9 @@ window.addEventListener("DOMContentLoaded", () => {
                 const friendItem = document.createElement("li");
                 friendItem.textContent = "🔴 Offline   " + friend;
                 friendItem.addEventListener("click", () => {
-                    window.location.href = `./profile.html?username=${friend}`;
+                    window.location.href = `./profile.html?user=${friend}`;
                 });
-                friendItem.classList.add("cursor-pointer", "hover:underline");
-                friendItem.className = "text-white hover:text-[#00ff99]";
+                friendItem.classList.add("text-white", "hover:text-[#00ff99]", "cursor-pointer", "hover:underline");
                 listContainer === null || listContainer === void 0 ? void 0 : listContainer.appendChild(friendItem);
             });
             noFriendsMsg === null || noFriendsMsg === void 0 ? void 0 : noFriendsMsg.classList.add("hidden");

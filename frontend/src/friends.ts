@@ -57,14 +57,13 @@ window.addEventListener("DOMContentLoaded", () => {
 
     if (data && data.length > 0) {
         data.forEach((friend: any) => {
-            const friendItem = document.createElement("li");
-            friendItem.textContent = "🔴 Offline   " + friend;
-            friendItem.addEventListener("click", () => {
-                window.location.href = `./profile.html?username=${friend}`;
-            });
-            friendItem.classList.add("cursor-pointer", "hover:underline");
-            friendItem.className = "text-white hover:text-[#00ff99]";
-            listContainer?.appendChild(friendItem);
+        const friendItem = document.createElement("li");
+        friendItem.textContent = "🔴 Offline   " + friend;
+        friendItem.addEventListener("click", () => {
+            window.location.href = `./profile.html?user=${friend}`;
+        });
+        friendItem.classList.add("text-white", "hover:text-[#00ff99]", "cursor-pointer", "hover:underline");
+        listContainer?.appendChild(friendItem);
         });
         noFriendsMsg?.classList.add("hidden");
     }
