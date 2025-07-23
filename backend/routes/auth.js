@@ -27,6 +27,9 @@ async function authRoutes(fastify, options) {
         [email, username]
       );
 
+      if (username === "IA") {
+        return reply.code(400).send({ error: "Username 'IA' is reserved" });
+      }
       if (existingUser) {
         return reply.code(400).send({ error: "Email or username exists" });
       }
@@ -186,14 +189,19 @@ async function authRoutes(fastify, options) {
 
   fastify.post("/match-result", async (request, reply) => {
     const { winner, loser, winner_goals, loser_goals, game_type } = request.body;
-    console.log("Received match result:", { winner, loser, winner_goals, loser_goals, game_type });
 
     if (!winner || !loser) {
       return reply.code(400).send({ error: "Faltan datos" });
     }
 
     try {
-      if (winner != 'IA' || (winner == 'IA' && game_type != 'IA')) {
+      let IA_winner = 0;
+      if (winner === 'IA' && game_type === 'IA')
+          IA_winner = 1;
+      let IA_loser = 0;
+      if (loser === 'IA' && game_type === 'IA')
+          IA_loser = 1;
+      if (!IA_winner) {
         await dbRun(
           `UPDATE users SET 
             wins = wins + 1,
@@ -205,7 +213,7 @@ async function authRoutes(fastify, options) {
         );
       }
 
-      if (loser != 'IA' || (loser == 'IA' && game_type != 'IA')) {
+      if (!IA_loser) {
         await dbRun(
           `UPDATE users SET 
             losses = losses + 1,
@@ -213,7 +221,7 @@ async function authRoutes(fastify, options) {
             goals_conceded = goals_conceded + ?,
             matches_played = matches_played + 1
           WHERE username = ?`,
-          [winner_goals, loser_goals, winner]
+          [loser_goals, winner_goals, loser]
         );
       }
 
@@ -228,7 +236,7 @@ async function authRoutes(fastify, options) {
 
       const date = new Date().toISOString();
 
-      if (winnerRow) {
+      if (winnerRow && !IA_winner) {
         await dbRun(
           `INSERT INTO matches (user_id, date, opponent, goals_scored, goals_conceded, type, result)
            VALUES (?, ?, ?, ?, ?, ?, ?)`,
@@ -236,7 +244,7 @@ async function authRoutes(fastify, options) {
         );
       }
 
-      if (loserRow) {
+      if (loserRow && !IA_loser) {
         await dbRun(
           `INSERT INTO matches (user_id, date, opponent, goals_scored, goals_conceded, type, result)
            VALUES (?, ?, ?, ?, ?, ?, ?)`,
