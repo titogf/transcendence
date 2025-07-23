@@ -73,20 +73,49 @@ confirm_Btn.addEventListener("click", () => __awaiter(void 0, void 0, void 0, fu
     }
 }));
 const players_ = [
-    { side: "left", color: "red", x: 0, y: 250, w: 10, h: 100, moveUp: false, moveDown: false, lives: 3, eliminated: false },
-    { side: "right", color: "blue", x: 590, y: 250, w: 10, h: 100, moveUp: false, moveDown: false, lives: 3, eliminated: false },
-    { side: "top", color: "green", x: 250, y: 0, w: 100, h: 10, moveUp: false, moveDown: false, lives: 3, eliminated: false },
-    { side: "bottom", color: "yellow", x: 250, y: 590, w: 100, h: 10, moveUp: false, moveDown: false, lives: 3, eliminated: false },
+    { side: "left", color: "red", x: 0, y: 250, w: 10, h: 100, moveUp: false, moveDown: false, lives: 3, eliminated: false, lastX: 0, lastY: 250, velocity: 0 },
+    { side: "right", color: "blue", x: 590, y: 250, w: 10, h: 100, moveUp: false, moveDown: false, lives: 3, eliminated: false, lastX: 590, lastY: 250, velocity: 0 },
+    { side: "top", color: "green", x: 250, y: 0, w: 100, h: 10, moveUp: false, moveDown: false, lives: 3, eliminated: false, lastX: 250, lastY: 0, velocity: 0 },
+    { side: "bottom", color: "yellow", x: 250, y: 590, w: 100, h: 10, moveUp: false, moveDown: false, lives: 3, eliminated: false, lastX: 250, lastY: 590, velocity: 0 },
 ];
 let ball_X = 300, ball_Y = 300;
 let speedX = 0;
 let speedY = 0;
 let ani_;
 let allowMove = false;
+// Variables para efectos y aceleración
+let accelerationInterv = null;
+let gameStartTi = 0;
+const baseSpeed = 5;
+const accelerationFact = 0.15; // 15% de aumento cada 5 segundos
+const maxSpeedMultipl = 3; // Límite máximo de velocidad
+// Función para acelerar la pelota progresivamente
+function startAccelerat() {
+    if (accelerationInterv)
+        clearInterval(accelerationInterv);
+    gameStartTi = Date.now();
+    accelerationInterv = window.setInterval(() => {
+        if (!allowMove)
+            return;
+        const currentSpeedX = Math.abs(speedX);
+        const currentSpeedY = Math.abs(speedY);
+        const maxSpeed = baseSpeed * maxSpeedMultipl;
+        // Solo acelerar si no hemos llegado al límite
+        if (currentSpeedX < maxSpeed || currentSpeedY < maxSpeed) {
+            const directionX = speedX > 0 ? 1 : -1;
+            const directionY = speedY > 0 ? 1 : -1;
+            speedX = Math.min(maxSpeed, currentSpeedX * (1 + accelerationFact)) * directionX;
+            speedY = Math.min(maxSpeed, currentSpeedY * (1 + accelerationFact)) * directionY;
+        }
+    }, 5000); // Cada 5 segundos
+}
 function startRound() {
     ball_X = 300;
     ball_Y = 300;
     allowMove = false;
+    // Limpiar aceleración anterior
+    if (accelerationInterv)
+        clearInterval(accelerationInterv);
     countdown_El.textContent = "3";
     countdown_El.classList.remove("hidden");
     let count = 3;
@@ -96,9 +125,12 @@ function startRound() {
         if (count <= 0) {
             clearInterval(interval);
             countdown_El.classList.add("hidden");
-            speedX = 5 * (Math.random() < 0.5 ? 1 : -1);
-            speedY = 5 * (Math.random() < 0.5 ? 1 : -1);
+            // Resetear a velocidades base
+            speedX = baseSpeed * (Math.random() < 0.5 ? 1 : -1);
+            speedY = baseSpeed * (Math.random() < 0.5 ? 1 : -1);
             allowMove = true;
+            // Iniciar aceleración
+            startAccelerat();
         }
     }, 1000);
 }
@@ -148,17 +180,24 @@ function update() {
     players_.forEach(p => {
         if (p.eliminated)
             return;
+        // Guardar posición anterior para calcular velocidad
+        const previousX = p.x;
+        const previousY = p.y;
         if (p.side === "left" || p.side === "right") {
             if (p.moveUp && p.y > 0)
                 p.y -= 8;
             if (p.moveDown && p.y + p.h < canva.height)
                 p.y += 8;
+            // Calcular velocidad vertical
+            p.velocity = p.y - previousY;
         }
         else {
             if (p.moveUp && p.x > 0)
                 p.x -= 8;
             if (p.moveDown && p.x + p.w < canva.width)
                 p.x += 8;
+            // Calcular velocidad horizontal
+            p.velocity = p.x - previousX;
         }
     });
     if (!allowMove)
@@ -170,19 +209,39 @@ function update() {
         if (p.eliminated)
             continue;
         if (p.side === "left" && ball_X <= p.x + p.w && ball_Y >= p.y && ball_Y <= p.y + p.h) {
-            speedX *= -1;
+            speedX = Math.abs(speedX); // Asegurar dirección positiva
+            // Aplicar efecto basado en movimiento de la paleta
+            const spinEffect = p.velocity * 0.3;
+            speedY += spinEffect;
+            // Limitar velocidad Y para mantener jugabilidad
+            speedY = Math.max(-20, Math.min(20, speedY));
             rebote = true;
         }
         else if (p.side === "right" && ball_X >= p.x && ball_Y >= p.y && ball_Y <= p.y + p.h) {
-            speedX *= -1;
+            speedX = -Math.abs(speedX); // Asegurar dirección negativa
+            // Aplicar efecto basado en movimiento de la paleta
+            const spinEffect = p.velocity * 0.3;
+            speedY += spinEffect;
+            // Limitar velocidad Y para mantener jugabilidad
+            speedY = Math.max(-20, Math.min(20, speedY));
             rebote = true;
         }
         else if (p.side === "top" && ball_Y <= p.y + p.h && ball_X >= p.x && ball_X <= p.x + p.w) {
-            speedY *= -1;
+            speedY = Math.abs(speedY); // Asegurar dirección positiva
+            // Aplicar efecto basado en movimiento de la paleta
+            const spinEffect = p.velocity * 0.3;
+            speedX += spinEffect;
+            // Limitar velocidad X para mantener jugabilidad
+            speedX = Math.max(-20, Math.min(20, speedX));
             rebote = true;
         }
         else if (p.side === "bottom" && ball_Y >= p.y && ball_X >= p.x && ball_X <= p.x + p.w) {
-            speedY *= -1;
+            speedY = -Math.abs(speedY); // Asegurar dirección negativa
+            // Aplicar efecto basado en movimiento de la paleta
+            const spinEffect = p.velocity * 0.3;
+            speedX += spinEffect;
+            // Limitar velocidad X para mantener jugabilidad
+            speedX = Math.max(-20, Math.min(20, speedX));
             rebote = true;
         }
     }
@@ -232,6 +291,9 @@ function loseLife(index) {
         const idx = players_.indexOf(vivos[0]);
         winner_Text.textContent = playersInfo[idx].username;
         cancelAnimationFrame(ani_);
+        // Limpiar intervalos de aceleración
+        if (accelerationInterv)
+            clearInterval(accelerationInterv);
         gameContainer.classList.add("hidden");
         principal_msg.classList.add("hidden");
         const endScreen = document.getElementById("end-screen");
@@ -272,6 +334,29 @@ function start_Game() {
     document.getElementById("p2-name").textContent = playersInfo[1].username;
     document.getElementById("p3-name").textContent = playersInfo[2].username;
     document.getElementById("p4-name").textContent = playersInfo[3].username;
+    // Reiniciar todas las variables del juego
+    players_.forEach((p, i) => {
+        p.lives = 3;
+        p.eliminated = false;
+        p.velocity = 0;
+        // Resetear posiciones
+        if (p.side === "left") {
+            p.x = 0;
+            p.y = 250;
+        }
+        else if (p.side === "right") {
+            p.x = 590;
+            p.y = 250;
+        }
+        else if (p.side === "top") {
+            p.x = 250;
+            p.y = 0;
+        }
+        else if (p.side === "bottom") {
+            p.x = 250;
+            p.y = 590;
+        }
+    });
     updateLives();
     startRound();
     loop();

@@ -55,6 +55,18 @@ let predictedY: number = 0;
 let aiPredictionInterval: number | null = null;
 let aiMoveInterval: number | null = null;
 
+// Nuevas variables para efectos y aceleración
+let lastPlayer1Y = 150;
+let lastPlayer2Y = 150;
+let player1Velocity = 0;
+let player2Velocity = 0;
+let accelerationInterval: number | null = null;
+let gameStartTime = 0;
+const baseSpeedX = 8;
+const baseSpeedY = 5;
+const accelerationFactor = 0.15; // 15% de aumento cada 5 segundos
+const maxSpeedMultiplier = 3; // Límite máximo de velocidad
+
 // AI controls
 let aiInterval: number | null = null;
 const aiPressDuration = 100;
@@ -88,8 +100,36 @@ confirmBtn.addEventListener("click", async () => {
   } catch { player2Error.textContent = "Error de conexión"; }
 });
 
+// Función para acelerar la pelota progresivamente
+function startAcceleration() {
+  if (accelerationInterval) clearInterval(accelerationInterval);
+  gameStartTime = Date.now();
+  
+  accelerationInterval = window.setInterval(() => {
+    if (!ballMoving || winner) return;
+    
+    const currentSpeedX = Math.abs(ballSpeedX);
+    const currentSpeedY = Math.abs(ballSpeedY);
+    const maxSpeedX = baseSpeedX * maxSpeedMultiplier;
+    const maxSpeedY = baseSpeedY * maxSpeedMultiplier;
+    
+    // Solo acelerar si no hemos llegado al límite
+    if (currentSpeedX < maxSpeedX || currentSpeedY < maxSpeedY) {
+      const direction = ballSpeedX > 0 ? 1 : -1;
+      const directionY = ballSpeedY > 0 ? 1 : -1;
+      
+      ballSpeedX = Math.min(maxSpeedX, currentSpeedX * (1 + accelerationFactor)) * direction;
+      ballSpeedY = Math.min(maxSpeedY, currentSpeedY * (1 + accelerationFactor)) * directionY;
+    }
+  }, 5000); // Cada 5 segundos
+}
+
 // Game draw loop
 function draw() {
+  // Guardar posiciones anteriores para calcular velocidad
+  lastPlayer1Y = player1Y;
+  lastPlayer2Y = player2Y;
+
   // Clear
   ctx.fillStyle = "black";
   ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -103,7 +143,11 @@ function draw() {
     ctx.arc(ballX, ballY, 10, 0, Math.PI * 2);
     ctx.fill();
   }
+  
   // Movement
+  const previousPlayer1Y = player1Y;
+  const previousPlayer2Y = player2Y;
+  
   // Paleta 1 (W/S)
   if (wKey && player1Y > 0) player1Y -= 10;
   if (sKey && player1Y < canvas.height - 100) player1Y += 10;
@@ -112,25 +156,67 @@ function draw() {
   if (upKey && player2Y > 0) player2Y -= 10;
   if (downKey && player2Y < canvas.height - 100) player2Y += 10;
   
+  // Calcular velocidades de las paletas
+  player1Velocity = player1Y - previousPlayer1Y;
+  player2Velocity = player2Y - previousPlayer2Y;
+  
   if (ballMoving) {
     ballX += ballSpeedX;
     ballY += ballSpeedY;
   }
+  
   // Wall collision
   if (ballY - 10 <= 0 || ballY + 10 >= canvas.height) ballSpeedY *= -1;
-  // Paddle collision
+  
+  // Paddle collision con efectos
   if (ballX - 10 <= 10 && ballY >= player1Y && ballY <= player1Y + 100) {
-    ballX = 21; ballSpeedX *= -1;
+    ballX = 21;
+    ballSpeedX = Math.abs(ballSpeedX); // Asegurar dirección positiva
+    
+    // Aplicar efecto basado en movimiento de la paleta
+    const spinEffect = player1Velocity * 0.3; // Factor de efecto
+    ballSpeedY += spinEffect;
+    
+    // Limitar velocidad Y para mantener jugabilidad
+    ballSpeedY = Math.max(-15, Math.min(15, ballSpeedY));
   }
+  
   if (ballX + 10 >= canvas.width - 10 && ballY >= player2Y && ballY <= player2Y + 100) {
-    ballX = canvas.width - 21; ballSpeedX *= -1;
+    ballX = canvas.width - 21;
+    ballSpeedX = -Math.abs(ballSpeedX); // Asegurar dirección negativa
+    
+    // Aplicar efecto basado en movimiento de la paleta
+    const spinEffect = player2Velocity * 0.3; // Factor de efecto
+    ballSpeedY += spinEffect;
+    
+    // Limitar velocidad Y para mantener jugabilidad
+    ballSpeedY = Math.max(-15, Math.min(15, ballSpeedY));
   }
+  
   // Score
   if (ballX <= 0) {
-    scoreP2++; updateScore(); checkWinner(); if (!winner) { resetBall("left"); startCountdown(); } else { resetBall("zero"); if (aiPredictionInterval) clearInterval(aiPredictionInterval); if (aiMoveInterval) clearInterval(aiMoveInterval); }
+    scoreP2++; updateScore(); checkWinner(); 
+    if (!winner) { 
+      resetBall("left"); 
+      startCountdown(); 
+    } else { 
+      resetBall("zero"); 
+      if (aiPredictionInterval) clearInterval(aiPredictionInterval); 
+      if (aiMoveInterval) clearInterval(aiMoveInterval);
+      if (accelerationInterval) clearInterval(accelerationInterval);
+    }
   }
   if (ballX >= canvas.width) {
-    scoreP1++; updateScore(); checkWinner(); if (!winner) { resetBall("right"); startCountdown(); } else { resetBall("zero"); if (aiPredictionInterval) clearInterval(aiPredictionInterval); if (aiMoveInterval) clearInterval(aiMoveInterval); }
+    scoreP1++; updateScore(); checkWinner(); 
+    if (!winner) { 
+      resetBall("right"); 
+      startCountdown(); 
+    } else { 
+      resetBall("zero"); 
+      if (aiPredictionInterval) clearInterval(aiPredictionInterval); 
+      if (aiMoveInterval) clearInterval(aiMoveInterval);
+      if (accelerationInterval) clearInterval(accelerationInterval);
+    }
   }
   animationId = requestAnimationFrame(draw);
 }
@@ -146,6 +232,7 @@ function checkWinner() {
   if (winner) {
     ballMoving = false; cancelAnimationFrame(animationId!);
     if (aiInterval) clearInterval(aiInterval);
+    if (accelerationInterval) clearInterval(accelerationInterval);
     winnerText.textContent = `${winner} wins!`;
     winnerMsg.classList.remove("hidden");
     sendMatchResult();
@@ -154,12 +241,18 @@ function checkWinner() {
 
 function resetBall(direction: "left" | "right" | "zero") {
   ballX = 400; ballY = 200;
-  if (direction === "zero") { ballSpeedX = 0; ballSpeedY = 0; }
-  else { ballSpeedX = direction === "left" ? -8 : 8; ballSpeedY = Math.random() > 0.5 ? 5 : -5; }
+  if (direction === "zero") { 
+    ballSpeedX = 0; 
+    ballSpeedY = 0; 
+  } else { 
+    // Resetear a velocidades base
+    ballSpeedX = direction === "left" ? -baseSpeedX : baseSpeedX; 
+    ballSpeedY = Math.random() > 0.5 ? baseSpeedY : -baseSpeedY; 
+  }
 }
 
 function predictBallY(): number {
-  // 15% de probabilidad de error
+  // 10% de probabilidad de error (reducido del 15% original)
   const errorChance = 0.10;
   if (Math.random() < errorChance) {
     // Devuelve uno de los extremos aleatoriamente (0 o 300)
@@ -186,8 +279,15 @@ function startCountdown() {
   countdownEl.classList.remove("hidden");
   const interval = setInterval(() => {
     count--;
-    if (count === 0) { countdownEl.classList.add("hidden"); clearInterval(interval); ballMoving = true; }
-    else countdownEl.textContent = String(count);
+    if (count === 0) { 
+      countdownEl.classList.add("hidden"); 
+      clearInterval(interval); 
+      ballMoving = true;
+      // Iniciar aceleración cuando empiece el movimiento de la pelota
+      startAcceleration();
+    } else {
+      countdownEl.textContent = String(count);
+    }
   }, 1000);
 }
 
@@ -252,8 +352,15 @@ restartBtn.addEventListener("click", () => {
   scoreP2 = 0;
   player1Y = 150;
   player2Y = 150;
+  lastPlayer1Y = 150;
+  lastPlayer2Y = 150;
+  player1Velocity = 0;
+  player2Velocity = 0;
   updateScore();
   winner = null;
+
+  // Limpiar intervalos de aceleración
+  if (accelerationInterval) clearInterval(accelerationInterval);
 
   // Reiniciar IA si está activa
   if (isAI) {
@@ -271,7 +378,8 @@ restartBtn.addEventListener("click", () => {
   animationId = requestAnimationFrame(draw);
 });
 
-
 function startGame() {
-  resetBall("left"); startCountdown(); draw();
+  resetBall("left"); 
+  startCountdown(); 
+  draw();
 }

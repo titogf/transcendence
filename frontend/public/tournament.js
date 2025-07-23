@@ -192,6 +192,7 @@ function startPongMatch(player1, player2) {
     const winnerMsg = document.getElementById("winner-msg");
     const winnerText = document.getElementById("winner-text");
     const restartBtn = document.getElementById("restart-btn");
+    // Variables del juego
     let p1Y = 150, p2Y = 150;
     let bX = 400, bY = 200;
     let bSpeedX = 8, bSpeedY = 5;
@@ -199,7 +200,40 @@ function startPongMatch(player1, player2) {
     let s1 = 0, s2 = 0;
     let winner = null;
     let moving = false;
+    // Variables para efectos y aceleración
+    let lastP1Y = 150, lastP2Y = 150;
+    let p1Velocity = 0, p2Velocity = 0;
+    let accelerationInterval = null;
+    let gameStartTime = 0;
+    const baseSpeedX = 8;
+    const baseSpeedY = 5;
+    const accelerationFactor = 0.15; // 15% de aumento cada 5 segundos
+    const maxSpeedMultiplier = 3; // Límite máximo de velocidad
+    // Función para acelerar la pelota progresivamente
+    function startAcceleration() {
+        if (accelerationInterval)
+            clearInterval(accelerationInterval);
+        gameStartTime = Date.now();
+        accelerationInterval = window.setInterval(() => {
+            if (!moving || winner)
+                return;
+            const currentSpeedX = Math.abs(bSpeedX);
+            const currentSpeedY = Math.abs(bSpeedY);
+            const maxSpeedX = baseSpeedX * maxSpeedMultiplier;
+            const maxSpeedY = baseSpeedY * maxSpeedMultiplier;
+            // Solo acelerar si no hemos llegado al límite
+            if (currentSpeedX < maxSpeedX || currentSpeedY < maxSpeedY) {
+                const direction = bSpeedX > 0 ? 1 : -1;
+                const directionY = bSpeedY > 0 ? 1 : -1;
+                bSpeedX = Math.min(maxSpeedX, currentSpeedX * (1 + accelerationFactor)) * direction;
+                bSpeedY = Math.min(maxSpeedY, currentSpeedY * (1 + accelerationFactor)) * directionY;
+            }
+        }, 5000); // Cada 5 segundos
+    }
     function draw() {
+        // Guardar posiciones anteriores para calcular velocidad
+        const previousP1Y = p1Y;
+        const previousP2Y = p2Y;
         ctx.fillStyle = "black";
         ctx.fillRect(0, 0, canvas.width, canvas.height);
         ctx.fillStyle = "#00d9ff";
@@ -210,6 +244,7 @@ function startPongMatch(player1, player2) {
             ctx.arc(bX, bY, 10, 0, Math.PI * 2);
             ctx.fill();
         }
+        // Movimiento de paletas
         if (w && p1Y > 0)
             p1Y -= 10;
         if (s && p1Y < canvas.height - 100)
@@ -218,33 +253,61 @@ function startPongMatch(player1, player2) {
             p2Y -= 10;
         if (down && p2Y < canvas.height - 100)
             p2Y += 10;
+        // Calcular velocidades de las paletas
+        p1Velocity = p1Y - previousP1Y;
+        p2Velocity = p2Y - previousP2Y;
         if (moving) {
             bX += bSpeedX;
             bY += bSpeedY;
         }
+        // Colisión con paredes
         if (bY - 10 <= 0 || bY + 10 >= canvas.height)
             bSpeedY *= -1;
+        // Colisión con paletas con efectos
         if (bX - 10 <= 10 && bY >= p1Y && bY <= p1Y + 100) {
             bX = 21;
-            bSpeedX *= -1;
+            bSpeedX = Math.abs(bSpeedX); // Asegurar dirección positiva
+            // Aplicar efecto basado en movimiento de la paleta
+            const spinEffect = p1Velocity * 0.3; // Factor de efecto
+            bSpeedY += spinEffect;
+            // Limitar velocidad Y para mantener jugabilidad
+            bSpeedY = Math.max(-15, Math.min(15, bSpeedY));
         }
         if (bX + 10 >= canvas.width - 10 && bY >= p2Y && bY <= p2Y + 100) {
             bX = canvas.width - 21;
-            bSpeedX *= -1;
+            bSpeedX = -Math.abs(bSpeedX); // Asegurar dirección negativa
+            // Aplicar efecto basado en movimiento de la paleta
+            const spinEffect = p2Velocity * 0.3; // Factor de efecto
+            bSpeedY += spinEffect;
+            // Limitar velocidad Y para mantener jugabilidad
+            bSpeedY = Math.max(-15, Math.min(15, bSpeedY));
         }
+        // Puntuación
         if (bX <= 0) {
             s2++;
             update();
             check();
-            if (!winner)
-                resetBall("left"), countdown();
+            if (!winner) {
+                resetBall("left");
+                countdown();
+            }
+            else {
+                if (accelerationInterval)
+                    clearInterval(accelerationInterval);
+            }
         }
         if (bX >= canvas.width) {
             s1++;
             update();
             check();
-            if (!winner)
-                resetBall("right"), countdown();
+            if (!winner) {
+                resetBall("right");
+                countdown();
+            }
+            else {
+                if (accelerationInterval)
+                    clearInterval(accelerationInterval);
+            }
         }
         if (!winner)
             ani = requestAnimationFrame(draw);
@@ -263,6 +326,8 @@ function startPongMatch(player1, player2) {
         if (winner) {
             moving = false;
             cancelAnimationFrame(ani);
+            if (accelerationInterval)
+                clearInterval(accelerationInterval);
             rounds[currentRoundIndex][currentMatchIndex].winner = winner;
             winnerText.textContent = `${winner} wins!`;
             winnerMsg.classList.remove("hidden");
@@ -294,8 +359,9 @@ function startPongMatch(player1, player2) {
     function resetBall(dir) {
         bX = 400;
         bY = 200;
-        bSpeedX = dir === "left" ? -8 : 8;
-        bSpeedY = Math.random() > 0.5 ? 5 : -5;
+        // Resetear a velocidades base
+        bSpeedX = dir === "left" ? -baseSpeedX : baseSpeedX;
+        bSpeedY = Math.random() > 0.5 ? baseSpeedY : -baseSpeedY;
     }
     function countdown() {
         moving = false;
@@ -308,6 +374,8 @@ function startPongMatch(player1, player2) {
                 countdownEl.classList.add("hidden");
                 clearInterval(int);
                 moving = true;
+                // Iniciar aceleración cuando empiece el movimiento de la pelota
+                startAcceleration();
             }
             else {
                 countdownEl.textContent = String(c);
@@ -316,6 +384,9 @@ function startPongMatch(player1, player2) {
     }
     restartBtn.onclick = () => {
         var _a;
+        // Limpiar intervalos de aceleración
+        if (accelerationInterval)
+            clearInterval(accelerationInterval);
         (_a = document.getElementById("pong-game")) === null || _a === void 0 ? void 0 : _a.classList.add("hidden");
         boardDiv.classList.remove("hidden");
         updateMatchTable();
@@ -354,10 +425,14 @@ function startPongMatch(player1, player2) {
     // Iniciar juego
     p1Y = 150;
     p2Y = 150;
+    lastP1Y = 150;
+    lastP2Y = 150;
+    p1Velocity = 0;
+    p2Velocity = 0;
     bX = 400;
     bY = 200;
-    bSpeedX = 8;
-    bSpeedY = 5;
+    bSpeedX = baseSpeedX;
+    bSpeedY = baseSpeedY;
     w = s = up = down = false;
     s1 = 0;
     s2 = 0;
