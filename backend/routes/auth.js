@@ -399,6 +399,63 @@ async function authRoutes(fastify, options) {
     }
   });
 
+  fastify.post("/add-friend", async (req, reply) => {
+    const { user, friend } = req.body;
+
+    try {
+      if (!user || !friend || user === friend) {
+        return reply.code(400).send({ error: "Invalid usernames" });
+      }
+      const userData = await dbGet("SELECT id FROM users WHERE username = ?", user);
+      const friendData = await dbGet("SELECT id FROM users WHERE username = ?", friend);
+      if (!userData || !friendData) {
+        return reply.code(404).send({ error: "User or friend not found" });
+      }
+
+      const userId = userData.id;
+      const friendId = friendData.id;
+
+      const existingFriendship = await dbGet(
+        "SELECT * FROM friends WHERE user_id = ? AND friend_id = ?",
+        [userId, friendId]
+      );
+      if (existingFriendship) {
+        return reply.code(400).send({ error: "Already friends" });
+      }
+      else {
+        await db.run("INSERT INTO friends (user_id, friend_id) VALUES (?, ?)", [userId, friendId]);
+      }
+
+      return reply.send({ success: true });
+    } catch (err) {
+      console.error(err);
+      return reply.code(500).send({ error: "Server error" });
+    }
+  });
+
+  fastify.get("/user-friends/:username", async (req, reply) => {
+    try {
+      console.log("Fetching friends for user:", req.params.username);
+      const { username } = req.params;
+
+      const user = await dbGet("SELECT id FROM users WHERE username = ?", [username]);
+      if (!user) return reply.status(404).send({ error: "User not found" });
+
+      const friends = await dbAll(`
+        SELECT u.username 
+        FROM users u
+        INNER JOIN friends f ON u.id = f.friend_id
+        WHERE f.user_id = ?
+      `, [user.id]);
+
+      const friendUsernames = friends.map(f => f.username);
+      return reply.send(friendUsernames);
+
+    } catch (err) {
+      console.error("Error:", err);
+      return reply.status(500).send({ error: "Server error" });
+    }
+  });
 }
 
 module.exports = authRoutes;

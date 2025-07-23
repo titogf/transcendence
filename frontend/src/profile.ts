@@ -99,6 +99,9 @@ window.addEventListener("DOMContentLoaded", () => {
   document.getElementById("home-btn")?.addEventListener("click", () => {
     window.location.href = "./index.html";
   });
+  document.getElementById("friend-btn")?.addEventListener("click", () => {
+    window.location.href = "./friends.html";
+  });
   document.getElementById("settings-btn")?.addEventListener("click", () => {
     window.location.href = "./settings.html";
   });

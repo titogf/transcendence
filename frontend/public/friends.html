@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Friends</title>
+  <link rel="stylesheet" href="/dist/output.css" />
+</head>
+<body class="min-h-screen bg-[#1e1e1e] text-white font-sans flex flex-col items-center p-6 relative text-2xl">
+
+    <button id="return-btn" class="absolute top-5 left-5 bg-[#00d9ff] text-black font-bold px-4 py-2 rounded hover:bg-[#00a6c4] transition-colors">⬅ Return</button>
+    <button id="home-btn" class="absolute top-5 left-[135px] bg-[#00d9ff] text-black px-4 py-2 rounded-md font-bold hover:bg-[#00a6c4] transition">🏠 Home</button>
+  
+  <h1 class="text-4xl text-[#00d9ff] mt-24 mt-24 mb-8 font-bold">👥 My Friends</h1>
+
+  <div class="bg-[#2b2b2b] p-6 rounded shadow w-full max-w-md mb-8 left-5">
+    <h2 class="text-[#00ff99] font-bold text-lg mb-4">➕ Add Friend</h2>
+    <input id="friend-username" type="text" placeholder="Enter username" class="w-60 px-3 py-2 mb-4 bg-[#1e1e1e] text-white border border-gray-600 rounded" /><br>
+    <button id="add-friend-btn" class="bg-[#00ff99] text-black px-4 py-2 font-bold rounded hover:bg-[#00a6c4]">Add Friend</button>
+    <p id="friend-error" class="text-red-500 mt-2 hidden"></p>
+  </div>
+
+  <div id="friend-list" class="w-full max-w-md bg-[#2b2b2b] p-4 rounded shadow">
+    <h2 class="text-[#00ff99] font-bold text-lg mb-4">👤 Friend List</h2>
+    <ul id="friends-container" class="space-y-4 font-bold mb-12"></ul>
+    <p id="no-friends" class="text-gray-400 text-sm">No friends yet.</p>
+  </div>
+
+  <script type="module" src="friends.js"></script>
+</body>
+</html>

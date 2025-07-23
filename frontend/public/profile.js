@@ -1,12 +1,15 @@
 "use strict";
 window.addEventListener("DOMContentLoaded", () => {
-    var _a, _b, _c, _d;
+    var _a, _b, _c, _d, _e;
+    const params = new URLSearchParams(window.location.search);
+    const viewedUsername = params.get("user");
     const userFromStorage = JSON.parse(localStorage.getItem("user") || "null");
-    if (!userFromStorage) {
+    if (!userFromStorage && !viewedUsername) {
         window.location.href = "./login.html";
         return;
     }
-    fetch(`http://localhost:3000/auth/user-info/${userFromStorage.username}`)
+    const usernameToLoad = viewedUsername || userFromStorage.username;
+    fetch(`http://localhost:3000/auth/user-info/${usernameToLoad}`)
         .then(res => res.json())
         .then(user => {
         document.getElementById("name").textContent = user.name;
@@ -21,7 +24,6 @@ window.addEventListener("DOMContentLoaded", () => {
         document.getElementById("win-rate").textContent = winRate;
         document.getElementById("win-tournaments").textContent = user.wins_tournaments;
         document.getElementById("tournaments-played").textContent = user.tournaments_played;
-        console.log(user);
         new Chart("victory-chart", {
             type: "bar",
             data: {
@@ -86,7 +88,10 @@ window.addEventListener("DOMContentLoaded", () => {
     (_c = document.getElementById("home-btn")) === null || _c === void 0 ? void 0 : _c.addEventListener("click", () => {
         window.location.href = "./index.html";
     });
-    (_d = document.getElementById("settings-btn")) === null || _d === void 0 ? void 0 : _d.addEventListener("click", () => {
+    (_d = document.getElementById("friend-btn")) === null || _d === void 0 ? void 0 : _d.addEventListener("click", () => {
+        window.location.href = "./friends.html";
+    });
+    (_e = document.getElementById("settings-btn")) === null || _e === void 0 ? void 0 : _e.addEventListener("click", () => {
         window.location.href = "./settings.html";
     });
 });
