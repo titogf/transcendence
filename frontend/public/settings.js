@@ -38,7 +38,6 @@ window.addEventListener("DOMContentLoaded", () => {
                 userAvatar.src = "/avatars/0.png";
             });
         }
-        userAvatar.classList.add("w-24", "h-24", "rounded-full", "object-cover");
     });
     (_a = document.getElementById("return-btn")) === null || _a === void 0 ? void 0 : _a.addEventListener("click", () => {
         window.history.back();
