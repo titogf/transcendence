@@ -18,9 +18,21 @@ window.addEventListener("DOMContentLoaded", () => {
     fetch(`http://localhost:3000/auth/user-info/${user.username}`)
       .then(res => res.json())
       .then(userData => {
-        const avatarIndex = userData.avatar >= 0 && userData.avatar <= 9 ? userData.avatar : 0;
+        const avatarIndex = userData.avatar >= 0 ? userData.avatar : 0;
+        const imagePath = `/avatars/${avatarIndex}.png`;
+
         if (userAvatar) {
-          userAvatar.src = `/avatars/${avatarIndex}.png`;
+          fetch(imagePath, { method: "HEAD" })
+            .then((res) => {
+              if (res.ok) {
+                userAvatar.src = imagePath;
+              } else {
+                userAvatar.src = "/avatars/0.png";
+              }
+            })
+            .catch(() => {
+              userAvatar.src = "/avatars/0.png";
+            });
         }
       })
       .catch(err => {
