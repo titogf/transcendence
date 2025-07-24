@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 window.addEventListener("DOMContentLoaded", () => {
-    var _a, _b, _c;
+    var _a, _b, _c, _d;
     const userFromStorage = JSON.parse(localStorage.getItem("user") || "null");
     if (!userFromStorage) {
         window.location.href = "./login.html";
@@ -98,6 +98,25 @@ window.addEventListener("DOMContentLoaded", () => {
         }
         else {
             alert(result.error || "Error deleting account");
+        }
+    }));
+    (_d = document.getElementById("upload-form")) === null || _d === void 0 ? void 0 : _d.addEventListener("submit", (e) => __awaiter(void 0, void 0, void 0, function* () {
+        e.preventDefault();
+        const form = e.target;
+        const formData = new FormData(form);
+        const res = yield fetch("http://localhost:3000/upload-avatar", {
+            method: "POST",
+            body: formData,
+        });
+        const result = yield res.json();
+        const msg = document.getElementById("upload-msg");
+        if (!msg)
+            return;
+        if (res.ok) {
+            msg.textContent = `✅ Avatar uploaded as ${result.filename}`;
+        }
+        else {
+            msg.textContent = `❌ Error: ${result.error}`;
         }
     }));
 });

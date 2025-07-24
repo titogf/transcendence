@@ -130,8 +130,8 @@ window.addEventListener("DOMContentLoaded", () => {
         localStorage.removeItem("user");
         window.location.href = "./login.html";
     });
-    (_e = document.getElementById("friend-btn")) === null || _e === void 0 ? void 0 : _e.addEventListener("click", () => {
-        window.location.href = "./friends.html";
+    (_e = document.getElementById("management-btn")) === null || _e === void 0 ? void 0 : _e.addEventListener("click", () => {
+        window.location.href = "./settings.html";
     });
     (_f = document.getElementById("profile-btn")) === null || _f === void 0 ? void 0 : _f.addEventListener("click", () => {
         window.location.href = "./profile.html";
