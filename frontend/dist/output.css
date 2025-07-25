@@ -45,6 +45,21 @@
   --tw-rotate: -90deg;
   transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
 }
+.object-cover {
+  object-fit: cover;
+}
+.rounded-full {
+  border-radius: 9999px;
+}
+.w-auto {
+  width: auto;
+}
+.max-h-\[512px\] {
+  max-height: 512px;
+}
+.max-w-\[512px\] {
+  max-width: 512px;
+}
 .p-2 {
   padding: 0.5rem /* 8px */;
 }
