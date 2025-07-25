@@ -19,8 +19,23 @@ window.addEventListener("DOMContentLoaded", () => {
       document.getElementById("username")!.textContent = user.username;
       document.getElementById("email")!.textContent = user.email;
 
-      const avatarIndex = user.avatar >= 0 && user.avatar <= 9 ? user.avatar : 0;
-      (document.getElementById("user-avatar") as HTMLImageElement).src = `/avatars/${avatarIndex}.png`;
+      const userAvatar = (document.getElementById("user-avatar") as HTMLImageElement);
+      const avatarIndex = user.avatar >= 0 ? user.avatar : 0;
+      const imagePath = `/avatars/${avatarIndex}.png`;
+
+      if (userAvatar) {
+        fetch(imagePath, { method: "HEAD" })
+          .then((res) => {
+            if (res.ok) {
+              userAvatar.src = imagePath;
+            } else {
+              userAvatar.src = "/avatars/0.png";
+            }
+          })
+          .catch(() => {
+            userAvatar.src = "/avatars/0.png";
+          });
+      }
 
       const totalMatches = user.matches_played || 0;
       const avgGoals = totalMatches > 0 ? (user.goals_scored / totalMatches).toFixed(2) : "0";

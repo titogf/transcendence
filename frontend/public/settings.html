@@ -15,7 +15,7 @@
 
         <div class="flex flex-col items-center mb-8 p-8">
             <div class ="bg-[#2b2b2b] rounded-lg shadow">
-                <img id="user-avatar" class="w-4 h-4 rounded-full mb-4" src="/avatars/0.png" alt="User Avatar" />
+                <img id="user-avatar" class="max-w-[512px] max-h-[512px] w-auto h-auto object-cover mb-4" src="/avatars/0.png" alt="User Avatar" />
                 <h4 class="tfont-bold text-[#00d9ff] text-center"><span id="name" class="font-bold"></span></h4>
                 <h4 class="tfont-bold text-[#00d9ff]">👤 Username: <span id="username" class="font-bold text-white"></span></h4>
                 <h4 class="tfont-bold text-[#00d9ff]">✉️ Email: <span id="email" class="font-bold text-white"></span></h4>    
@@ -27,11 +27,18 @@
 
                 <label class="mb-3">
                 <span class="text-sm text-gray-300">New Avatar</span>
-                <input id="new-avatar" type="text" inputmode="numeric" pattern="[0-9]*"maxlength="1" placeholder="Select 0-9" class="w-full mt-1 px-3 py-2 bg-[#1e1e1e] text-white border border-gray-600 rounded" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 1)"/>
+                <input id="new-avatar" type="text" inputmode="numeric" maxlength="3" placeholder="Select 0-9 or upload our avatar and insert the number file" class="w-full mt-1 px-3 py-2 bg-[#1e1e1e] text-white border border-gray-600 rounded" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 3)"/>
                 <div class="w-full shadow-none mt-2">
-                    <img src="avatars/all.png"/>
+                    <img src="/avatars/all.png"/>
                 </div>
                 </label>
+
+                <span class="text-sm text-gray-300">Upload Avatar</span>
+                <form id="upload-form" enctype="multipart/form-data">
+                    <input type="file" name="avatar" accept="image/png" required />
+                    <button type="submit">Upload</button>
+                </form>
+                <p id="upload-msg" class="mt-4 text-green-400"></p>
 
                 <label class="mb-3">
                 <span class="text-sm text-gray-300">New Username</span>

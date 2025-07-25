@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 window.addEventListener("DOMContentLoaded", () => {
-    var _a, _b, _c;
+    var _a, _b, _c, _d;
     const userFromStorage = JSON.parse(localStorage.getItem("user") || "null");
     if (!userFromStorage) {
         window.location.href = "./login.html";
@@ -21,8 +21,23 @@ window.addEventListener("DOMContentLoaded", () => {
         document.getElementById("name").textContent = user.name;
         document.getElementById("username").textContent = user.username;
         document.getElementById("email").textContent = user.email;
-        const avatarIndex = user.avatar >= 0 && user.avatar <= 9 ? user.avatar : 0;
-        document.getElementById("user-avatar").src = `/avatars/${avatarIndex}.png`;
+        const userAvatar = document.getElementById("user-avatar");
+        const avatarIndex = user.avatar >= 0 ? user.avatar : 0;
+        const imagePath = `/avatars/${avatarIndex}.png`;
+        if (userAvatar) {
+            fetch(imagePath, { method: "HEAD" })
+                .then((res) => {
+                if (res.ok) {
+                    userAvatar.src = imagePath;
+                }
+                else {
+                    userAvatar.src = "/avatars/0.png";
+                }
+            })
+                .catch(() => {
+                userAvatar.src = "/avatars/0.png";
+            });
+        }
     });
     (_a = document.getElementById("return-btn")) === null || _a === void 0 ? void 0 : _a.addEventListener("click", () => {
         window.history.back();
@@ -98,6 +113,25 @@ window.addEventListener("DOMContentLoaded", () => {
         }
         else {
             alert(result.error || "Error deleting account");
+        }
+    }));
+    (_d = document.getElementById("upload-form")) === null || _d === void 0 ? void 0 : _d.addEventListener("submit", (e) => __awaiter(void 0, void 0, void 0, function* () {
+        e.preventDefault();
+        const form = e.target;
+        const formData = new FormData(form);
+        const res = yield fetch("http://localhost:3000/upload-avatar", {
+            method: "POST",
+            body: formData,
+        });
+        const result = yield res.json();
+        const msg = document.getElementById("upload-msg");
+        if (!msg)
+            return;
+        if (res.ok) {
+            msg.textContent = `✅ Avatar uploaded as ${result.filename}`;
+        }
+        else {
+            msg.textContent = `❌ Error: ${result.error}`;
         }
     }));
 });

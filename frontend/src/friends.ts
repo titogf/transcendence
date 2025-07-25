@@ -127,8 +127,8 @@ window.addEventListener("DOMContentLoaded", () => {
     localStorage.removeItem("user");
     window.location.href = "./login.html";
   });
-  document.getElementById("friend-btn")?.addEventListener("click", () => {
-    window.location.href = "./friends.html";
+  document.getElementById("management-btn")?.addEventListener("click", () => {
+    window.location.href = "./settings.html";
   });
 
   document.getElementById("profile-btn")?.addEventListener("click", () => {

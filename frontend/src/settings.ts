@@ -12,8 +12,24 @@ window.addEventListener("DOMContentLoaded", () => {
       (document.getElementById("username") as HTMLElement).textContent = user.username;
       (document.getElementById("email") as HTMLElement).textContent = user.email;
       
-      const avatarIndex = user.avatar >= 0 && user.avatar <= 9 ? user.avatar : 0;
-      (document.getElementById("user-avatar") as HTMLImageElement).src = `/avatars/${avatarIndex}.png`;
+   
+      const userAvatar = (document.getElementById("user-avatar") as HTMLImageElement);
+      const avatarIndex = user.avatar >= 0 ? user.avatar : 0;
+      const imagePath = `/avatars/${avatarIndex}.png`;
+
+      if (userAvatar) {
+        fetch(imagePath, { method: "HEAD" })
+          .then((res) => {
+            if (res.ok) {
+              userAvatar.src = imagePath;
+            } else {
+              userAvatar.src = "/avatars/0.png";
+            }
+          })
+          .catch(() => {
+            userAvatar.src = "/avatars/0.png";
+          });
+      }
     });
 
   document.getElementById("return-btn")?.addEventListener("click", () => {
@@ -70,17 +86,17 @@ window.addEventListener("DOMContentLoaded", () => {
       showError(error.message || "Error desconocido");
     }  
   });
-const errorMessage = document.getElementById("error-message")!;
+  const errorMessage = document.getElementById("error-message")!;
 
-function showError(message: string) {
-  errorMessage.textContent = message;
-  errorMessage.classList.remove("hidden");
-  errorMessage.classList.add("shake");
+  function showError(message: string) {
+    errorMessage.textContent = message;
+    errorMessage.classList.remove("hidden");
+    errorMessage.classList.add("shake");
 
-  setTimeout(() => {
-    errorMessage.classList.remove("shake");
-  }, 500);
-}
+    setTimeout(() => {
+      errorMessage.classList.remove("shake");
+    }, 500);
+  }
 
   const deleteBtn = document.getElementById("delete-account-btn");
   deleteBtn?.addEventListener("click", async () => {
@@ -101,4 +117,26 @@ function showError(message: string) {
       alert(result.error || "Error deleting account");
     }
   });
+
+  document.getElementById("upload-form")?.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const form = e.target as HTMLFormElement;
+    const formData = new FormData(form);
+
+    const res = await fetch("http://localhost:3000/upload-avatar", {
+      method: "POST",
+      body: formData,
+    });
+
+    const result = await res.json();
+    const msg = document.getElementById("upload-msg");
+    if (!msg) return;
+    if (res.ok) {
+      msg.textContent = `✅ Avatar uploaded as ${result.filename}`;
+    } else {
+      msg.textContent = `❌ Error: ${result.error}`;
+    }
+  });
+
 });
