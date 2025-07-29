@@ -89,7 +89,7 @@ confirmBtn.addEventListener("click", async () => {
   const password = player2Pass.value;
   if (!username || !password) { player2Error.textContent = "Faltan campos"; return; }
   try {
-    const res = await fetch("http://localhost:3000/auth/login", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ username, password }) });
+    const res = await fetch("https://localhost:3000/auth/login", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ username, password }) });
     if (!res.ok) { player2Error.textContent = "Usuario o contraseña incorrectos"; return; }
     const data = await res.json();
     if (data.username === user.username) { player2Error.textContent = "Player 2 no puede ser el mismo que Player 1"; return; }
@@ -321,7 +321,7 @@ async function sendMatchResult() {
   const winnerUsername = scoreP1 === 3 ? user.username : user2.username;
   const loserUsername = scoreP1 === 3 ? user2.username : user.username;
   try {
-    await fetch("http://localhost:3000/auth/match-result", {
+    await fetch("https://localhost:3000/auth/match-result", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ winner: winnerUsername, loser: loserUsername, winner_goals: Math.max(scoreP1, scoreP2), loser_goals: Math.min(scoreP1, scoreP2), game_type: isAI ? "IA" : "1vs1" }),

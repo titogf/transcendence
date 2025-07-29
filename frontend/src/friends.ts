@@ -34,7 +34,7 @@ window.addEventListener("DOMContentLoaded", () => {
     }
 
     try {
-      const res = await fetch("http://localhost:3000/auth/add-friend", {
+      const res = await fetch("https://localhost:3000/auth/add-friend", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ user: username, friend: friend }),
@@ -52,7 +52,7 @@ window.addEventListener("DOMContentLoaded", () => {
   });
 
   // Cargar lista de amigos
-  fetch(`http://localhost:3000/auth/user-friends/${username}`)
+  fetch(`https://localhost:3000/auth/user-friends/${username}`)
     .then((res) => {
       if (!res.ok) throw new Error(res.statusText);
       return res.json();
@@ -73,7 +73,7 @@ window.addEventListener("DOMContentLoaded", () => {
             e.stopPropagation();
 
             try {
-              const res = await fetch(`http://localhost:3000/auth/user-info/${friend}`);
+              const res = await fetch(`https://localhost:3000/auth/user-info/${friend}`);
               if (!res.ok) throw new Error("Could not load profile");
               const userData = await res.json();
 

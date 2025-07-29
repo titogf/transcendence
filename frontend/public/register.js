@@ -32,7 +32,7 @@ form.addEventListener("submit", (e) => __awaiter(void 0, void 0, void 0, functio
         return;
     }
     try {
-        const res = yield fetch("http://localhost:3000/auth/register", {
+        const res = yield fetch("https://localhost:3000/auth/register", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ name, email, username, password }),
