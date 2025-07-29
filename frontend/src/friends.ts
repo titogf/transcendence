@@ -77,7 +77,7 @@ window.addEventListener("DOMContentLoaded", () => {
               if (!res.ok) throw new Error("Could not load profile");
               const userData = await res.json();
 
-              const avatarIndex = userData.avatar >= 0 && userData.avatar <= 9 ? userData.avatar : 0;
+              const avatarIndex = userData.avatar >= 0 ? userData.avatar : 0;
               const avgGoals = userData.matches_played > 0
                 ? (userData.goals_scored / userData.matches_played).toFixed(2)
                 : "0";
@@ -92,7 +92,7 @@ window.addEventListener("DOMContentLoaded", () => {
                   <img src="/avatars/${avatarIndex}.png" alt="Avatar" class="w-24 h-24 mx-auto rounded-full mb-4">
                   <p><strong>Name:</strong> ${userData.name}</p>
                   <p><strong>Email:</strong> ${userData.email}</p>
-                  <p><strong>Matches:</strong> ${userData.matches_played}</p>
+                  <p><strong>Matches played:</strong> ${userData.matches_played}</p>
                   <p><strong>Goals per match:</strong> ${avgGoals}</p>
                   <p><strong>Win rate:</strong> ${winRate}</p>
                 `;
