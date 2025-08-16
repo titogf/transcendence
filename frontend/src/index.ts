@@ -15,7 +15,7 @@ window.addEventListener("DOMContentLoaded", () => {
     loginBtn.onclick = () => {
       window.location.href = "./profile.html";
     };
-    fetch(`http://localhost:3000/auth/user-info/${user.username}`)
+    fetch(`https://localhost:3000/auth/user-info/${user.username}`)
       .then(res => res.json())
       .then(userData => {
         const avatarIndex = userData.avatar >= 0 ? userData.avatar : 0;

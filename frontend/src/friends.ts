@@ -34,7 +34,7 @@ window.addEventListener("DOMContentLoaded", () => {
     }
 
     try {
-      const res = await fetch("http://localhost:3000/auth/add-friend", {
+      const res = await fetch("https://localhost:3000/auth/add-friend", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ user: username, friend: friend }),
@@ -52,7 +52,7 @@ window.addEventListener("DOMContentLoaded", () => {
   });
 
   // Cargar lista de amigos
-  fetch(`http://localhost:3000/auth/user-friends/${username}`)
+  fetch(`https://localhost:3000/auth/user-friends/${username}`)
     .then((res) => {
       if (!res.ok) throw new Error(res.statusText);
       return res.json();
@@ -73,11 +73,11 @@ window.addEventListener("DOMContentLoaded", () => {
             e.stopPropagation();
 
             try {
-              const res = await fetch(`http://localhost:3000/auth/user-info/${friend}`);
+              const res = await fetch(`https://localhost:3000/auth/user-info/${friend}`);
               if (!res.ok) throw new Error("Could not load profile");
               const userData = await res.json();
 
-              const avatarIndex = userData.avatar >= 0 && userData.avatar <= 9 ? userData.avatar : 0;
+              const avatarIndex = userData.avatar >= 0 ? userData.avatar : 0;
               const avgGoals = userData.matches_played > 0
                 ? (userData.goals_scored / userData.matches_played).toFixed(2)
                 : "0";
@@ -92,7 +92,7 @@ window.addEventListener("DOMContentLoaded", () => {
                   <img src="/avatars/${avatarIndex}.png" alt="Avatar" class="w-24 h-24 mx-auto rounded-full mb-4">
                   <p><strong>Name:</strong> ${userData.name}</p>
                   <p><strong>Email:</strong> ${userData.email}</p>
-                  <p><strong>Matches:</strong> ${userData.matches_played}</p>
+                  <p><strong>Matches played:</strong> ${userData.matches_played}</p>
                   <p><strong>Goals per match:</strong> ${avgGoals}</p>
                   <p><strong>Win rate:</strong> ${winRate}</p>
                 `;

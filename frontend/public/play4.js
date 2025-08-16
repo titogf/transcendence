@@ -41,7 +41,7 @@ confirm_Btn.addEventListener("click", () => __awaiter(void 0, void 0, void 0, fu
     const password = password_In.value.trim();
     error_Msg.textContent = "";
     try {
-        const res = yield fetch("http://localhost:3000/auth/login", {
+        const res = yield fetch("https://localhost:3000/auth/login", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ username, password }),

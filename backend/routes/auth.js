@@ -20,6 +20,10 @@ async function authRoutes(fastify, options) {
     if (!isEmail){
       return reply.code(400).send({ error: "Bad email format" });
     }
+    const hasDangerousChars = /[<>\/"'\(\)]/.test(username) || /[<>\/"'\(\)]/.test(name);
+    if (hasDangerousChars) {
+      return reply.code(400).send({ error: "Bad username or name format" });
+    }
 
     try {
       const existingUser = await dbGet(
@@ -371,6 +375,10 @@ async function authRoutes(fastify, options) {
       const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(updatedEmail);
       if (!isEmail){
         return reply.code(400).send({ error: "Bad email format" });
+      }
+      const hasDangerousChars = /[<>\/"'\(\)]/.test(updatedUsername);
+      if (hasDangerousChars) {
+        return reply.code(400).send({ error: "Bad username format" });
       }
 
       await dbRun(

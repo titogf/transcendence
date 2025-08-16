@@ -15,7 +15,7 @@ window.addEventListener("DOMContentLoaded", () => {
         window.location.href = "./login.html";
         return;
     }
-    fetch(`http://localhost:3000/auth/user-info/${userFromStorage.username}`)
+    fetch(`https://localhost:3000/auth/user-info/${userFromStorage.username}`)
         .then(res => res.json())
         .then(user => {
         document.getElementById("name").textContent = user.name;
@@ -67,7 +67,7 @@ window.addEventListener("DOMContentLoaded", () => {
             errorSpan === null || errorSpan === void 0 ? void 0 : errorSpan.classList.add("hidden");
         }
         try {
-            const response = yield fetch("http://localhost:3000/auth/update-profile", {
+            const response = yield fetch("https://localhost:3000/auth/update-profile", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
@@ -101,7 +101,7 @@ window.addEventListener("DOMContentLoaded", () => {
     const deleteBtn = document.getElementById("delete-account-btn");
     deleteBtn === null || deleteBtn === void 0 ? void 0 : deleteBtn.addEventListener("click", () => __awaiter(void 0, void 0, void 0, function* () {
         const username = JSON.parse(localStorage.getItem("user")).username;
-        const response = yield fetch("http://localhost:3000/auth/delete-account", {
+        const response = yield fetch("https://localhost:3000/auth/delete-account", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ username }),
@@ -119,7 +119,7 @@ window.addEventListener("DOMContentLoaded", () => {
         e.preventDefault();
         const form = e.target;
         const formData = new FormData(form);
-        const res = yield fetch("http://localhost:3000/upload-avatar", {
+        const res = yield fetch("https://localhost:3000/upload-avatar", {
             method: "POST",
             body: formData,
         });

@@ -29,7 +29,7 @@ loginForm.addEventListener("submit", (e) => __awaiter(void 0, void 0, void 0, fu
     const username = usernameInput.value;
     const password = passwordInput.value;
     try {
-        const response = yield fetch("http://localhost:3000/auth/login", {
+        const response = yield fetch("https://localhost:3000/auth/login", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ username, password }),
@@ -53,7 +53,7 @@ registerLink === null || registerLink === void 0 ? void 0 : registerLink.addEven
 window.handleGoogleSignIn = (response) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const idToken = response.credential;
-        const res = yield fetch("http://localhost:3000/auth/google", {
+        const res = yield fetch("https://localhost:3000/auth/google", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ token: idToken }),

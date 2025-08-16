@@ -5,7 +5,7 @@ window.addEventListener("DOMContentLoaded", () => {
     return;
   }
 
-  fetch(`http://localhost:3000/auth/user-info/${userFromStorage.username}`)
+  fetch(`https://localhost:3000/auth/user-info/${userFromStorage.username}`)
     .then(res => res.json())
     .then(user => {
       (document.getElementById("name") as HTMLElement).textContent = user.name;
@@ -65,7 +65,7 @@ window.addEventListener("DOMContentLoaded", () => {
     }
 
     try {
-      const response = await fetch("http://localhost:3000/auth/update-profile", {
+      const response = await fetch("https://localhost:3000/auth/update-profile", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -102,7 +102,7 @@ window.addEventListener("DOMContentLoaded", () => {
   deleteBtn?.addEventListener("click", async () => {
     const username = JSON.parse(localStorage.getItem("user")!).username;
 
-    const response = await fetch("http://localhost:3000/auth/delete-account", {
+    const response = await fetch("https://localhost:3000/auth/delete-account", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ username }),
@@ -124,7 +124,7 @@ window.addEventListener("DOMContentLoaded", () => {
     const form = e.target as HTMLFormElement;
     const formData = new FormData(form);
 
-    const res = await fetch("http://localhost:3000/upload-avatar", {
+    const res = await fetch("https://localhost:3000/upload-avatar", {
       method: "POST",
       body: formData,
     });

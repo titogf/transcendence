@@ -1,6 +1,6 @@
 Registro:
 
-curl -X POST http://localhost:3000/auth/register \
+curl -X POST https://localhost:3000/auth/register \
   -H "Content-Type: application/json" \
   -d '{
     "username": "carlosm",
@@ -9,7 +9,7 @@ curl -X POST http://localhost:3000/auth/register \
     "email": "carlos@example.com"
   }'
 
-curl -X POST http://localhost:3000/auth/register \
+curl -X POST https://localhost:3000/auth/register \
   -H "Content-Type: application/json" \
   -d '{
     "username": "a",
@@ -18,7 +18,7 @@ curl -X POST http://localhost:3000/auth/register \
     "email": "a@example.com"
   }'
 
-curl -X POST http://localhost:3000/auth/register \
+curl -X POST https://localhost:3000/auth/register \
   -H "Content-Type: application/json" \
   -d '{
     "username": "carlos-m",
@@ -30,18 +30,18 @@ curl -X POST http://localhost:3000/auth/register \
 
 Login:
 
-curl -X POST http://localhost:3000/auth/login \
+curl -X POST https://localhost:3000/auth/login \
   -H "Content-Type: application/json" \
   -d '{"username":"carlosm","password":"1234"}'
 
-curl -X POST http://localhost:3000/auth/login \
+curl -X POST https://localhost:3000/auth/login \
   -H "Content-Type: application/json" \
   -d '{"username":"a","password":"1"}'
 
-curl -X POST http://localhost:3000/auth/login \
+curl -X POST https://localhost:3000/auth/login \
   -H "Content-Type: application/json" \
   -d '{"username":"b","password":"1"}'
 
-curl -X POST http://localhost:3000/auth/login \
+curl -X POST https://localhost:3000/auth/login \
   -H "Content-Type: application/json" \
   -d '{"username":"manoloe","password":"123"}'

@@ -12,7 +12,7 @@ window.addEventListener("DOMContentLoaded", () => {
 
   const usernameToLoad = viewedUsername || userFromStorage.username;
 
-  fetch(`http://localhost:3000/auth/user-info/${usernameToLoad}`)
+  fetch(`https://localhost:3000/auth/user-info/${usernameToLoad}`)
     .then(res => res.json())
     .then(user => {
       document.getElementById("name")!.textContent = user.name;
@@ -79,7 +79,7 @@ window.addEventListener("DOMContentLoaded", () => {
         },
       });
 
-      fetch(`http://localhost:3000/auth/user-matches/${user.username}`)
+      fetch(`https://localhost:3000/auth/user-matches/${user.username}`)
         .then(res => res.json())
         .then(data => {
           const table = document.getElementById("match-table")!;

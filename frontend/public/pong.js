@@ -94,7 +94,7 @@ confirmBtn.addEventListener("click", () => __awaiter(void 0, void 0, void 0, fun
         return;
     }
     try {
-        const res = yield fetch("http://localhost:3000/auth/login", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ username, password }) });
+        const res = yield fetch("https://localhost:3000/auth/login", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ username, password }) });
         if (!res.ok) {
             player2Error.textContent = "Usuario o contraseña incorrectos";
             return;
@@ -339,7 +339,7 @@ function sendMatchResult() {
         const winnerUsername = scoreP1 === 3 ? user.username : user2.username;
         const loserUsername = scoreP1 === 3 ? user2.username : user.username;
         try {
-            yield fetch("http://localhost:3000/auth/match-result", {
+            yield fetch("https://localhost:3000/auth/match-result", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ winner: winnerUsername, loser: loserUsername, winner_goals: Math.max(scoreP1, scoreP2), loser_goals: Math.min(scoreP1, scoreP2), game_type: isAI ? "IA" : "1vs1" }),

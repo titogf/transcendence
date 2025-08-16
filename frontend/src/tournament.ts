@@ -62,7 +62,7 @@ confirmBt.addEventListener("click", async () => {
   }
 
   try {
-    const res = await fetch("http://localhost:3000/auth/login", {
+    const res = await fetch("https://localhost:3000/auth/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ username, password }),
@@ -139,14 +139,14 @@ function createNextRound() {
     winnerDiv.classList.remove("hidden");
     nextMatchBtn.classList.add("hidden");
 
-    fetch("http://localhost:3000/auth/tournament-won", {
+    fetch("https://localhost:3000/auth/tournament-won", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ username: winnerUsername })
     });
 
     players.forEach(p => {
-      fetch("http://localhost:3000/auth/tournament-played", {
+      fetch("https://localhost:3000/auth/tournament-played", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username: p.username })
@@ -387,7 +387,7 @@ function startPongMatch(player1: User, player2: User) {
     const winnerUsername = s1 === 3 ? player1.username : player2.username;
     const loserUsername = s1 === 3 ? player2.username : player1.username;
     try {
-      await fetch("http://localhost:3000/auth/match-result", {
+      await fetch("https://localhost:3000/auth/match-result", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ winner: winnerUsername, loser: loserUsername, winner_goals: Math.max(s1, s2), loser_goals: Math.min(s1, s2), game_type: "tournament" })
