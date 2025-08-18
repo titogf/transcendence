@@ -63,17 +63,18 @@ window.addEventListener("DOMContentLoaded", () => {
 
       if (data && data.length > 0) {
         data.forEach((friend: any) => {
+          const status = friend.status === 1 ? "🟢 online" : "🔴 offline";
           const friendItem = document.createElement("p");
             friendItem.className = "p-0 m-0 flex items-center justify-between hover:bg-[#3a3a3a] cursor-pointer rounded px-2 py-1 transition-colors";
           friendItem.innerHTML = `
-            <span class="ml-0 hover:text-[#00a6c4] cursor-pointer hover:underline">${friend}</span>
-            <span class="ml-2 px-2 py-0.5 text-xs rounded text-white">🔴 offline</span>`;
+            <span class="ml-0 hover:text-[#00a6c4] cursor-pointer hover:underline">${friend.username}</span>
+            <span class="ml-2 px-2 py-0.5 text-xs rounded text-white">${status}</span>`;
 
           friendItem.querySelector("span")?.addEventListener("click", async (e) => {
             e.stopPropagation();
 
             try {
-              const res = await fetch(`https://localhost:3000/auth/user-info/${friend}`);
+              const res = await fetch(`https://localhost:3000/auth/user-info/${friend.username}`);
               if (!res.ok) throw new Error("Could not load profile");
               const userData = await res.json();
 
@@ -123,10 +124,27 @@ window.addEventListener("DOMContentLoaded", () => {
     document.getElementById("friend-profile")?.classList.add("hidden");
   });
 
-  document.getElementById("logout-btn")?.addEventListener("click", () => {
+  document.getElementById("logout-btn")?.addEventListener("click", async () => {
+    const user = JSON.parse(localStorage.getItem("user") || "null");
+    if (!user) {
+      window.location.href = "./login.html";
+      return;
+    }
+
+    try {
+      await fetch("https://localhost:3000/auth/logout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username: user.username }),
+      });
+    } catch (err) {
+      console.error("Error al actualizar el estado:", err);
+    }
+
     localStorage.removeItem("user");
     window.location.href = "./login.html";
   });
+
   document.getElementById("management-btn")?.addEventListener("click", () => {
     window.location.href = "./settings.html";
   });

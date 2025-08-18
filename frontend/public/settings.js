@@ -45,10 +45,25 @@ window.addEventListener("DOMContentLoaded", () => {
     (_b = document.getElementById("home-btn")) === null || _b === void 0 ? void 0 : _b.addEventListener("click", () => {
         window.location.href = "./index.html";
     });
-    (_c = document.getElementById("logout-btn")) === null || _c === void 0 ? void 0 : _c.addEventListener("click", () => {
+    (_c = document.getElementById("logout-btn")) === null || _c === void 0 ? void 0 : _c.addEventListener("click", () => __awaiter(void 0, void 0, void 0, function* () {
+        const user = JSON.parse(localStorage.getItem("user") || "null");
+        if (!user) {
+            window.location.href = "./login.html";
+            return;
+        }
+        try {
+            yield fetch("https://localhost:3000/auth/logout", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ username: user.username }),
+            });
+        }
+        catch (err) {
+            console.error("Error al actualizar el estado:", err);
+        }
         localStorage.removeItem("user");
         window.location.href = "./login.html";
-    });
+    }));
     // Guardar cambios
     const saveBtn = document.getElementById("save-btn");
     saveBtn === null || saveBtn === void 0 ? void 0 : saveBtn.addEventListener("click", () => __awaiter(void 0, void 0, void 0, function* () {

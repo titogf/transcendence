@@ -40,7 +40,23 @@ window.addEventListener("DOMContentLoaded", () => {
     window.location.href = "./index.html";
   });
 
-  document.getElementById("logout-btn")?.addEventListener("click", () => {
+  document.getElementById("logout-btn")?.addEventListener("click", async () => {
+    const user = JSON.parse(localStorage.getItem("user") || "null");
+    if (!user) {
+      window.location.href = "./login.html";
+      return;
+    }
+
+    try {
+      await fetch("https://localhost:3000/auth/logout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username: user.username }),
+      });
+    } catch (err) {
+      console.error("Error al actualizar el estado:", err);
+    }
+
     localStorage.removeItem("user");
     window.location.href = "./login.html";
   });

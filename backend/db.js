@@ -1,6 +1,5 @@
 const sqlite3 = require("sqlite3");
 
-// Conexión a la base de datos
 const db = new sqlite3.Database("./database.db", (err) => {
   if (err) {
     console.error("❌ Error al conectar con SQLite:", err);
@@ -9,7 +8,6 @@ const db = new sqlite3.Database("./database.db", (err) => {
   }
 });
 
-// Crear las tablas si no existen
 db.serialize(() => {
   db.run(`
     CREATE TABLE IF NOT EXISTS users (
@@ -18,6 +16,7 @@ db.serialize(() => {
       password TEXT NOT NULL,
       name TEXT NOT NULL,
       email TEXT UNIQUE NOT NULL,
+      status INTEGER DEFAULT 0,
       avatar INTEGER DEFAULT 0,
       wins INTEGER DEFAULT 0,
       losses INTEGER DEFAULT 0,

@@ -76,6 +76,7 @@ async function authRoutes(fastify, options) {
       if (!isValid) {
         return reply.code(401).send({ error: "Contraseña incorrecta" });
       }
+      await dbRun(`UPDATE users SET status = 1 WHERE id = ?`, [user.id]);
 
       return reply.send({
         id: user.id,
@@ -91,6 +92,20 @@ async function authRoutes(fastify, options) {
     } catch (err) {
       console.error("Error en login:", err);
       return reply.code(500).send({ error: "Error de base de datos" });
+    }
+  });
+
+  fastify.post("/logout", async (request, reply) => {
+    const { username } = request.body;
+    if (!username) {
+      return reply.code(400).send({ error: "Faltan datos" });
+    }
+    try {
+      await dbRun(`UPDATE users SET status = 0 WHERE username = ?`, [username]);
+      return reply.send({ message: "Usuario desconectado" });
+    } catch (err) {
+      console.error("Error en /logout:", err);
+      return reply.code(500).send({ error: "Error interno del servidor" });
     }
   });
 
@@ -447,21 +462,19 @@ async function authRoutes(fastify, options) {
 
   fastify.get("/user-friends/:username", async (req, reply) => {
     try {
-      console.log("Fetching friends for user:", req.params.username);
       const { username } = req.params;
 
       const user = await dbGet("SELECT id FROM users WHERE username = ?", [username]);
       if (!user) return reply.status(404).send({ error: "User not found" });
 
       const friends = await dbAll(`
-        SELECT u.username 
+        SELECT u.username, u.status
         FROM users u
         INNER JOIN friends f ON u.id = f.friend_id
         WHERE f.user_id = ?
       `, [user.id]);
 
-      const friendUsernames = friends.map(f => f.username);
-      return reply.send(friendUsernames);
+      return reply.send(friends);
 
     } catch (err) {
       console.error("Error:", err);

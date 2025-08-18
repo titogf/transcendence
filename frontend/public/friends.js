@@ -69,16 +69,17 @@ window.addEventListener("DOMContentLoaded", () => {
         if (data && data.length > 0) {
             data.forEach((friend) => {
                 var _a;
+                const status = friend.status === 1 ? "🟢 online" : "🔴 offline";
                 const friendItem = document.createElement("p");
                 friendItem.className = "p-0 m-0 flex items-center justify-between hover:bg-[#3a3a3a] cursor-pointer rounded px-2 py-1 transition-colors";
                 friendItem.innerHTML = `
-            <span class="ml-0 hover:text-[#00a6c4] cursor-pointer hover:underline">${friend}</span>
-            <span class="ml-2 px-2 py-0.5 text-xs rounded text-white">🔴 offline</span>`;
+            <span class="ml-0 hover:text-[#00a6c4] cursor-pointer hover:underline">${friend.username}</span>
+            <span class="ml-2 px-2 py-0.5 text-xs rounded text-white">${status}</span>`;
                 (_a = friendItem.querySelector("span")) === null || _a === void 0 ? void 0 : _a.addEventListener("click", (e) => __awaiter(void 0, void 0, void 0, function* () {
                     var _a;
                     e.stopPropagation();
                     try {
-                        const res = yield fetch(`https://localhost:3000/auth/user-info/${friend}`);
+                        const res = yield fetch(`https://localhost:3000/auth/user-info/${friend.username}`);
                         if (!res.ok)
                             throw new Error("Could not load profile");
                         const userData = yield res.json();
@@ -126,10 +127,25 @@ window.addEventListener("DOMContentLoaded", () => {
         var _a;
         (_a = document.getElementById("friend-profile")) === null || _a === void 0 ? void 0 : _a.classList.add("hidden");
     });
-    (_d = document.getElementById("logout-btn")) === null || _d === void 0 ? void 0 : _d.addEventListener("click", () => {
+    (_d = document.getElementById("logout-btn")) === null || _d === void 0 ? void 0 : _d.addEventListener("click", () => __awaiter(void 0, void 0, void 0, function* () {
+        const user = JSON.parse(localStorage.getItem("user") || "null");
+        if (!user) {
+            window.location.href = "./login.html";
+            return;
+        }
+        try {
+            yield fetch("https://localhost:3000/auth/logout", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ username: user.username }),
+            });
+        }
+        catch (err) {
+            console.error("Error al actualizar el estado:", err);
+        }
         localStorage.removeItem("user");
         window.location.href = "./login.html";
-    });
+    }));
     (_e = document.getElementById("management-btn")) === null || _e === void 0 ? void 0 : _e.addEventListener("click", () => {
         window.location.href = "./settings.html";
     });
