@@ -163,6 +163,9 @@ function startRound() {
 }
 
 document.addEventListener("keydown", e => {
+  const target = e.target as HTMLElement;
+  if (target.tagName === "INPUT" || target.tagName === "TEXTAREA") return;
+
   if (["ArrowUp", "ArrowDown", "w", "s", "i", "k", "z", "x"].includes(e.key)) {
     e.preventDefault();
     if (e.key === "w") players_[0].moveUp = true;
@@ -177,6 +180,9 @@ document.addEventListener("keydown", e => {
 });
 
 document.addEventListener("keyup", e => {
+  const target = e.target as HTMLElement;
+  if (target.tagName === "INPUT" || target.tagName === "TEXTAREA") return;
+
   if (["ArrowUp", "ArrowDown", "w", "s", "i", "k", "z", "x"].includes(e.key)) {
     e.preventDefault();
     if (e.key === "w") players_[0].moveUp = false;

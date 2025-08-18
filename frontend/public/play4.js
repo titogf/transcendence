@@ -135,6 +135,9 @@ function startRound() {
     }, 1000);
 }
 document.addEventListener("keydown", e => {
+    const target = e.target;
+    if (target.tagName === "INPUT" || target.tagName === "TEXTAREA")
+        return;
     if (["ArrowUp", "ArrowDown", "w", "s", "i", "k", "z", "x"].includes(e.key)) {
         e.preventDefault();
         if (e.key === "w")
@@ -156,6 +159,9 @@ document.addEventListener("keydown", e => {
     }
 });
 document.addEventListener("keyup", e => {
+    const target = e.target;
+    if (target.tagName === "INPUT" || target.tagName === "TEXTAREA")
+        return;
     if (["ArrowUp", "ArrowDown", "w", "s", "i", "k", "z", "x"].includes(e.key)) {
         e.preventDefault();
         if (e.key === "w")
